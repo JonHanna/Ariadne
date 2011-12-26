@@ -1,0 +1,10 @@
+
+/obj
+/bin
+*.user
+*.log
+*.pidb
+*.userprefs
+/HackCraft.LockFree.NUnitTests/PartCover
+/HackCraft.LockFree.NUnitTests/bin
+/HackCraft.LockFree.NUnitTests/obj
