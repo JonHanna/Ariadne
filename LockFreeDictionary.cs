@@ -19,24 +19,6 @@ namespace HackCraft.LockFree
         private const int REPROBE_SHIFT = 5;
         private const int ZERO_HASH = 0x55555555;
         
-        private static readonly bool ReferenceEqualsBoxes = typeof(TValue).IsValueType;
-        
-        private sealed class RefInt
-        {
-            private int _value;
-            public static implicit operator int(RefInt ri)
-            {
-                return ri._value;
-            }
-            public int Increment()
-            {
-                return Interlocked.Increment(ref _value);
-            }
-            public int Decrement()
-            {
-                return Interlocked.Decrement(ref _value);
-            }
-        }
         internal class KV
         {
             public TKey Key;
@@ -55,26 +37,6 @@ namespace HackCraft.LockFree
             {
             	return this is PrimeKV ? new KV(Key, Value) : this;
             }
-/*            public KV Prime()
-            {
-                return (State & Primed) != 0 ? this : new KV(Key, Value, State | Primed);
-            }
-            public KV StripPrime()
-            {
-                return (State & Primed) == 0 ? this : new KV(Key, Value, State & ~Primed);
-            }
-            public static KV TombstoneVersion(TKey key)
-            {
-                return new KV(key, default(TValue), Tombstone);
-            }
-            public bool IsPrime
-            {
-                get { return (State & Primed) != 0; }
-            }
-            public bool IsTombstone
-            {
-                get { return (State & Tombstone) != 0; }
-            }*/
             public static readonly TombstoneKV DeadKey = new TombstoneKV(default(TKey));
             public static implicit operator KV(KeyValuePair<TKey, TValue> kvp)
             {
@@ -87,19 +49,19 @@ namespace HackCraft.LockFree
         }
         internal sealed class PrimeKV : KV
         {
-        	public PrimeKV(TKey key, TValue value)
-        		:base(key, value){}
+        	public PrimeKV()
+        	    :base(default(TKey), default(TValue)){}
         }
         internal sealed class TombstoneKV : KV
         {
         	public TombstoneKV(TKey key)
         		:base(key, default(TValue)){}
         }
-         interface IKVEqualityComparer
+        interface IKVEqualityComparer
         {
         	bool Equals(KV livePair, KV cmpPair);
         }
-        private class MatchesAll : IKVEqualityComparer
+        private sealed class MatchesAll : IKVEqualityComparer
         {
         	private MatchesAll(){}
 			public bool Equals(KV livePair, KV cmpPair)
@@ -108,7 +70,7 @@ namespace HackCraft.LockFree
 			}
 			public static readonly MatchesAll Instance = new MatchesAll();
         }
-        private class KVEqualityComparer : IKVEqualityComparer
+        private sealed class KVEqualityComparer : IKVEqualityComparer
         {
         	private readonly IEqualityComparer<TValue> _ecmp;
         	private KVEqualityComparer(IEqualityComparer<TValue> ecmp)
@@ -132,7 +94,7 @@ namespace HackCraft.LockFree
 				return new KVEqualityComparer(ieq);
 			}
         }
-        private class NullPairEqualityComparer : IKVEqualityComparer
+        private sealed class NullPairEqualityComparer : IKVEqualityComparer
         {
         	private NullPairEqualityComparer(){}
 			public bool Equals(KV livePair, KV cmpPair)
@@ -275,6 +237,8 @@ namespace HackCraft.LockFree
         {
             _initialCapacity = info.GetInt32("ic");
             int count = info.GetInt32("cKVP");
+            if(count < 0)
+                throw new SerializationException();
             for(int i = 0; i != count; ++i)
                 this[(TKey)info.GetValue("k" + i, typeof(TKey))] = (TValue)info.GetValue("v" + i, typeof(TValue));
         }
@@ -284,8 +248,7 @@ namespace HackCraft.LockFree
         }
         private bool Obtain(Table table, TKey key, int hash, out TValue value)
         {
-            int startIdx = hash & table.Mask;
-            int idx = startIdx;
+            int idx = hash & table.Mask;
             int reprobeCount = 0;
             int maxProbe = table.ReprobeLimit;
             Record[] records = table.Records;
@@ -300,16 +263,15 @@ namespace HackCraft.LockFree
                     value = default(TValue);
                     return false;
                 }
-                KV pair = null;
+                KV pair = records[idx].KeyValue;
                 if(curHash == hash)//hash we care about, is it the key we care about?
                 {
-                    pair = records[idx].KeyValue;
                     if(_cmp.Equals(key, pair.Key))//key's match, and this can't change.
                     {
-                    	PrimeKV asPrev = pair as PrimeKV;
-                        if(asPrev != null)
+                    	PrimeKV asPrime = pair as PrimeKV;
+                        if(asPrime != null)
                         {
-                        	CopySlotsAndCheck(table, asPrev, idx);
+                        	CopySlotsAndCheck(table, asPrime, idx);
                             return Obtain(table.Next, key, hash, out value);
                         }
                         else if(pair is TombstoneKV)
@@ -324,18 +286,15 @@ namespace HackCraft.LockFree
                         }
                     }
                 }
-                else
-                {
-                	pair = records[idx].KeyValue;
-                }
                 if(/*pair == KV.DeadKey ||*/ ++reprobeCount >= maxProbe)
                 {
-                    if(table.Next == null)
+                    Table next = table.Next;
+                    if(next == null)
                     {
                         value = default(TValue);
                         return false;
                     }
-                    return Obtain(table.Next, key, hash, out value);
+                    return Obtain(next, key, hash, out value);
                 }
                 idx = (idx + 1) & table.Mask;
             }
@@ -389,41 +348,34 @@ namespace HackCraft.LockFree
                         }
                     }
                     else
-                    {
                         curPair = records[idx].KeyValue;
-                    }
                     //okay there's something with the same hash here, does it have the same key?
                     if(_cmp.Equals(curPair.Key, pair.Key))
                         break;
                 }
                 else
-                {
                     curPair = records[idx].KeyValue; //just to check for dead records
-                }
                 if(curPair == KV.DeadKey || ++reprobeCount >= maxProbe)
                 {
                     Table next = table.Next ?? Resize(table);
                     //test if we're putting from a copy
                     //and don't do this if that's
                     //the case
-                    PrimeKV prevPrime = curPair as PrimeKV ?? new PrimeKV(curPair.Key, curPair.Value);
-                    HelpCopy(table, prevPrime, false);
+                    PrimeKV prime = new PrimeKV();
+                    HelpCopy(table, prime, false);
                     return PutIfMatch(next, pair, hash, oldPair, valCmp);
                 }
                 idx = (idx + 1) & mask;
             }
             //we have a record with a matching key.
-            if(!ReferenceEqualsBoxes && ReferenceEquals(pair.Value, curPair.Value))
+            if(!typeof(TValue).IsValueType && !typeof(TValue).IsPointer && ReferenceEquals(pair.Value, curPair.Value))
                 return pair;//short-cut on quickly-discovered no change.
-            
-            //if(table.Next == null && reprobeCount >= REPROBE_LOWER_BOUND && table.Slots >= maxProbe)
-              //  Resize(table, false);
             
             if(table.Next != null)
             {
-            	PrimeKV prevPrime = curPair as PrimeKV ?? new PrimeKV(curPair.Key, curPair.Value);
-                CopySlotsAndCheck(table, prevPrime, idx);
-                HelpCopy(table, prevPrime, false);
+                PrimeKV prime = new PrimeKV();
+                CopySlotsAndCheck(table, prime, idx);
+                HelpCopy(table, prime, false);
                 return PutIfMatch(table.Next, pair, hash, oldPair, valCmp);
             }
             
@@ -488,18 +440,13 @@ namespace HackCraft.LockFree
         }
         private void CopySlotAndPromote(Table table, int workDone)
         {
-            if(Interlocked.Add(ref table.CopyDone, workDone) >= table.Capacity)
-            {
-                //Debug.Assert(table.CopyDone == table.Capacity);
-                if(table != _table)
-                    return;
-                for(;;)
+            if(Interlocked.Add(ref table.CopyDone, workDone) >= table.Capacity && table == _table)
+                while(Interlocked.CompareExchange(ref _table, table.Next, table) == table)
                 {
                     table = _table;
-                    if(table.CopyDone < table.Capacity || Interlocked.CompareExchange(ref _table, table.Next, table) != table)
-                        return;
+                    if(table.CopyDone < table.Capacity)
+                        break;
                 }
-            }
         }
         private bool CopySlot(Table table, PrimeKV prime, int idx)
         {
@@ -543,7 +490,7 @@ namespace HackCraft.LockFree
             
             return copied;
         }
-        private Table Resize(Table tab, bool secondTry = false)
+        private Table Resize(Table tab)
         {
             int sz = tab.Size;
             int cap = tab.Capacity;
@@ -551,27 +498,20 @@ namespace HackCraft.LockFree
             if(next != null)
                 return next;
             int newCap;
-            if(secondTry)
+            if(sz >= cap * 3 / 4)
+                newCap = sz * 8;
+            else if(sz >= cap / 2)
+                newCap = sz * 4;
+            else if(sz >= cap / 4)
+                newCap = sz * 2;
+            else
                 newCap = sz;
-            {
-                if(sz >= cap * 3 / 4)
-                    newCap = sz * 8;
-                else if(sz >= cap / 2)
-                    newCap = sz * 4;
-                else if(sz >= cap / 4)
-                    newCap = sz * 2;
-                else
-                    newCap = sz;
-             	if(tab.Slots >= sz << 1)
-                    newCap = cap << 1;
-                if(!secondTry)
-                {
-                    if(newCap < cap)
-                        newCap = cap;
-                    if(sz == tab.PrevSize)
-                        newCap *= 2;
-                }
-            }
+         	if(tab.Slots >= sz << 1)
+                newCap = cap << 1;
+            if(newCap < cap)
+                newCap = cap;
+            if(sz == tab.PrevSize)
+                newCap *= 2;
 
             unchecked // binary round-up
             {
@@ -648,9 +588,7 @@ namespace HackCraft.LockFree
         {
         	LockFreeDictionary<TKey, TValue> snapshot = new LockFreeDictionary<TKey, TValue>(Count, _cmp);
         	foreach(KV kv in EnumerateKVs())
-        	{
         		snapshot.PutIfMatch(kv, KV.DeadKey, MatchesAll.Instance);
-        	}
         	return snapshot;
         }
         /// <summary>Gets or sets the value for a particular key.
@@ -759,6 +697,7 @@ namespace HackCraft.LockFree
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
+            Thread.MemoryBarrier();
             _table = new Table(_initialCapacity, new RefInt());
         }
         /// <summary>
@@ -799,7 +738,7 @@ namespace HackCraft.LockFree
         		throw new ArgumentOutOfRangeException("arrayIndex");
         	Dictionary<TKey, TValue> snapshot = ToDictionary();
         	TValue valForNull;
-        	if(!typeof(TKey).IsValueType && TryGetValue(default(TKey), out valForNull))
+        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && TryGetValue(default(TKey), out valForNull))
         	{
 	        	if(arrayIndex + snapshot.Count + 1 > array.Length)
 	        		throw new ArgumentException("The array is not large enough to contain the values that would be copied to it.");
@@ -891,7 +830,7 @@ namespace HackCraft.LockFree
         /// <para>The returned enumerable is lazily created, and items are only removed from the dictionary as it is processed.</para></remarks>
         public IEnumerable<KeyValuePair<TKey, TValue>> RemoveWhere(Func<TKey, TValue, bool> predicate)
         {
-        	int removed = 0;
+        	int removed;
         	Table table = _table;
         	for(;;)
         	{
@@ -903,9 +842,7 @@ namespace HackCraft.LockFree
 	            	KV pair = record.KeyValue;
 	            	PrimeKV prime = pair as PrimeKV;
 	            	if(prime != null)
-	            	{
 	            		CopySlotsAndCheck(table, prime, idx);
-	            	}
 	            	else if(pair != null && !(pair is TombstoneKV) && predicate(pair.Key, pair.Value))
 	            	{
 	            		TombstoneKV tomb = new TombstoneKV(pair.Key);
@@ -919,7 +856,9 @@ namespace HackCraft.LockFree
 		            			++removed;
 		            			break;
 		            		}
-		            		else if( oldPair is TombstoneKV || !predicate(oldPair.Key, oldPair.Value))
+		            		else if(oldPair is PrimeKV)
+		            		    CopySlotsAndCheck(table, (PrimeKV)oldPair, idx);
+		            		else if(oldPair is TombstoneKV || !predicate(oldPair.Key, oldPair.Value))
 		            			break;
 		            		else
 		            			pair = oldPair;
@@ -932,7 +871,7 @@ namespace HackCraft.LockFree
 	            else
 	            {
 	            	if(removed > table.Capacity >> 4 || removed > Count >> 2)
-	            		Resize(table, false);
+	            		Resize(table);
 	            	yield break;
 	            }
         	}
@@ -952,7 +891,7 @@ namespace HackCraft.LockFree
         }
         internal sealed class KVEnumerator : IEnumerator<KV>, IEnumerable<KV>
         {
-        	private LockFreeDictionary<TKey, TValue> _dict;
+        	private readonly LockFreeDictionary<TKey, TValue> _dict;
             private Table _tab;
             private KV _current;
             private int _idx = -1;
@@ -995,9 +934,10 @@ namespace HackCraft.LockFree
                 }
                 return false;
             }
-            void IEnumerator.Reset()
+            public void Reset()
             {
-            	throw new NotSupportedException();
+            	_tab = _dict._table;
+            	_idx = -1;
             }
             public KVEnumerator GetEnumerator()
             {
@@ -1058,9 +998,9 @@ namespace HackCraft.LockFree
             {
                 return _src.MoveNext();
             }
-            void IEnumerator.Reset()
+            public void Reset()
             {
-                throw new NotSupportedException();
+                _src.Reset();
             }
             /// <summary>Compares the enumerator with another.
             /// </summary>
@@ -1193,7 +1133,7 @@ namespace HackCraft.LockFree
 	        		throw new ArgumentOutOfRangeException("arrayIndex");
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
 	        	TValue valForNull;
-	        	if(!typeof(TKey).IsValueType && _dict.TryGetValue(default(TKey), out valForNull))
+	        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && _dict.TryGetValue(default(TKey), out valForNull))
 	        	{
 		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
 		        		throw new ArgumentException("The array is not large enough to contain the values that would be copied to it.");
@@ -1241,9 +1181,9 @@ namespace HackCraft.LockFree
 	            {
 	                return _src.MoveNext();
 	            }
-	            void IEnumerator.Reset()
+	            public void Reset()
 	            {
-	                throw new NotSupportedException();
+	                _src.Reset();
 	            }
                 /// <summary>Compares the enumerator with another.
                 /// </summary>
@@ -1427,7 +1367,7 @@ namespace HackCraft.LockFree
 	        	if(arrayIndex < 0)
 	        		throw new ArgumentOutOfRangeException("arrayIndex");
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
-	        	if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
+	        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && _dict.ContainsKey(default(TKey)))
 	        	{
 		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
 		        		throw new ArgumentException("The array is not large enough to contain the values that would be copied to it.");
@@ -1475,9 +1415,9 @@ namespace HackCraft.LockFree
 	            {
 	                return _src.MoveNext();
 	            }
-	            void IEnumerator.Reset()
+	            public void Reset()
 	            {
-	                throw new NotSupportedException();
+	                _src.Reset();
 	            }
                 /// <summary>Compares the enumerator with another.
                 /// </summary>
@@ -1622,7 +1562,7 @@ namespace HackCraft.LockFree
             get
             {
                 TValue ret;
-                if(key == null && typeof(TKey).IsValueType)
+                if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
                     return null;
                 if(key is TKey || key == null)
                     return TryGetValue((TKey)key, out ret) ? (object)ret : null;
@@ -1630,9 +1570,9 @@ namespace HackCraft.LockFree
             }
             set
             {
-                if(key == null && typeof(TKey).IsValueType)
+                if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
                     throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TKey).FullName + ".", "key");
-                if(value == null && typeof(TValue).IsValueType)
+                if(value == null && (typeof(TValue).IsValueType || typeof(TValue).IsPointer))
                     throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TValue).FullName + ".", "value");
                 try
                 {
@@ -1681,15 +1621,15 @@ namespace HackCraft.LockFree
         bool IDictionary.Contains(object key)
         {
             if(key == null)
-                return !typeof(TKey).IsValueType && ContainsKey(default(TKey));
+                return !typeof(TKey).IsValueType && !typeof(TKey).IsPointer && ContainsKey(default(TKey));
             return key is TKey && ContainsKey((TKey)key);
         }
         
         void IDictionary.Add(object key, object value)
         {
-            if(key == null && typeof(TKey).IsValueType)
+            if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
                 throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TKey).FullName + ".", "key");
-            if(value == null && typeof(TValue).IsValueType)
+            if(value == null && (typeof(TValue).IsValueType || typeof(TValue).IsPointer))
                 throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TValue).FullName + ".", "value");
             try
             {
@@ -1715,7 +1655,7 @@ namespace HackCraft.LockFree
         }
         void IDictionary.Remove(object key)
         {
-            if(key == null && typeof(TKey).IsValueType)
+            if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
                 return;
             if(key == null || key is TKey)
                 Remove((TKey)key);

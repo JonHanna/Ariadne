@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LockFreeDictionaryTests.cs" />
+    <Compile Include="LockFreeHashSetTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HackCraft.LockFree.csproj">

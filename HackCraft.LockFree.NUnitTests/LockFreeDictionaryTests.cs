@@ -245,20 +245,17 @@ namespace HackCraft.LockFree.NUnitTests
     		Assert.IsTrue(((ICollection<int>)dict.Keys).IsReadOnly && ((ICollection<int>)dict.Values).IsReadOnly);
     	}
     	[Test]
-    	[ExpectedException(typeof(NotSupportedException))]
-    	public void DontResetEnumeator()
+    	public void ResetEnumeator()
     	{
     		((IEnumerator)new LockFreeDictionary<int, int>().GetEnumerator()).Reset();
     	}
     	[Test]
-    	[ExpectedException(typeof(NotSupportedException))]
-    	public void DontResetKeyEnumeator()
+    	public void ResetKeyEnumeator()
     	{
     		((IEnumerator)new LockFreeDictionary<int, int>().Keys.GetEnumerator()).Reset();
     	}
     	[Test]
-    	[ExpectedException(typeof(NotSupportedException))]
-    	public void DontResetValueEnumeator()
+    	public void ResetValueEnumeator()
     	{
     		((IEnumerator)new LockFreeDictionary<int, int>().Values.GetEnumerator()).Reset();
     	}
