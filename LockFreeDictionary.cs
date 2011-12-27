@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Threading;
 
 namespace HackCraft.LockFree
 {
-    public sealed class LockFreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+    /// <summary>A dictionary which is thread-safe for all operations, without locking.
+    /// </summary>
+    /// <remarks>The documentation of <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> states
+    /// that null keys may or may not be allowed by a conformant implentation. In this case, they are (for reference types)</remarks>
+    [Serializable]
+    public sealed class LockFreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable, IDictionary
     {
         private const int REPROBE_LOWER_BOUND = 5;
         private const int REPROBE_SHIFT = 5;
@@ -17,7 +21,7 @@ namespace HackCraft.LockFree
         
         private static readonly bool ReferenceEqualsBoxes = typeof(TValue).IsValueType;
         
-        internal sealed class RefInt
+        private sealed class RefInt
         {
             private int _value;
             public static implicit operator int(RefInt ri)
@@ -91,11 +95,11 @@ namespace HackCraft.LockFree
         	public TombstoneKV(TKey key)
         		:base(key, default(TValue)){}
         }
-        internal interface IKVEqualityComparer
+         interface IKVEqualityComparer
         {
         	bool Equals(KV livePair, KV cmpPair);
         }
-        internal class MatchesAll : IKVEqualityComparer
+        private class MatchesAll : IKVEqualityComparer
         {
         	private MatchesAll(){}
 			public bool Equals(KV livePair, KV cmpPair)
@@ -104,7 +108,7 @@ namespace HackCraft.LockFree
 			}
 			public static readonly MatchesAll Instance = new MatchesAll();
         }
-        internal class KVEqualityComparer : IKVEqualityComparer
+        private class KVEqualityComparer : IKVEqualityComparer
         {
         	private readonly IEqualityComparer<TValue> _ecmp;
         	private KVEqualityComparer(IEqualityComparer<TValue> ecmp)
@@ -128,7 +132,7 @@ namespace HackCraft.LockFree
 				return new KVEqualityComparer(ieq);
 			}
         }
-        internal class NullPairEqualityComparer : IKVEqualityComparer
+        private class NullPairEqualityComparer : IKVEqualityComparer
         {
         	private NullPairEqualityComparer(){}
 			public bool Equals(KV livePair, KV cmpPair)
@@ -138,12 +142,12 @@ namespace HackCraft.LockFree
 			public static NullPairEqualityComparer Instance = new NullPairEqualityComparer();
         }
         [StructLayout(LayoutKind.Sequential, Pack=1)]
-        internal struct Record
+        private struct Record
         {
             public int Hash;
             public KV KeyValue;
         }
-        internal sealed class Table
+        private sealed class Table
         {
             public readonly Record[] Records;
             public volatile Table Next;
@@ -170,7 +174,13 @@ namespace HackCraft.LockFree
         private Table _table;
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<TKey> _cmp;
+        /// <summary>The capacity used with those constructors that do not take a capacity parameter.
+        /// </summary>
         public static readonly int DefaultCapacity = 1;
+        /// <summary>Constructs a new LockFreeDictionary
+        /// </summary>
+        /// <param name="capacity">The initial capactiy of the dictionary</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public LockFreeDictionary(int capacity, IEqualityComparer<TKey> comparer)
         {
         	if(capacity < 0 || capacity > 0x4000000)
@@ -196,13 +206,21 @@ namespace HackCraft.LockFree
             _table = new Table(_initialCapacity = capacity, new RefInt());
             _cmp = comparer;
         }
+        /// <summary>Constructs a new LockFreeDictionary
+        /// </summary>
+        /// <param name="capacity">The initial capactiy of the dictionary</param>
         public LockFreeDictionary(int capacity)
             :this(capacity, EqualityComparer<TKey>.Default){}
+        /// <summary>Constructs a new LockFreeDictionary
+        /// </summary>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public LockFreeDictionary(IEqualityComparer<TKey> comparer)
             :this(DefaultCapacity, comparer){}
+        /// <summary>Constructs a new LockFreeDictionary
+        /// </summary>
         public LockFreeDictionary()
             :this(DefaultCapacity){}
-        private static int EstimateCount(IEnumerable<KeyValuePair<TKey, TValue>> collection)
+        private static int EstimateNecessaryCapacity(IEnumerable<KeyValuePair<TKey, TValue>> collection)
         {
         	if(collection == null)
         		throw new ArgumentNullException("collection", "Cannot create a new lock-free dictionary from a null source collection");
@@ -212,20 +230,53 @@ namespace HackCraft.LockFree
         	ICollection col = collection as ICollection;
         	if(col != null)
         		return col.Count;
-        	return 1;
+        	return DefaultCapacity;
         }
+        /// <summary>Constructs a new LockFreeDictionary
+        /// </summary>
+        /// <param name="collection">A collection from which the dictionary will be filled.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public LockFreeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
-        	:this(EstimateCount(collection), comparer)
+        	:this(EstimateNecessaryCapacity(collection), comparer)
         {
         	foreach(KeyValuePair<TKey, TValue> kvp in collection)
         		this[kvp.Key] = kvp.Value;
         }
+        /// <summary>Constructs a new LockFreeDictionary
+        /// </summary>
+        /// <param name="collection">A collection from which the dictionary will be filled.</param>
         public LockFreeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
             :this(collection, EqualityComparer<TKey>.Default){}
         private int Hash(TKey key)
         {
+            //We must prohibit the value of zero in order to be sure that when we encounter a
+            //zero, that the hash has not been written.
+            //We do not use a Wang-Jenkins like Dr. Click's approach, since .NET's IComparer allows
+            //users of the class to fix the effects of poor hash algorithms.
             int givenHash = _cmp.GetHashCode(key);
             return givenHash == 0 ? ZERO_HASH : givenHash;
+        }
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("ic", _initialCapacity);
+            info.AddValue("cmp", _cmp, typeof(IEqualityComparer<TKey>));
+            int cItems = 0;
+            foreach(KV pair in EnumerateKVs())
+            {
+                info.AddValue("k" + cItems, pair.Key, typeof(TKey));
+                info.AddValue("v" + cItems, pair.Value, typeof(TValue));
+                ++cItems;
+            }
+            info.AddValue("cKVP", cItems);
+        }
+        private LockFreeDictionary(SerializationInfo info, StreamingContext context)
+            :this(info.GetInt32("cKVP"), (IEqualityComparer<TKey>)info.GetValue("cmp", typeof(IEqualityComparer<TKey>)))
+        {
+            _initialCapacity = info.GetInt32("ic");
+            int count = info.GetInt32("cKVP");
+            for(int i = 0; i != count; ++i)
+                this[(TKey)info.GetValue("k" + i, typeof(TKey))] = (TValue)info.GetValue("v" + i, typeof(TValue));
         }
         private bool Obtain(TKey key, out TValue value)
         {
@@ -243,6 +294,9 @@ namespace HackCraft.LockFree
                 int curHash = records[idx].Hash;
                 if(curHash == 0)//nothing written to this record
                 {
+                    Table next = table.Next;
+                    if(next != null)
+                        return Obtain(next, key, hash, out value);
                     value = default(TValue);
                     return false;
                 }
@@ -551,6 +605,10 @@ namespace HackCraft.LockFree
             return Interlocked.CompareExchange(ref tab.Next, next, null) ?? next;
 			#pragma warning restore 420
         }
+        /// <summary>
+        /// The current capacity of the dictionary.
+        /// </summary>
+        /// <remarks>If the dictionary is in the midst of a resize, the capacity it is resizing to is returned, ignoring other tables in use.</remarks>
         public int Capacity
         {
         	get
@@ -559,7 +617,15 @@ namespace HackCraft.LockFree
         	}
         }
         private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
-    	public Dictionary<TKey, TValue> SnapshotDictionary()
+        /// <summary>
+        /// Creates an <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> that is
+        /// a copy of the current contents.
+        /// </summary>
+        /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
+        /// could be inconsistent in terms of an application’s use of the values.
+        /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
+        /// <returns>The <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/>.</returns>
+    	public Dictionary<TKey, TValue> ToDictionary()
     	{
     		Dictionary<TKey, TValue> snapshot = new Dictionary<TKey, TValue>(Count, _cmp);
     		foreach(KV kv in EnumerateKVs())
@@ -567,7 +633,18 @@ namespace HackCraft.LockFree
     				snapshot[kv.Key] = kv.Value;
     		return snapshot;
     	}
-        public LockFreeDictionary<TKey, TValue> Snapshot()
+    	object ICloneable.Clone()
+    	{
+    	    return Clone();
+    	}
+    	/// <summary>
+    	/// Returns a copy of the current dictionary.
+    	/// </summary>
+        /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
+        /// could be inconsistent in terms of an application’s use of the values.
+        /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
+        /// <returns>The <see cref="LockFreeDictionary&lt;TKey, TValue>"/>.</returns>
+        public LockFreeDictionary<TKey, TValue> Clone()
         {
         	LockFreeDictionary<TKey, TValue> snapshot = new LockFreeDictionary<TKey, TValue>(Count, _cmp);
         	foreach(KV kv in EnumerateKVs())
@@ -576,6 +653,9 @@ namespace HackCraft.LockFree
         	}
         	return snapshot;
         }
+        /// <summary>Gets or sets the value for a particular key.
+        /// </summary>
+        /// <exception cref="System.Collections.Generic.KeyNotFoundException">The key was not present in the dictionary.</exception>
         public TValue this[TKey key]
         {
             get
@@ -590,17 +670,20 @@ namespace HackCraft.LockFree
             	PutIfMatch(new KV(key, value), KV.DeadKey, MatchesAll.Instance);
             }
         }
-        
+        /// <summary>Returns the collection of keys in the system.
+        /// </summary>
+        /// <remarks>This is a live collection, which changes with changes to the dictionary.</remarks>
         public KeyCollection Keys
         {
             get { return new KeyCollection(this); }
         }
-        
         ICollection<TKey> IDictionary<TKey, TValue>.Keys
         {
         	get { return Keys; }
         }
-        
+        /// <summary>Returns the collection of values in the system.
+        /// </summary>
+        /// <remarks>This is a live collection, which changes with changes to the dictionary.</remarks>
         public ValueCollection Values
         {
         	get { return new ValueCollection(this); }
@@ -609,67 +692,112 @@ namespace HackCraft.LockFree
         {
         	get { return Values; }
         }
-        
+        /// <summary>Returns an estimate of the current number of items in the system.
+        /// </summary>
         public int Count
         {
             get { return _table.Size; }
         }
         
-        public bool IsReadOnly
+        bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly
         {
             get { return false; }
         }
-        
+        bool IDictionary.IsReadOnly
+        {
+            get { return false; }
+        }
+        /// <summary>Tests whether a given key is present in the collection
+        /// </summary>
         public bool ContainsKey(TKey key)
         {
             TValue dummy;
             return Obtain(key, out dummy);
         }
-        
+        /// <summary>Adds a key and value to the collection, as long as it is not currently present.
+        /// </summary>
+        /// <param name="key">The key to add.</param>
+        /// <param name="value">The value to add.</param>
+        /// <exception cref="System.ArgumentException">An item with the same key has already been added.</exception>
         public void Add(TKey key, TValue value)
         {
             KV ret = PutIfMatch(new KV(key, value), KV.DeadKey, KVEqualityComparer.Default);
             if(ret != null && !(ret is TombstoneKV))
                 throw new ArgumentException("An item with the same key has already been added.", "key");
         }
-        
+        /// <summary>Attempts to remove an item from the collection, identified by its key.
+        /// </summary>
+        /// <param name="key">The key to remove.</param>
+        /// <returns>True if the item was removed, false if it wasn't found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key)
         {
         	KV ret = PutIfMatch(new TombstoneKV(key), KV.DeadKey, MatchesAll.Instance);
         	return ret != null && !(ret is TombstoneKV);
         }
-        
+        /// <summary>Attempts to retrieve the value associated with a key.
+        /// </summary>
+        /// <param name="key">The key searched for.</param>
+        /// <param name="value">The value found (if successful).</param>
+        /// <returns>True if the key was found, false otherwise.</returns>
         public bool TryGetValue(TKey key, out TValue value)
         {
             return Obtain(key, out value);
         }
-        
+        /// <summary>Adds a key and value to the collection, as long as it is not currently present.
+        /// </summary>
+        /// <param name="item">The key and value to add.</param>
+        /// <exception cref="System.ArgumentException">An item with the same key has already been added.</exception>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
             Add(item.Key, item.Value);
         }
-        
+        /// <summary>
+        /// Removes all items from the dictionary.
+        /// </summary>
+        /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
             _table = new Table(_initialCapacity, new RefInt());
         }
+        /// <summary>
+        /// Tests whether a key and value matching that passed are present in the dictionary
+        /// </summary>
+        /// <param name="item">A <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> defining the item sought.</param>
+        /// <param name="valueComparer">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> used to test a value found
+        /// with that sought.</param>
+        /// <returns>True if the key and value are found, false otherwise.</returns>
         public bool Contains(KeyValuePair<TKey, TValue> item, IEqualityComparer<TValue> valueComparer)
         {
             TValue test;
             return Obtain(item.Key, out test) && valueComparer.Equals(item.Value, test);
         }
+        /// <summary>
+        /// Tests whether a key and value matching that passed are present in the dictionary
+        /// </summary>
+        /// <param name="item">A <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> defining the item sought.</param>
+        /// <returns>True if the key and value are found, false otherwise.</returns>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
             return Contains(item, EqualityComparer<TValue>.Default);
         }
-        
+        /// <summary>
+        /// Copies the contents of the dictionary to an array.
+        /// </summary>
+        /// <param name="array">The array to copy to.</param>
+        /// <param name="arrayIndex">The index within the array to start copying from</param>
+        /// <exception cref="System.ArgumentNullException"/>The array was null.
+        /// <exception cref="System.ArgumentOutOfRangeException"/>The array was less than zero.
+        /// <exception cref="System.ArgumentException"/>The number of items in the collection was
+        /// too great to copy into the array at the index given.
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
         	if(array == null)
         		throw new ArgumentNullException("array");
         	if(arrayIndex < 0)
         		throw new ArgumentOutOfRangeException("arrayIndex");
-        	Dictionary<TKey, TValue> snapshot = SnapshotDictionary();
+        	Dictionary<TKey, TValue> snapshot = ToDictionary();
         	TValue valForNull;
         	if(!typeof(TKey).IsValueType && TryGetValue(default(TKey), out valForNull))
         	{
@@ -679,7 +807,15 @@ namespace HackCraft.LockFree
         	}
         	((ICollection<KeyValuePair<TKey, TValue>>)snapshot).CopyTo(array, arrayIndex);
         }
-        [SuppressMessage("Microsoft.Design", "CA1021")]
+        /// <summary>Removes an item from the collection.
+        /// </summary>
+        /// <param name="item">The item to remove</param>
+        /// <param name="valueComparer">A <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> that is used in considering whether
+        /// an item found is equal to that searched for.</param>
+        /// <param name="removed">The item removed (if successful).</param>
+        /// <returns>True if the item was removed, false if no matching item was found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(KeyValuePair<TKey, TValue> item, IEqualityComparer<TValue> valueComparer, out KeyValuePair<TKey, TValue> removed)
         {
         	KV rem = PutIfMatch(new TombstoneKV(item.Key), item, KVEqualityComparer.Create(valueComparer));
@@ -691,11 +827,28 @@ namespace HackCraft.LockFree
         	removed = rem;
         	return true;
         }
+        /// <summary>Removes an item from the collection.
+        /// </summary>
+        /// <param name="item">The item to remove</param>
+        /// <param name="valueComparer">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> used to test a value found</param>
+        /// <returns>True if the item was removed, false if no matching item was found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(KeyValuePair<TKey, TValue> item, IEqualityComparer<TValue> valueComparer)
         {
             KeyValuePair<TKey, TValue> dummy;
             return Remove(item, valueComparer, out dummy);
         }
+        /// <summary>Removes an item from the collection.
+        /// </summary>
+        /// <param name="key">The key to remove.</param>
+        /// <param name="cmpValue">The value to remove.</param>
+        /// <param name="valueComparer">A <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> that is used in considering whether
+        /// an item found is equal to that searched for.</param>
+        /// <param name="removed">The item removed (if successful).</param>
+        /// <returns>True if the item was removed, false if no matching item was found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key, TValue cmpValue, IEqualityComparer<TValue> valueComparer, out TValue removed)
         {
         	KV rem = PutIfMatch(new TombstoneKV(key), new KV(key, cmpValue), KVEqualityComparer.Create(valueComparer));
@@ -707,14 +860,35 @@ namespace HackCraft.LockFree
         	removed = rem.Value;
         	return true;
         }
+        /// <summary>Removes an item from the collection.
+        /// </summary>
+        /// <param name="key">The key to remove.</param>
+        /// <param name="cmpValue">The value to remove.</param>
+        /// <param name="removed">The item removed (if successful).</param>
+        /// <returns>True if the item was removed, false if no matching item was found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key, TValue cmpValue, out TValue removed)
         {
         	return Remove(key, cmpValue, DefaultValCmp, out removed);
         }
+        /// <summary>Removes a <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> from the collection.
+        /// </summary>
+        /// <param name="item">The item to remove</param>
+        /// <returns>True if the item was removed, false if no matching item was found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
             return Remove(item, DefaultValCmp);
         }
+        /// <summary>Removes items from the dictionary that match a predicate.
+        /// </summary>
+        /// <param name="predicate">A <see cref="System.Func&lt;T1, T2, TResult>"/> that returns true for the items that should be removed.</param>
+        /// <returns>A <see cref="System.Collections.Generic.IEnumerable&lt;T>"/> of the items removed.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.
+        /// <para>The returned enumerable is lazily created, and items are only removed from the dictionary as it is processed.</para></remarks>
         public IEnumerable<KeyValuePair<TKey, TValue>> RemoveWhere(Func<TKey, TValue, bool> predicate)
         {
         	int removed = 0;
@@ -763,6 +937,12 @@ namespace HackCraft.LockFree
 	            }
         	}
         }
+        /// <summary>Removes all key-value pairs that match a predicate.
+        /// </summary>
+        /// <param name="predicate">A <see cref="System.Func&lt;T1, T2, TResult>"/> that returns true when passed a key and value that should be removed.</param>
+        /// <returns>The number of items removed</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public int Remove(Func<TKey, TValue, bool> predicate)
         {
         	int total = 0;
@@ -838,13 +1018,20 @@ namespace HackCraft.LockFree
         {
             return new KVEnumerator(this);
         }
-        public struct LFDictionaryEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IEquatable<LFDictionaryEnumerator>
+        /// <summary>Enumerates a LockFreeDictionary&lt;TKey, TValue>.
+        /// </summary>
+        /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
+        /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
+        public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IEquatable<Enumerator>, IDictionaryEnumerator
         {
             private KVEnumerator _src;
-            internal LFDictionaryEnumerator(KVEnumerator src)
+            internal Enumerator(KVEnumerator src)
             {
                 _src = src;
             }
+            /// <summary>
+            /// Returns the current <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> being enumerated.
+            /// </summary>
             public KeyValuePair<TKey, TValue> Current
             {
                 get
@@ -859,10 +1046,14 @@ namespace HackCraft.LockFree
                     return Current;
                 }
             }
-            public void Dispose()
+            void IDisposable.Dispose()
             {
                 _src.Dispose();
             }
+            /// <summary>
+            /// Moves to the next item in the enumeration.
+            /// </summary>
+            /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
             public bool MoveNext()
             {
                 return _src.MoveNext();
@@ -871,30 +1062,68 @@ namespace HackCraft.LockFree
             {
                 throw new NotSupportedException();
             }
-            public bool Equals(LFDictionaryEnumerator other)
+            /// <summary>Compares the enumerator with another.
+            /// </summary>
+            /// <param name="other">The <see cref="Enumerator"/> to comapre with.</param>
+            /// <returns>True if they are copies of each other, false otherwise.</returns>
+            public bool Equals(Enumerator other)
             {
             	return _src == other._src;
             }
+            /// <summary>Compares the enumerator with another object.
+            /// </summary>
+            /// <param name="obj">The object to compare with.</param>
+            /// <returns>True if the object is an enumerator, and it and this are copies of each other, false otherwise.</returns>
             public override bool Equals(object obj)
 			{
-				return (obj is LFDictionaryEnumerator) && Equals((LFDictionaryEnumerator)obj);
+				return (obj is Enumerator) && Equals((Enumerator)obj);
 			}
+            /// <summary>Calculates a hash-code for the item.
+            /// </summary>
+            /// <returns>The hash-code.</returns>
 			public override int GetHashCode()
 			{
 				return _src.GetHashCode();
 			}
-			public static bool operator ==(LFDictionaryEnumerator lhs, LFDictionaryEnumerator rhs)
+			/// <summary>
+			/// Compares two <see cref="Enumerator"/>s with each other.
+			/// </summary>
+			/// <param name="lhs">The first enumerator.</param>
+			/// <param name="rhs">The second enumerator.</param>
+			/// <returns>True if the enumerators are copies of each other, false otherwise.</returns>
+			public static bool operator ==(Enumerator lhs, Enumerator rhs)
 			{
 				return lhs.Equals(rhs);
 			}
-			public static bool operator !=(LFDictionaryEnumerator lhs, LFDictionaryEnumerator rhs)
+			/// <summary>
+			/// Compares two <see cref="Enumerator"/>s with each other.
+			/// </summary>
+			/// <param name="lhs">The first enumerator.</param>
+			/// <param name="rhs">The second enumerator.</param>
+			/// <returns>False if the enumerators are copies of each other, true otherwise.</returns>
+			public static bool operator !=(Enumerator lhs, Enumerator rhs)
 			{
 				return !(lhs == rhs);
 			}
+            object IDictionaryEnumerator.Key
+            {
+                get { return Current.Key; }
+            }
+            object IDictionaryEnumerator.Value
+            {
+                get { return Current.Value; }
+            }
+            DictionaryEntry IDictionaryEnumerator.Entry
+            {
+                get { return new DictionaryEntry(Current.Key, Current.Value); }
+            }
         }
-        public LFDictionaryEnumerator GetEnumerator()
+        /// <summary>Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>The enumerator.</returns>
+        public Enumerator GetEnumerator()
         {
-            return new LFDictionaryEnumerator(EnumerateKVs());
+            return new Enumerator(EnumerateKVs());
         }
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
         {
@@ -904,22 +1133,33 @@ namespace HackCraft.LockFree
         {
             return GetEnumerator();
         }
-	    public struct ValueCollection : ICollection<TValue>, IEquatable<ValueCollection>
+        /// <summary>A collection of the values in a LockFreeDictionary.</summary>
+        /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
+	    public struct ValueCollection : ICollection<TValue>, IEquatable<ValueCollection>, ICollection
 	    {
 	    	private readonly LockFreeDictionary<TKey, TValue> _dict;
-	    	public ValueCollection(LockFreeDictionary<TKey, TValue> dict)
+	    	internal ValueCollection(LockFreeDictionary<TKey, TValue> dict)
 	    	{
 	    		_dict = dict;
 	    	}
+	    	/// <summary>
+	    	/// The number of items in the collection.
+	    	/// </summary>
 			public int Count
 			{
 				get { return _dict.Count; }
 			}
-	    	
-			public bool IsReadOnly
+			bool ICollection<TValue>.IsReadOnly
 			{
 				get { return true; }
 			}
+			/// <summary>
+			/// Tests the collection for the presence of an item.
+			/// </summary>
+			/// <param name="item">The item to search for.</param>
+			/// <param name="cmp">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> to use in comparing
+			/// items found with that sought.</param>
+			/// <returns>True if a matching item  was found, false otherwise.</returns>
 			public bool Contains(TValue item, IEqualityComparer<TValue> cmp)
 			{
 				foreach(TValue val in this)
@@ -927,17 +1167,31 @@ namespace HackCraft.LockFree
 						return true;
 				return false;
 			}
+			/// <summary>
+			/// Tests the collection for the presence of an item.
+			/// </summary>
+			/// <param name="item">The item to search for.</param>
+			/// <returns>True if a matching item  was found, false otherwise.</returns>
 			public bool Contains(TValue item)
 			{
 				return Contains(item, DefaultValCmp);
 			}
+            /// <summary>
+            /// Copies the contents of the collection to an array.
+            /// </summary>
+            /// <param name="array">The array to copy to.</param>
+            /// <param name="arrayIndex">The index within the array to start copying from</param>
+            /// <exception cref="System.ArgumentNullException"/>The array was null.
+            /// <exception cref="System.ArgumentOutOfRangeException"/>The array was less than zero.
+            /// <exception cref="System.ArgumentException"/>The number of items in the collection was
+            /// too great to copy into the array at the index given.
 			public void CopyTo(TValue[] array, int arrayIndex)
 			{
 	        	if(array == null)
 	        		throw new ArgumentNullException("array");
 	        	if(arrayIndex < 0)
 	        		throw new ArgumentOutOfRangeException("arrayIndex");
-	        	Dictionary<TKey, TValue> snapshot = _dict.SnapshotDictionary();
+	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
 	        	TValue valForNull;
 	        	if(!typeof(TKey).IsValueType && _dict.TryGetValue(default(TKey), out valForNull))
 	        	{
@@ -947,13 +1201,20 @@ namespace HackCraft.LockFree
 	        	}
 	        	snapshot.Values.CopyTo(array, arrayIndex);
 			}
-			public struct ValueEnumerator : IEnumerator<TValue>, IEquatable<ValueEnumerator>
+			/// <summary>Enumerates a value collection.
+			/// </summary>
+            /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
+            /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
+			public struct Enumerator : IEnumerator<TValue>, IEquatable<Enumerator>
 			{
 	            private KVEnumerator _src;
-	            internal ValueEnumerator(KVEnumerator src)
+	            internal Enumerator(KVEnumerator src)
 	            {
 	                _src = src;
 	            }
+	            /// <summary>
+	            /// Returns the current value being enumerated.
+	            /// </summary>
 	            public TValue Current
 	            {
 	                get
@@ -968,10 +1229,14 @@ namespace HackCraft.LockFree
 	                    return Current;
 	                }
 	            }
-	            public void Dispose()
+	            void IDisposable.Dispose()
 	            {
 	                _src.Dispose();
 	            }
+	            /// <summary>
+	            /// Moves to the next item being iterated.
+	            /// </summary>
+	            /// <returns>True if another item is found, false if the end of the collection is reached.</returns>
 	            public bool MoveNext()
 	            {
 	                return _src.MoveNext();
@@ -980,31 +1245,58 @@ namespace HackCraft.LockFree
 	            {
 	                throw new NotSupportedException();
 	            }
-				public bool Equals(ValueEnumerator other)
+                /// <summary>Compares the enumerator with another.
+                /// </summary>
+                /// <param name="other">The <see cref="Enumerator"/> to comapre with.</param>
+                /// <returns>True if they are copies of each other, false otherwise.</returns>
+				public bool Equals(Enumerator other)
 				{
 					return object.Equals(this._src, other._src);
 				}
+                /// <summary>Compares the enumerator with another object.
+                /// </summary>
+                /// <param name="obj">The object to compare with.</param>
+                /// <returns>True if the object is an enumerator, and it and this are copies of each other, false otherwise.</returns>
 	            public override bool Equals(object obj)
 				{
-					return obj is ValueEnumerator && Equals((ValueEnumerator)obj);
+					return obj is Enumerator && Equals((Enumerator)obj);
 				}
+                /// <summary>Calculates a hash-code for the item.
+                /// </summary>
+                /// <returns>The hash-code.</returns>
 				public override int GetHashCode()
 				{
 					return _src.GetHashCode();
 				}
-				public static bool operator ==(ValueEnumerator lhs, ValueEnumerator rhs)
+    			/// <summary>
+    			/// Compares two <see cref="Enumerator"/>s with each other.
+    			/// </summary>
+    			/// <param name="lhs">The first enumerator.</param>
+    			/// <param name="rhs">The second enumerator.</param>
+    			/// <returns>True if the enumerators are copies of each other, false otherwise.</returns>
+				public static bool operator ==(Enumerator lhs, Enumerator rhs)
 				{
 					return lhs.Equals(rhs);
 				}
-				public static bool operator !=(ValueEnumerator lhs, ValueEnumerator rhs)
+    			/// <summary>
+    			/// Compares two <see cref="Enumerator"/>s with each other.
+    			/// </summary>
+    			/// <param name="lhs">The first enumerator.</param>
+    			/// <param name="rhs">The second enumerator.</param>
+    			/// <returns>False if the enumerators are copies of each other, true otherwise.</returns>
+				public static bool operator !=(Enumerator lhs, Enumerator rhs)
 				{
 					return !(lhs == rhs);
 				}
 
 			}
-			public ValueEnumerator GetEnumerator()
+			/// <summary>
+			/// Returns an enumerator that iterates through the collection.
+			/// </summary>
+			/// <returns>The <see cref="Enumerator"/> that performs the iteration.</returns>
+			public Enumerator GetEnumerator()
 			{
-				return new ValueEnumerator(_dict.EnumerateKVs());
+				return new Enumerator(_dict.EnumerateKVs());
 			}
 			IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
 			{
@@ -1026,55 +1318,115 @@ namespace HackCraft.LockFree
 			{
 				throw new NotSupportedException();
 			}
+			/// <summary>
+			/// Compares the collection with another.
+			/// </summary>
+			/// <param name="other">The <see cref="ValueCollection"/> to compare with this one.</param>
+			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
 			public bool Equals(ValueCollection other)
 			{
 				return _dict == other._dict;
 			}
+			/// <summary>
+			/// Compres the collection with another object.
+			/// </summary>
+			/// <param name="obj">The object to compare with the collection.</param>
+			/// <returns>True if the object is a <see cref="ValueCollection"/> that is a copy of this one,
+			/// false otherwise.</returns>
 			public override bool Equals(object obj)
 			{
 				return (obj is ValueCollection) && Equals((ValueCollection)obj);
 			}
+			/// <summary>
+			/// Returns a hash code for the collection.
+			/// </summary>
+			/// <returns>The hash code.</returns>
 			public override int GetHashCode()
 			{
 				return _dict.GetHashCode();
 			}
-			
+			/// <summary>
+			/// Compares two <see cref="ValueCollection"/>s for equality.
+			/// </summary>
+			/// <param name="lhs">The first collection to compare.</param>
+			/// <param name="rhs">The second collection to compare.</param>
+			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
 			public static bool operator ==(ValueCollection lhs, ValueCollection rhs)
 			{
 				return lhs.Equals(rhs);
 			}
+			/// <summary>
+			/// Compares two <see cref="ValueCollection"/>s for inequality.
+			/// </summary>
+			/// <param name="lhs">The first collection to compare.</param>
+			/// <param name="rhs">The second collection to compare.</param>
+			/// <returns>False if the collections are copies of each other, true otherwise.</returns>
 			public static bool operator !=(ValueCollection lhs, ValueCollection rhs)
 			{
 				return !(lhs == rhs);
 			}
-
+            object ICollection.SyncRoot
+            {
+                get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+            }	        
+            bool ICollection.IsSynchronized
+            {
+                get { return false; }
+            }
+            void ICollection.CopyTo(Array array, int index)
+            {
+	        	if(array == null)
+	        		throw new ArgumentNullException("array");
+	        	if(index < 0)
+	        		throw new ArgumentOutOfRangeException("arrayIndex");
+	        	((ICollection)_dict.ToDictionary().Values).CopyTo(array, index);
+            }
 	    }
-	    public struct KeyCollection : ICollection<TKey>, IEquatable<KeyCollection>
+        /// <summary>A collection of the keys in a LockFreeDictionary.</summary>
+        /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
+	    public struct KeyCollection : ICollection<TKey>, IEquatable<KeyCollection>, ICollection
 	    {
 	    	private readonly LockFreeDictionary<TKey, TValue> _dict;
 	    	internal KeyCollection(LockFreeDictionary<TKey, TValue> dict)
 	    	{
 	    		_dict = dict;
 	    	}
+	    	/// <summary>
+	    	/// The number of items in the collection.
+	    	/// </summary>
 			public int Count
 			{
 				get { return _dict.Count; }
 			}
-			public bool IsReadOnly
+			bool ICollection<TKey>.IsReadOnly
 			{
 				get { return true; }
 			}
+			/// <summary>
+			/// Tests for the presence of a key in the collection.
+			/// </summary>
+			/// <param name="item">The key to search for.</param>
+			/// <returns>True if the key is found, false otherwise.</returns>
 			public bool Contains(TKey item)
 			{
 				return _dict.ContainsKey(item);
 			}
+            /// <summary>
+            /// Copies the contents of the dictionary to an array.
+            /// </summary>
+            /// <param name="array">The array to copy to.</param>
+            /// <param name="arrayIndex">The index within the array to start copying from</param>
+            /// <exception cref="System.ArgumentNullException"/>The array was null.
+            /// <exception cref="System.ArgumentOutOfRangeException"/>The array was less than zero.
+            /// <exception cref="System.ArgumentException"/>The number of items in the collection was
+            /// too great to copy into the array at the index given.
 			public void CopyTo(TKey[] array, int arrayIndex)
 			{
 	        	if(array == null)
 	        		throw new ArgumentNullException("array");
 	        	if(arrayIndex < 0)
 	        		throw new ArgumentOutOfRangeException("arrayIndex");
-	        	Dictionary<TKey, TValue> snapshot = _dict.SnapshotDictionary();
+	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
 	        	if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
 	        	{
 		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
@@ -1083,13 +1435,20 @@ namespace HackCraft.LockFree
 	        	}
 	        	snapshot.Keys.CopyTo(array, arrayIndex);
 			}
-			public struct KeyEnumerator : IEnumerator<TKey>, IEquatable<KeyEnumerator>
+			/// <summary>Enumerates a key collection
+			/// </summary>
+            /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
+            /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
+			public struct Enumerator : IEnumerator<TKey>, IEquatable<Enumerator>
 			{
 	            private KVEnumerator _src;
-	            internal KeyEnumerator(KVEnumerator src)
+	            internal Enumerator(KVEnumerator src)
 	            {
 	                _src = src;
 	            }
+	            /// <summary>
+	            /// Returns the current item being enumerated.
+	            /// </summary>
 	            public TKey Current
 	            {
 	                get
@@ -1104,10 +1463,14 @@ namespace HackCraft.LockFree
 	                    return Current;
 	                }
 	            }
-	            public void Dispose()
+	            void IDisposable.Dispose()
 	            {
 	                _src.Dispose();
 	            }
+                /// <summary>
+                /// Moves to the next item in the enumeration.
+                /// </summary>
+                /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
 	            public bool MoveNext()
 	            {
 	                return _src.MoveNext();
@@ -1116,32 +1479,56 @@ namespace HackCraft.LockFree
 	            {
 	                throw new NotSupportedException();
 	            }
-	            public bool Equals(KeyEnumerator other)
+                /// <summary>Compares the enumerator with another.
+                /// </summary>
+                /// <param name="other">The <see cref="Enumerator"/> to comapre with.</param>
+                /// <returns>True if they are copies of each other, false otherwise.</returns>
+	            public bool Equals(Enumerator other)
 	            {
 	            	return _src == other._src;
 	            }
+                /// <summary>Compares the enumerator with another object.
+                /// </summary>
+                /// <param name="obj">The object to compare with.</param>
+                /// <returns>True if the object is an enumerator, and it and this are copies of each other, false otherwise.</returns>
 	            public override bool Equals(object obj)
 				{
-					return obj is KeyEnumerator && Equals((KeyEnumerator)obj);
+					return obj is Enumerator && Equals((Enumerator)obj);
 				}
+                /// <summary>Calculates a hash-code for the item.
+                /// </summary>
+                /// <returns>The hash-code.</returns>
 				public override int GetHashCode()
 				{
 					return _src.GetHashCode();
 				}
-	            
-				public static bool operator ==(KeyEnumerator lhs, KeyEnumerator rhs)
+    			/// <summary>
+    			/// Compares two <see cref="Enumerator"/>s with each other.
+    			/// </summary>
+    			/// <param name="lhs">The first enumerator.</param>
+    			/// <param name="rhs">The second enumerator.</param>
+    			/// <returns>True if the enumerators are copies of each other, false otherwise.</returns>
+				public static bool operator ==(Enumerator lhs, Enumerator rhs)
 				{
 					return lhs.Equals(rhs);
 				}
-	            
-				public static bool operator !=(KeyEnumerator lhs, KeyEnumerator rhs)
+    			/// <summary>
+    			/// Compares two <see cref="Enumerator"/>s with each other.
+    			/// </summary>
+    			/// <param name="lhs">The first enumerator.</param>
+    			/// <param name="rhs">The second enumerator.</param>
+    			/// <returns>False if the enumerators are copies of each other, true otherwise.</returns>
+				public static bool operator !=(Enumerator lhs, Enumerator rhs)
 				{
 					return !(lhs == rhs);
 				}
 			}
-			public KeyEnumerator GetEnumerator()
+            /// <summary>Returns an enumerator that iterates through the collection.
+            /// </summary>
+            /// <returns>The enumerator.</returns>
+			public Enumerator GetEnumerator()
 			{
-				return new KeyEnumerator(_dict.EnumerateKVs());
+				return new Enumerator(_dict.EnumerateKVs());
 			}
 			IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator()
 			{
@@ -1163,26 +1550,188 @@ namespace HackCraft.LockFree
 			{
 				throw new NotSupportedException();
 			}
+			/// <summary>
+			/// Compares the collection with another.
+			/// </summary>
+			/// <param name="other">The <see cref="ValueCollection"/> to compare with this one.</param>
+			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
 			public bool Equals(KeyCollection other)
 			{
 				return _dict == other._dict;
 			}
+			/// <summary>
+			/// Compres the collection with another object.
+			/// </summary>
+			/// <param name="obj">The object to compare with the collection.</param>
+			/// <returns>True if the object is a <see cref="ValueCollection"/> that is a copy of this one,
+			/// false otherwise.</returns>
 			public override bool Equals(object obj)
 			{
 				return (obj is KeyCollection) && Equals((KeyCollection)obj);
 			}
+			/// <summary>
+			/// Returns a hash code for the collection.
+			/// </summary>
+			/// <returns>The hash code.</returns>
 			public override int GetHashCode()
 			{
 				return _dict.GetHashCode();
 			}
+			/// <summary>
+			/// Compares two <see cref="KeyCollection"/>s for equality.
+			/// </summary>
+			/// <param name="lhs">The first collection to compare.</param>
+			/// <param name="rhs">The second collection to compare.</param>
+			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
 			public static bool operator ==(KeyCollection lhs, KeyCollection rhs)
 			{
 				return lhs.Equals(rhs);
 			}
+			/// <summary>
+			/// Compares two <see cref="KeyCollection"/>s for inequality.
+			/// </summary>
+			/// <param name="lhs">The first collection to compare.</param>
+			/// <param name="rhs">The second collection to compare.</param>
+			/// <returns>False if the collections are copies of each other, true otherwise.</returns>
 			public static bool operator !=(KeyCollection lhs, KeyCollection rhs)
 			{
 				return !(lhs == rhs);
 			}
+	        
+            object ICollection.SyncRoot
+            {
+                get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+            }
+	        
+            bool ICollection.IsSynchronized
+            {
+                get { return false; }
+            }
+            void ICollection.CopyTo(Array array, int index)
+            {
+	        	if(array == null)
+	        		throw new ArgumentNullException("array");
+	        	if(index < 0)
+	        		throw new ArgumentOutOfRangeException("arrayIndex");
+	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
+	        	((ICollection)_dict.ToDictionary().Keys).CopyTo(array, index);
+            }
 	    }
+	    object IDictionary.this[object key]
+        {
+            get
+            {
+                TValue ret;
+                if(key == null && typeof(TKey).IsValueType)
+                    return null;
+                if(key is TKey || key == null)
+                    return TryGetValue((TKey)key, out ret) ? (object)ret : null;
+                return null;
+            }
+            set
+            {
+                if(key == null && typeof(TKey).IsValueType)
+                    throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TKey).FullName + ".", "key");
+                if(value == null && typeof(TValue).IsValueType)
+                    throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TValue).FullName + ".", "value");
+                try
+                {
+                    TKey convKey = (TKey)key;
+                    try
+                    {
+                        this[convKey] = (TValue)value;
+                    }
+                    catch(InvalidCastException)
+                    {
+                        throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TValue).FullName + " values.", "value");
+                    }
+                }
+                catch(InvalidCastException)
+                {
+                    throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TKey).FullName + " keys.", "key");
+                }
+            }
+        }
+        
+        ICollection IDictionary.Keys
+        {
+            get { return Keys; }
+        }
+        
+        ICollection IDictionary.Values
+        {
+            get { return Values; }
+        }
+        
+        bool IDictionary.IsFixedSize
+        {
+            get { return false; }
+        }
+        
+        object ICollection.SyncRoot
+        {
+            get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+        }
+        
+        bool ICollection.IsSynchronized
+        {
+            get { return false; }
+        }
+        
+        bool IDictionary.Contains(object key)
+        {
+            if(key == null)
+                return !typeof(TKey).IsValueType && ContainsKey(default(TKey));
+            return key is TKey && ContainsKey((TKey)key);
+        }
+        
+        void IDictionary.Add(object key, object value)
+        {
+            if(key == null && typeof(TKey).IsValueType)
+                throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TKey).FullName + ".", "key");
+            if(value == null && typeof(TValue).IsValueType)
+                throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TValue).FullName + ".", "value");
+            try
+            {
+                TKey convKey = (TKey)key;
+                try
+                {
+                    Add(convKey, (TValue)value);
+                }
+                catch(InvalidCastException)
+                {
+                    throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TValue).FullName + " values.", "value");
+                }
+            }
+            catch(InvalidCastException)
+            {
+                throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TKey).FullName + " keys.", "key");
+            }
+        }
+        
+        IDictionaryEnumerator IDictionary.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+        void IDictionary.Remove(object key)
+        {
+            if(key == null && typeof(TKey).IsValueType)
+                return;
+            if(key == null || key is TKey)
+                Remove((TKey)key);
+        }
+        
+        void ICollection.CopyTo(Array array, int index)
+        {
+        	if(array == null)
+        		throw new ArgumentNullException("array");
+        	if(array.Rank != 1)
+        	    throw new ArgumentException("Cannot copy to a multi-dimensional array", "array");
+        	if(array.GetLowerBound(0) != 0)
+        	    throw new ArgumentException("Cannot copy to an array whose lower bound is not zero", "array");
+        	if(index < 0)
+        		throw new ArgumentOutOfRangeException("arrayIndex");
+        	((ICollection)ToDictionary()).CopyTo(array, index);
+        }
     }
 }

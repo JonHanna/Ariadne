@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections;
@@ -31,10 +33,12 @@ namespace HackCraft.LockFree.NUnitTests
             foreach(string str in hs)
             	SourceData[idx++] = str;
         }
-        private LockFreeDictionary<string, string> FilledStringDict()
+        private LockFreeDictionary<string, string> FilledStringDict(int lengthToUse = -1)
         {
+            if(lengthToUse < 0)
+                lengthToUse = SourceDataLen;
     		var dict = new LockFreeDictionary<string, string>();
-    		for(int i = 0; i != SourceDataLen; i+= 2)
+    		for(int i = 0; i != lengthToUse; i+= 2)
     			dict[SourceData[i]] = SourceData[i + 1];
     		return dict;
         }
@@ -237,8 +241,8 @@ namespace HackCraft.LockFree.NUnitTests
     	public void ConstantReturns()
     	{
     		var dict = new LockFreeDictionary<int, int>();
-    		Assert.IsFalse(dict.IsReadOnly);
-    		Assert.IsTrue(dict.Keys.IsReadOnly && dict.Values.IsReadOnly);
+    		Assert.IsFalse(((ICollection<KeyValuePair<int, int>>)dict).IsReadOnly);
+    		Assert.IsTrue(((ICollection<int>)dict.Keys).IsReadOnly && ((ICollection<int>)dict.Values).IsReadOnly);
     	}
     	[Test]
     	[ExpectedException(typeof(NotSupportedException))]
@@ -276,22 +280,20 @@ namespace HackCraft.LockFree.NUnitTests
     	}
     	private bool EqualDicts<TKey, TValue>(IDictionary<TKey, TValue> x, IDictionary<TKey, TValue> y)
     	{
-    		if(x.Count != y.Count)
+    	    if(x.Count != y.Count)
     			return false;
     		TValue val;
     		foreach(KeyValuePair<TKey, TValue> kvp in x)
-    		{
     			if(!y.TryGetValue(kvp.Key, out val) || !Equals(kvp.Value, val))
     				return false;
-    		}
     		return true;
     	}
     	[Test]
     	public void Snapshots()
     	{
     		var dict = FilledStringDict();
-    		var snap = dict.Snapshot();
-    		var sd = dict.SnapshotDictionary();
+    		var snap = dict.Clone();
+    		var sd = dict.ToDictionary();
     		Assert.IsTrue(EqualDicts(dict, snap));
     		Assert.IsTrue(EqualDicts(snap, sd));
     	}
@@ -529,6 +531,25 @@ namespace HackCraft.LockFree.NUnitTests
     		foreach(var kvp in Enumerable.Range(1000, 4000).Select(x => new KeyValuePair<int, int>(x, x * 2)))
     			dict.Add(kvp);
     		Assert.AreEqual(dict.Count, 4500);
+    	}
+    	[Test]
+    	public void Serialisation()
+    	{
+    	    //Note that the behaviour of the BinaryFormatter will fix some of the strings
+    	    //used in many of these tests, as not being valid Unicode. This is desirable behaviour
+    	    //in real code, but would give false negatives to this test.
+    	    var dict = new LockFreeDictionary<string, string>();
+    	    for(int i = 0; i != 10000; ++i)
+    	        dict.Add(i.ToString(), (i * 2).ToString());
+    	    dict.Add(null, "check null keys work");
+    	    dict.Add("check null values work", null);
+    	    using(MemoryStream ms = new MemoryStream())
+    	    {
+    	        new BinaryFormatter().Serialize(ms, dict);
+	            ms.Flush();
+	            ms.Seek(0, SeekOrigin.Begin);
+	            Assert.IsTrue(EqualDicts(dict, (LockFreeDictionary<string, string>)new BinaryFormatter().Deserialize(ms)));
+    	    }
     	}
     }
     public abstract class MultiThreadTests
