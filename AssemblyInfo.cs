@@ -1,16 +1,17 @@
-using System;
+﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("HackCraft.LockFree")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("HackCraft.LockFree Collections Library")]
-[assembly: AssemblyCopyright("Jon Hanna")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTitle("HackCraft LockFree Collections")]
+[assembly: AssemblyDescription("Lock-free thread safe collection classes.")]
+[assembly: AssemblyProduct("HackCraft LockFree Collections Library")]
+[assembly: AssemblyCopyright("©2011 Jon Hanna. Released under the European Union Public Licence v1.1")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
-[assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("0.0.*")]
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif

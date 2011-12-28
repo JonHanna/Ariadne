@@ -113,8 +113,8 @@ namespace HackCraft.LockFree
         {
             public readonly Record[] Records;
             public volatile Table Next;
-            public readonly RefInt Size;
-            public readonly RefInt Slots = new RefInt();
+            public readonly AliasedInt Size;
+            public readonly AliasedInt Slots = new AliasedInt();
             public readonly int Capacity;
             public readonly int Mask;
             public readonly int PrevSize;
@@ -122,7 +122,7 @@ namespace HackCraft.LockFree
             public int CopyIdx;
             public int Resizers;
             public int CopyDone;
-            public Table(int capacity, RefInt size)
+            public Table(int capacity, AliasedInt size)
             {
                 Records = new Record[Capacity = capacity];
                 Mask = capacity - 1;
@@ -165,7 +165,7 @@ namespace HackCraft.LockFree
 	            }
         	}
             	
-            _table = new Table(_initialCapacity = capacity, new RefInt());
+            _table = new Table(_initialCapacity = capacity, new AliasedInt());
             _cmp = comparer;
         }
         /// <summary>Constructs a new LockFreeDictionary
@@ -698,7 +698,7 @@ namespace HackCraft.LockFree
         public void Clear()
         {
             Thread.MemoryBarrier();
-            _table = new Table(_initialCapacity, new RefInt());
+            _table = new Table(_initialCapacity, new AliasedInt());
         }
         /// <summary>
         /// Tests whether a key and value matching that passed are present in the dictionary

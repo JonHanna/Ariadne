@@ -1,12 +1,12 @@
 ﻿using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+
 using NUnit.Framework;
 
 namespace HackCraft.LockFree.NUnitTests
@@ -179,13 +179,13 @@ namespace HackCraft.LockFree.NUnitTests
     	[ExpectedException(typeof(ArgumentOutOfRangeException))]
     	public void NegativeCapacity()
     	{
-    		var dict = new LockFreeDictionary<int, decimal>(-1);
+    		new LockFreeDictionary<int, decimal>(-1);
     	}
     	[Test]
     	[ExpectedException(typeof(ArgumentOutOfRangeException))]
     	public void ExcessiveCapacity()
     	{
-    		var dict = new LockFreeDictionary<string, bool>(((int.MaxValue >> 1) + 2));
+    		new LockFreeDictionary<string, bool>(((int.MaxValue >> 1) + 2));
     	}
     	[Test]
     	public void DefaultCapacity()

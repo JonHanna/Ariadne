@@ -1,18 +1,15 @@
 ﻿using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using System.Diagnostics;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+
 using NUnit.Framework;
 
 namespace HackCraft.LockFree.NUnitTests
 {
     [TestFixture]
-    public class LockFreeHashSetTests
+    public class LockFreeSetTests
     {
     	protected const int SourceDataLen = 131072;
     	protected static string[] SourceData = new string[SourceDataLen];
@@ -35,9 +32,9 @@ namespace HackCraft.LockFree.NUnitTests
             	SourceData[idx++] = str;
             FilledStringCompareSet = hs;
         }
-        private LockFreeHashSet<string> FilledStringSet()
+        private LockFreeSet<string> FilledStringSet()
         {
-            var hs = new LockFreeHashSet<string>();
+            var hs = new LockFreeSet<string>();
     		for(int i = 0; i != SourceDataLen; ++i)
     		    hs.Add(SourceData[i]);
     		return hs;
@@ -55,8 +52,8 @@ namespace HackCraft.LockFree.NUnitTests
     	[Test]
     	public void CreateFromIEnum()
     	{
-    	    var setIE = new LockFreeHashSet<string>(EnumerateData());
-    	    var setIL = new LockFreeHashSet<string>(SourceData);
+    	    var setIE = new LockFreeSet<string>(EnumerateData());
+    	    var setIL = new LockFreeSet<string>(SourceData);
     	    var hs = FilledStringSet();
     	    Assert.AreEqual(setIE.Count, SourceDataLen);
     	    Assert.AreEqual(setIL.Count, SourceDataLen);
@@ -115,7 +112,7 @@ namespace HackCraft.LockFree.NUnitTests
     	[Test]
     	public void BackAgainDiff()
     	{
-    	    var hs = new LockFreeHashSet<string>();
+    	    var hs = new LockFreeSet<string>();
     	    for(int i = 0; i < SourceDataLen; i += 2)
     	        hs.Add(SourceData[i]);
     	    int count = SourceDataLen / 2;
@@ -143,23 +140,23 @@ namespace HackCraft.LockFree.NUnitTests
     	[ExpectedException(typeof(ArgumentOutOfRangeException))]
     	public void NegativeCapacity()
     	{
-    		var dict = new LockFreeHashSet<decimal>(-1);
+    		var dict = new LockFreeSet<decimal>(-1);
     	}
     	[Test]
     	[ExpectedException(typeof(ArgumentOutOfRangeException))]
     	public void ExcessiveCapacity()
     	{
-    		var dict = new LockFreeHashSet<decimal>(((int.MaxValue >> 1) + 2));
+    		var dict = new LockFreeSet<decimal>(((int.MaxValue >> 1) + 2));
     	}
     	[Test]
     	public void DefaultCapacity()
     	{
-    		Assert.AreEqual(new LockFreeHashSet<object>(0).Capacity, LockFreeHashSet<object>.DefaultCapacity);
+    		Assert.AreEqual(new LockFreeSet<object>(0).Capacity, LockFreeSet<object>.DefaultCapacity);
     	}
     	[Test]
     	public void EqualityComparer()
     	{
-    		var hs = new LockFreeHashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+    		var hs = new LockFreeSet<string>(StringComparer.InvariantCultureIgnoreCase);
     		hs.Add("Weißbier");
     		Assert.IsTrue(hs.Contains("WEISSBIER"));
     		Assert.IsTrue(hs.Contains("weissbier"));
@@ -179,7 +176,7 @@ namespace HackCraft.LockFree.NUnitTests
     	[Test]
     	public void ConstantReturns()
     	{
-    		var hs = new LockFreeHashSet<int>();
+    		var hs = new LockFreeSet<int>();
     		Assert.IsFalse(((ICollection<int>)hs).IsReadOnly);
     	}
     	private bool EqualSets<T>(ISet<T> x, ISet<T> y)
@@ -222,13 +219,13 @@ namespace HackCraft.LockFree.NUnitTests
     	[ExpectedException(typeof(ArgumentNullException))]
     	public void NullComparer()
     	{
-    	    new LockFreeHashSet<int>((IEqualityComparer<int>)null);
+    	    new LockFreeSet<int>((IEqualityComparer<int>)null);
     	}
     	[Test]
     	[ExpectedException(typeof(ArgumentNullException))]
     	public void NullSourceCollection()
     	{
-    	    new LockFreeHashSet<int>((IEnumerable<int>)null);
+    	    new LockFreeSet<int>((IEnumerable<int>)null);
     	}
     	[Test]
     	public void CopyWithOffset()
@@ -253,14 +250,14 @@ namespace HackCraft.LockFree.NUnitTests
     	[Test]
     	public void PathologicalHashAlgorithm()
     	{
-    	    var hs = new LockFreeHashSet<int>(Enumerable.Range(0, 1000));
+    	    var hs = new LockFreeSet<int>(Enumerable.Range(0, 1000));
     	    for(int i = 0; i != 1000; ++i)
     	        Assert.IsTrue(hs.Contains(i));
     	}
     	[Test]
     	public void RemoveWhere()
     	{
-    	    var hs = new LockFreeHashSet<int>(Enumerable.Range(0, 1000));
+    	    var hs = new LockFreeSet<int>(Enumerable.Range(0, 1000));
     	    foreach(int i in hs.RemoveWhere(x => x % 2 == 0))
     	        Assert.AreEqual(0, i % 2);
     	    Assert.AreEqual(500, hs.Count);
@@ -276,14 +273,14 @@ namespace HackCraft.LockFree.NUnitTests
     	    //Note that the behaviour of the BinaryFormatter will fix some of the strings
     	    //used in many of these tests, as not being valid Unicode. This is desirable behaviour
     	    //in real code, but would give false negatives to this test.
-    	    var hs = new LockFreeHashSet<string>(Enumerable.Range(0, 10000).Select(i => i.ToString()));
+    	    var hs = new LockFreeSet<string>(Enumerable.Range(0, 10000).Select(i => i.ToString()));
     	    hs.Add(null);
     	    using(MemoryStream ms = new MemoryStream())
     	    {
     	        new BinaryFormatter().Serialize(ms, hs);
     	        ms.Flush();
     	        ms.Seek(0, SeekOrigin.Begin);
-    	        Assert.IsTrue(EqualSets(hs, (LockFreeHashSet<string>)new BinaryFormatter().Deserialize(ms)));
+    	        Assert.IsTrue(EqualSets(hs, (LockFreeSet<string>)new BinaryFormatter().Deserialize(ms)));
     	    }
     	}
     }

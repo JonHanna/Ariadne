@@ -63,7 +63,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="InternalHelpers.cs" />
     <Compile Include="LockFreeDictionary.cs" />
-    <Compile Include="LockFreeHashSet.cs" />
+    <Compile Include="LockFreeSet.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

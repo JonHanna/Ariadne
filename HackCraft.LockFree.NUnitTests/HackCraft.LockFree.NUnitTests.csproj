@@ -13,6 +13,8 @@
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -38,9 +40,7 @@
     <DefineConstants>TRACE;NUNIT_TESTING</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>C:\Program Files %28x86%29\SharpDevelop\4.1\bin\Tools\NUnit\nunit.framework.dll</HintPath>
-    </Reference>
+    <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LockFreeDictionaryTests.cs" />
-    <Compile Include="LockFreeHashSetTests.cs" />
+    <Compile Include="LockFreeSetTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HackCraft.LockFree.csproj">

@@ -10,7 +10,7 @@ using System.Threading;
 namespace HackCraft.LockFree
 {
     [Serializable]
-    public class LockFreeHashSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
+    public class LockFreeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
     {
         private const int REPROBE_LOWER_BOUND = 5;
         private const int REPROBE_SHIFT = 5;
@@ -54,8 +54,8 @@ namespace HackCraft.LockFree
         {
             public readonly Record[] Records;
             public volatile Table Next;
-            public readonly RefInt Size;
-            public readonly RefInt Slots = new RefInt();
+            public readonly AliasedInt Size;
+            public readonly AliasedInt Slots = new AliasedInt();
             public readonly int Capacity;
             public readonly int Mask;
             public readonly int PrevSize;
@@ -63,7 +63,7 @@ namespace HackCraft.LockFree
             public int CopyIdx;
             public int Resizers;
             public int CopyDone;
-            public Table(int capacity, RefInt size)
+            public Table(int capacity, AliasedInt size)
             {
                 Records = new Record[Capacity = capacity];
                 Mask = capacity - 1;
@@ -78,7 +78,7 @@ namespace HackCraft.LockFree
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<T> _cmp;
         public static readonly int DefaultCapacity = 1;
-        public LockFreeHashSet(int capacity, IEqualityComparer<T> comparer)
+        public LockFreeSet(int capacity, IEqualityComparer<T> comparer)
         {
         	if(capacity < 0 || capacity > 0x4000000)
         		throw new ArgumentOutOfRangeException("capacity");
@@ -100,14 +100,14 @@ namespace HackCraft.LockFree
 	            }
         	}
             	
-            _table = new Table(_initialCapacity = capacity, new RefInt());
+            _table = new Table(_initialCapacity = capacity, new AliasedInt());
             _cmp = comparer;
         }
-        public LockFreeHashSet(int capacity)
+        public LockFreeSet(int capacity)
             :this(capacity, EqualityComparer<T>.Default){}
-        public LockFreeHashSet(IEqualityComparer<T> comparer)
+        public LockFreeSet(IEqualityComparer<T> comparer)
             :this(DefaultCapacity, comparer){}
-        public LockFreeHashSet()
+        public LockFreeSet()
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<T> collection)
         {
@@ -121,13 +121,13 @@ namespace HackCraft.LockFree
         		return col.Count;
         	return DefaultCapacity;
         }
-        public LockFreeHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
+        public LockFreeSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
             :this(EstimateNecessaryCapacity(collection), comparer)
         {
             foreach(T item in collection)
                 Add(item);
         }
-        public LockFreeHashSet(IEnumerable<T> collection)
+        public LockFreeSet(IEnumerable<T> collection)
             :this(collection, EqualityComparer<T>.Default){}
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
@@ -139,7 +139,7 @@ namespace HackCraft.LockFree
                 info.AddValue("i" + cItems++, box.Value, typeof(T));
             info.AddValue("c", cItems);
         }
-        private LockFreeHashSet(SerializationInfo info, StreamingContext context)
+        private LockFreeSet(SerializationInfo info, StreamingContext context)
             :this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
         {
             _initialCapacity = info.GetInt32("ic");
@@ -510,7 +510,7 @@ namespace HackCraft.LockFree
                 throw new ArgumentNullException("other");
             if(other != this && Count != 0)
             {
-                LockFreeHashSet<T> copyTo = new LockFreeHashSet<T>(Capacity, _cmp);
+                LockFreeSet<T> copyTo = new LockFreeSet<T>(Capacity, _cmp);
                 foreach(T item in other)
                     if(Contains(item))
                         copyTo.Add(item);
@@ -556,7 +556,7 @@ namespace HackCraft.LockFree
             {
                 if(asCol.Count < count)
                     return false;
-                LockFreeHashSet<T> asLFHS = other as LockFreeHashSet<T>;
+                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
                 if(asLFHS != null && asLFHS._cmp.Equals(_cmp))
                     return asLFHS.IsSupersetOf(this);
             }
@@ -579,7 +579,7 @@ namespace HackCraft.LockFree
                 //We can only short-cut on other being larger if larger is a set
                 //with the same equality comparer, as otherwise two or more items
                 //could be considered a single item to this set.
-                LockFreeHashSet<T> asLFHS = other as LockFreeHashSet<T>;
+                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
                 HashSet<T> asHS = other as HashSet<T>;
@@ -604,7 +604,7 @@ namespace HackCraft.LockFree
                 //We can only short-cut on other being larger if larger is a set
                 //with the same equality comparer, as otherwise two or more items
                 //could be considered a single item to this set.
-                LockFreeHashSet<T> asLFHS = other as LockFreeHashSet<T>;
+                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
                 HashSet<T> asHS = other as HashSet<T>;
@@ -632,7 +632,7 @@ namespace HackCraft.LockFree
             {
                 if(asCol.Count < count)
                     return false;
-                LockFreeHashSet<T> asLFHS = other as LockFreeHashSet<T>;
+                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
                 if(asLFHS != null && asLFHS._cmp.Equals(_cmp))
                     return asLFHS.IsProperSupersetOf(this);
             }
@@ -662,7 +662,7 @@ namespace HackCraft.LockFree
             if(other == null)
                 throw new ArgumentNullException("other");
             int asSetCount = -1;
-            LockFreeHashSet<T> asLFHS = other as LockFreeHashSet<T>;
+            LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
             if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                 asSetCount = asLFHS.Count;
             else
@@ -697,7 +697,7 @@ namespace HackCraft.LockFree
         public void Clear()
         {
             Thread.MemoryBarrier();
-            _table = new Table(_initialCapacity, new RefInt());
+            _table = new Table(_initialCapacity, new AliasedInt());
         }
         
         public bool Contains(T item)
@@ -792,11 +792,11 @@ namespace HackCraft.LockFree
         }
         internal class BoxEnumerator : IEnumerable<Box>, IEnumerator<Box>
         {
-            private readonly LockFreeHashSet<T> _set;
+            private readonly LockFreeSet<T> _set;
             private Table _tab;
             private Box _current;
             private int _idx = -1;
-            public BoxEnumerator(LockFreeHashSet<T> lfhs)
+            public BoxEnumerator(LockFreeSet<T> lfhs)
             {
                 _tab = (_set = lfhs)._table;
             }
@@ -900,9 +900,9 @@ namespace HackCraft.LockFree
         {
             return GetEnumerator();
         }
-        public LockFreeHashSet<T> Clone()
+        public LockFreeSet<T> Clone()
         {
-            LockFreeHashSet<T> copy = new LockFreeHashSet<T>(Capacity, _cmp);
+            LockFreeSet<T> copy = new LockFreeSet<T>(Capacity, _cmp);
             foreach(Box box in EnumerateBoxes())
                 copy.PutIfMatch(box, false, false);
             return copy;
