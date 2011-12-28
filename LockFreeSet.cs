@@ -9,6 +9,8 @@ using System.Threading;
 
 namespace HackCraft.LockFree
 {
+    /// <summary>A hash-based set which is thread-safe for all operations, without locking.
+    /// </summary>
     [Serializable]
     public sealed class LockFreeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
     {
@@ -77,7 +79,13 @@ namespace HackCraft.LockFree
         private Table _table;
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<T> _cmp;
+        /// <summary>The capacity used with those constructors that do not take a capacity parameter.
+        /// </summary>
         public static readonly int DefaultCapacity = 1;
+        /// <summary>Creates a new lock-free set.
+        /// </summary>
+        /// <param name="capacity">The initial capacity of the set.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public LockFreeSet(int capacity, IEqualityComparer<T> comparer)
         {
         	if(capacity < 0 || capacity > 0x4000000)
@@ -103,16 +111,24 @@ namespace HackCraft.LockFree
             _table = new Table(_initialCapacity = capacity, new AliasedInt());
             _cmp = comparer;
         }
+        /// <summary>Creates a new lock-free set.
+        /// </summary>
+        /// <param name="capacity">The initial capacity of the set.</param>
         public LockFreeSet(int capacity)
             :this(capacity, EqualityComparer<T>.Default){}
+        /// <summary>Creates a new lock-free set.
+        /// </summary>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public LockFreeSet(IEqualityComparer<T> comparer)
             :this(DefaultCapacity, comparer){}
+        /// <summary>Creates a new lock-free set.
+        /// </summary>
         public LockFreeSet()
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<T> collection)
         {
         	if(collection == null)
-        		throw new ArgumentNullException("collection", "Cannot create a new lock-free dictionary from a null source collection");
+        		throw new ArgumentNullException("collection", "Cannot create a new lock-free set from a null source collection");
         	ICollection<T> colKVP = collection as ICollection<T>;
         	if(colKVP != null)
         		return colKVP.Count;
@@ -121,12 +137,19 @@ namespace HackCraft.LockFree
         		return col.Count;
         	return DefaultCapacity;
         }
+        /// <summary>Creates a new lock-free set.
+        /// </summary>
+        /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>"/> that compares the items.</param>
         public LockFreeSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
             :this(EstimateNecessaryCapacity(collection), comparer)
         {
             foreach(T item in collection)
                 Add(item);
         }
+        /// <summary>Creates a new lock-free set.
+        /// </summary>
+        /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         public LockFreeSet(IEnumerable<T> collection)
             :this(collection, EqualityComparer<T>.Default){}
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
@@ -449,12 +472,16 @@ namespace HackCraft.LockFree
             return Interlocked.CompareExchange(ref tab.Next, next, null) ?? next;
 			#pragma warning restore 420
         }
-        
-        
+        /// <summary>Returns an estimate of the current number of items in the set.
+        /// </summary>
         public int Count
         {
             get { return _table.Size; }
         }
+        /// <summary>
+        /// The current capacity of the set.
+        /// </summary>
+        /// <remarks>If the set is in the midst of a resize, the capacity it is resizing to is returned, ignoring other internal storage in use.</remarks>
         public int Capacity
         {
             get { return _table.Capacity; }
@@ -463,18 +490,27 @@ namespace HackCraft.LockFree
         {
             get { return false; }
         }
-        
+        /// <summary>Attempts to add an item to the set.</summary>
+        /// <param name="item">The item to add.</param>
+        /// <returns>True if the item was added, false if a matching item was already present.</returns>
         public bool Add(T item)
         {
             Box prev = PutIfMatch(new Box(item), false, false);
             return prev != null || !(prev is TombstoneBox);
         }
+        /// <summary>Attempts to add a collection of items to the set, returning those which were added.</summary>
+        /// <param name="items">The items to add.</param>
+        /// <returns>An enumeration of those items which where added to the set, excluding those which were already present.</returns>
+        /// <remarks>The returned enumerable is lazily executed, and items are only added to the set as it is enumerated.</remarks>
         public IEnumerable<T> FilterAdd(IEnumerable<T> items)
         {
             foreach(T item in items)
                 if(Add(item))
                     yield return item;
         }
+        /// <summary>Attempts to add a collection of items to the set, returning the number added.</summary>
+        /// <param name="items">The items to add.</param>
+        /// <returns>The number of items added, excluding those which were already present.</returns>
         public int AddRange(IEnumerable<T> items)
         {
             int count = 0;
@@ -482,6 +518,15 @@ namespace HackCraft.LockFree
                 ++count;
             return count;
         }
+        /// <summary>Retrieves a reference to the specified item.</summary>
+        /// <param name="item">The item sought.</param>
+        /// <returns>A reference to a matching item if it is present in the set, null otherwise.</returns>
+        /// <exception cref="System.InvalidOperationException"> An attempt was made to use this when the generic type of the
+        /// set is not a reference type (that is, a value or pointer type).</exception>
+        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
+        /// memory use, and reference-based equality checking, comparable with how <see cref="string.IsInterned(string)"/> allows
+        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
+        /// only valid for reference types.</remarks>
         public T Find(T item)
         {
             if(typeof(T).IsValueType || typeof(T).IsPointer)
@@ -489,12 +534,26 @@ namespace HackCraft.LockFree
             T found;
             return Obtain(item, out found) ? found : default(T);
         }
+        /// <summary>Retrieves a reference to the specified item, adding it if necessary.</summary>
+        /// <param name="item">The item sought.</param>
+        /// <returns>A reference to a matching item if it is present in the set, using the item given if there isn't
+        /// already a matching item.</returns>
+        /// <exception cref="System.InvalidOperationException"> An attempt was made to use this when the generic type of the
+        /// set is not a reference type (that is, a value or pointer type).</exception>
+        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
+        /// memory use, and reference-based equality checking, comparable with how <see cref="string.Intern(string)"/> allows
+        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
+        /// only valid for reference types.</remarks>
         public T FindOrStore(T item)
         {
             Box found = PutIfMatch(new Box(item), false, false);
             return found == null || found is TombstoneBox ? item : found.Value;
         }
-        
+        /// <summary>Modifies the current set so that it contains all elements that are present in both the current set and in the specified collection.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public void UnionWith(IEnumerable<T> other)
         {
             if(other == null)
@@ -503,7 +562,11 @@ namespace HackCraft.LockFree
                 foreach(T item in other)
                     Add(item);
         }
-        
+        /// <summary>Modifies the current set so that it contains only elements that are also in a specified collection.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public void IntersectWith(IEnumerable<T> other)
         {
             if(other == null)
@@ -518,7 +581,11 @@ namespace HackCraft.LockFree
                 _table = copyTo._table;
             }
         }
-        
+        /// <summary>Removes all elements in the specified collection from the current set.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public void ExceptWith(IEnumerable<T> other)
         {
             if(other == null)
@@ -529,7 +596,11 @@ namespace HackCraft.LockFree
                 foreach(T item in other)
                     Remove(item);
         }
-        
+        /// <summary>Modifies the current set so that it contains only elements that are present either in the current set or in the specified collection, but not both.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
             if(other == null)
@@ -543,7 +614,11 @@ namespace HackCraft.LockFree
                     if(!Remove(item))
                         Add(item);
         }
-        
+        /// <summary>Determines whether a set is a subset of a specified collection.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public bool IsSubsetOf(IEnumerable<T> other)
         {
             if(other == null)
@@ -566,7 +641,11 @@ namespace HackCraft.LockFree
                     ++cBoth;
             return cBoth == count;
         }
-        
+        /// <summary>Determines whether the current set is a superset of a specified collection.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public bool IsSupersetOf(IEnumerable<T> other)
         {
             if(other == null)
@@ -591,7 +670,11 @@ namespace HackCraft.LockFree
                     return false;
             return true;
         }
-        
+        /// <summary>Determines whether the current set is a correct superset of a specified collection.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
             if(other == null)
@@ -619,7 +702,11 @@ namespace HackCraft.LockFree
                     return false;
             return matched < Count;
         }
-        
+        /// <summary>Determines whether the current set is a property (strict) subset of a specified collection.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
             if(other == null)
@@ -645,7 +732,11 @@ namespace HackCraft.LockFree
                     notInThis = true;
             return notInThis && cBoth == count;
         }
-        
+        /// <summary>Determines whether the current set overlaps with the specified collection.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public bool Overlaps(IEnumerable<T> other)
         {
             if(other == null)
@@ -656,7 +747,11 @@ namespace HackCraft.LockFree
                         return true;
             return false;
         }
-        
+        /// <summary>Determines whether the current set and the specified collection contain the same elements.</summary>
+        /// <param name="other">The collection to compare to the current set.</param>
+        /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
+        /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
+        /// use).</remarks>
         public bool SetEquals(IEnumerable<T> other)
         {
             if(other == null)
@@ -688,24 +783,38 @@ namespace HackCraft.LockFree
                     return false;
             return matched == Count;
         }
-        
         void ICollection<T>.Add(T item)
         {
             Add(item);
         }
-        
+        /// <summary>
+        /// Removes all items from the set.
+        /// </summary>
+        /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
             Thread.MemoryBarrier();
             _table = new Table(_initialCapacity, new AliasedInt());
         }
-        
+        /// <summary>
+        /// Determines whether an item is present in the set.
+        /// </summary>
+        /// <param name="item">The item sought.</param>
+        /// <returns>True if the item is found, false otherwise.</returns>
         public bool Contains(T item)
         {
             T found;
             return Obtain(item, out found);
         }
-        
+        /// <summary>
+        /// Copies the contents of the set to an array.
+        /// </summary>
+        /// <param name="array">The array to copy to.</param>
+        /// <param name="arrayIndex">The index within the array to start copying from</param>
+        /// <exception cref="System.ArgumentNullException"/>The array was null.
+        /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
+        /// <exception cref="System.ArgumentException"/>The number of items in the collection was
+        /// too great to copy into the array at the index given.
         public void CopyTo(T[] array, int arrayIndex)
         {
             if(array == null)
@@ -714,16 +823,35 @@ namespace HackCraft.LockFree
                 throw new ArgumentOutOfRangeException("arrayIndex");
             ToHashSet().CopyTo(array, arrayIndex);
         }
+        /// <summary>
+        /// Copies the contents of the set to an array.
+        /// </summary>
+        /// <param name="array">The array to copy to.</param>
+        /// <exception cref="System.ArgumentNullException"/>The array was null.
+        /// <exception cref="System.ArgumentException"/>The number of items in the collection was
+        /// too great to copy into the array.
         public void CopyTo(T[] array)
         {
             CopyTo(array, 0);
         }
-        
+        /// <summary>
+        /// Removes an item from the set.
+        /// </summary>
+        /// <param name="item">The item to remove.</param>
+        /// <returns>True if the item was removed, false if it was not found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(T item)
         {
             T dummy;
             return Remove(item, out dummy);
         }
+        /// <summary>
+        /// Removes an item from the set.
+        /// </summary>
+        /// <param name="item">The item to remove.</param>
+        /// <param name="removed">Upon returning, the item removed.</param>
+        /// <returns>True if an item was removed, false if no matching item was found.</returns>
         public bool Remove(T item, out T removed)
         {
             Box prev = PutIfMatch(new TombstoneBox(item), true, false);
@@ -735,8 +863,18 @@ namespace HackCraft.LockFree
             removed = prev.Value;
             return true;
         }
+        /// <summary>
+        /// Removes items from the set that match a predicate.
+        /// </summary>
+        /// <param name="predicate">A <see cref="System.Func&lt;T, TResult>"/> that returns true for the items that should be removed.</param>
+        /// <returns>A <see cref="System.Collections.Generic.IEnumerable&lt;T>"/> of the items removed.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.
+        /// <para>The returned enumerable is lazily executed, and items are only removed from the dictionary as it is enumerated.</para></remarks>
         public IEnumerable<T> RemoveWhere(Func<T, bool> predicate)
         {
+            if(predicate == null)
+                throw new ArgumentNullException("predicate");
             int removed = 0;
             Table table = _table;
             for(;;)
@@ -783,6 +921,12 @@ namespace HackCraft.LockFree
                 }
             }
         }
+        /// <summary>Removes all items that match a predicate.
+        /// </summary>
+        /// <param name="predicate">A <see cref="System.Func&lt;T, TResult>"/> that returns true when passed an item that should be removed.</param>
+        /// <returns>The number of items removed</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public int Remove(Func<T, bool> predicate)
         {
             int total = 0;
@@ -857,6 +1001,10 @@ namespace HackCraft.LockFree
                 _idx = -1;
             }
         }
+        /// <summary>Enumerates a LockFreeSet&lt;T>.
+        /// </summary>
+        /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
+        /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
         public struct Enumerator : IEnumerator<T>
         {
             private BoxEnumerator _src;
@@ -864,6 +1012,9 @@ namespace HackCraft.LockFree
             {
                 _src = src;
             }
+            /// <summary>
+            /// Returns the current item being enumerated.
+            /// </summary>
             public T Current
             {
                 get { return _src.Current.Value; }
@@ -872,13 +1023,20 @@ namespace HackCraft.LockFree
             {
                 get { return Current; }
             }
-            public void Dispose()
+            void IDisposable.Dispose()
             {
             }
+            /// <summary>
+            /// Moves to the next item in the enumeration.
+            /// </summary>
+            /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
             public bool MoveNext()
             {
                 return _src.MoveNext();
             }
+            /// <summary>
+            /// Reset the enumeration
+            /// </summary>
             public void Reset()
             {
                 _src.Reset();
@@ -888,6 +1046,9 @@ namespace HackCraft.LockFree
         {
             return new BoxEnumerator(this);
         }
+        /// <summary>Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>The enumerator.</returns>
         public Enumerator GetEnumerator()
         {
             return new Enumerator(EnumerateBoxes());
@@ -900,6 +1061,13 @@ namespace HackCraft.LockFree
         {
             return GetEnumerator();
         }
+    	/// <summary>
+    	/// Returns a copy of the current set.
+    	/// </summary>
+        /// <remarks>Because this operation does not lock, the resulting set’s contents
+        /// could be inconsistent in terms of an application’s use of the values.
+        /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
+        /// <returns>The <see cref="LockFreeSet&lt;T>"/>.</returns>
         public LockFreeSet<T> Clone()
         {
             LockFreeSet<T> copy = new LockFreeSet<T>(Capacity, _cmp);
@@ -911,14 +1079,35 @@ namespace HackCraft.LockFree
         {
             return Clone();
         }
+        /// <summary>
+        /// Returns a <see cref="HashSet&lt;T>"/> with the same contents and equality comparer as
+        /// the lock-free set.
+        /// </summary>
+        /// <returns>The HashSet.</returns>
+        /// <remarks>Because this operation does not lock, the resulting set’s contents
+        /// could be inconsistent in terms of an application’s use of the values.</remarks>
         public HashSet<T> ToHashSet()
         {
             return new HashSet<T>(this, _cmp);
         }
+        /// <summary>
+        /// Returns a <see cref="List&lt;T>"/> with the same contents as
+        /// the lock-free set.
+        /// </summary>
+        /// <returns>The List.</returns>
+        /// <remarks>Because this operation does not lock, the resulting set’s contents
+        /// could be inconsistent in terms of an application’s use of the values, or include duplicate items</remarks>
         public List<T> ToList()
         {
             return new List<T>(ToHashSet());
         }
+        /// <summary>
+        /// Returns an array with the same contents as
+        /// the lock-free set.
+        /// </summary>
+        /// <returns>The array.</returns>
+        /// <remarks>Because this operation does not lock, the resulting set’s contents
+        /// could be inconsistent in terms of an application’s use of the values, or include duplicate items</remarks>
         public T[] ToArray()
         {
             HashSet<T> hs = ToHashSet();
@@ -943,7 +1132,12 @@ namespace HackCraft.LockFree
         {
             return Add(item);
         }
-        
+        /// <summary>
+        /// Attempts to take a single item from the set.
+        /// </summary>
+        /// <param name="item">On return, the item removed, if successful.</param>
+        /// <returns>True if an item was removed, false if the set had been empty.</returns>
+        /// <remarks>The item returned is arbitrarily determined, with no guaranteed ordering.</remarks>
         public bool TryTake(out T item)
         {
             for(Table table = _table; table != null; table = table.Next)
@@ -978,7 +1172,6 @@ namespace HackCraft.LockFree
             item = default(T);
             return false;
         }
-        
         void ICollection.CopyTo(Array array, int index)
         {
             throw new NotImplementedException();

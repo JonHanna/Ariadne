@@ -11,7 +11,7 @@ namespace HackCraft.LockFree
     /// <summary>A dictionary which is thread-safe for all operations, without locking.
     /// </summary>
     /// <remarks>The documentation of <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> states
-    /// that null keys may or may not be allowed by a conformant implentation. In this case, they are (for reference types)</remarks>
+    /// that null keys may or may not be allowed by a conformant implentation. In this case, they are (for reference types).</remarks>
     [Serializable]
     public sealed class LockFreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable, IDictionary
     {
@@ -548,7 +548,7 @@ namespace HackCraft.LockFree
         /// <summary>
         /// The current capacity of the dictionary.
         /// </summary>
-        /// <remarks>If the dictionary is in the midst of a resize, the capacity it is resizing to is returned, ignoring other tables in use.</remarks>
+        /// <remarks>If the dictionary is in the midst of a resize, the capacity it is resizing to is returned, ignoring other internal storage in use.</remarks>
         public int Capacity
         {
         	get
@@ -581,8 +581,7 @@ namespace HackCraft.LockFree
     	/// Returns a copy of the current dictionary.
     	/// </summary>
         /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
-        /// could be inconsistent in terms of an application’s use of the values.
-        /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
+        /// could be inconsistent in terms of an application’s use of the values.</remarks>
         /// <returns>The <see cref="LockFreeDictionary&lt;TKey, TValue>"/>.</returns>
         public LockFreeDictionary<TKey, TValue> Clone()
         {
@@ -630,7 +629,7 @@ namespace HackCraft.LockFree
         {
         	get { return Values; }
         }
-        /// <summary>Returns an estimate of the current number of items in the system.
+        /// <summary>Returns an estimate of the current number of items in the dictionary.
         /// </summary>
         public int Count
         {
@@ -727,7 +726,7 @@ namespace HackCraft.LockFree
         /// <param name="array">The array to copy to.</param>
         /// <param name="arrayIndex">The index within the array to start copying from</param>
         /// <exception cref="System.ArgumentNullException"/>The array was null.
-        /// <exception cref="System.ArgumentOutOfRangeException"/>The array was less than zero.
+        /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
         /// <exception cref="System.ArgumentException"/>The number of items in the collection was
         /// too great to copy into the array at the index given.
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
@@ -827,7 +826,7 @@ namespace HackCraft.LockFree
         /// <returns>A <see cref="System.Collections.Generic.IEnumerable&lt;T>"/> of the items removed.</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.
-        /// <para>The returned enumerable is lazily created, and items are only removed from the dictionary as it is processed.</para></remarks>
+        /// <para>The returned enumerable is lazily executed, and items are only removed from the dictionary as it is enumerated.</para></remarks>
         public IEnumerable<KeyValuePair<TKey, TValue>> RemoveWhere(Func<TKey, TValue, bool> predicate)
         {
         	int removed;
@@ -962,7 +961,7 @@ namespace HackCraft.LockFree
         /// </summary>
         /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
         /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
-        public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IEquatable<Enumerator>, IDictionaryEnumerator
+        public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
         {
             private KVEnumerator _src;
             internal Enumerator(KVEnumerator src)
@@ -998,53 +997,13 @@ namespace HackCraft.LockFree
             {
                 return _src.MoveNext();
             }
+            /// <summary>
+            /// Reset the enumeration
+            /// </summary>
             public void Reset()
             {
                 _src.Reset();
             }
-            /// <summary>Compares the enumerator with another.
-            /// </summary>
-            /// <param name="other">The <see cref="Enumerator"/> to comapre with.</param>
-            /// <returns>True if they are copies of each other, false otherwise.</returns>
-            public bool Equals(Enumerator other)
-            {
-            	return _src == other._src;
-            }
-            /// <summary>Compares the enumerator with another object.
-            /// </summary>
-            /// <param name="obj">The object to compare with.</param>
-            /// <returns>True if the object is an enumerator, and it and this are copies of each other, false otherwise.</returns>
-            public override bool Equals(object obj)
-			{
-				return (obj is Enumerator) && Equals((Enumerator)obj);
-			}
-            /// <summary>Calculates a hash-code for the item.
-            /// </summary>
-            /// <returns>The hash-code.</returns>
-			public override int GetHashCode()
-			{
-				return _src.GetHashCode();
-			}
-			/// <summary>
-			/// Compares two <see cref="Enumerator"/>s with each other.
-			/// </summary>
-			/// <param name="lhs">The first enumerator.</param>
-			/// <param name="rhs">The second enumerator.</param>
-			/// <returns>True if the enumerators are copies of each other, false otherwise.</returns>
-			public static bool operator ==(Enumerator lhs, Enumerator rhs)
-			{
-				return lhs.Equals(rhs);
-			}
-			/// <summary>
-			/// Compares two <see cref="Enumerator"/>s with each other.
-			/// </summary>
-			/// <param name="lhs">The first enumerator.</param>
-			/// <param name="rhs">The second enumerator.</param>
-			/// <returns>False if the enumerators are copies of each other, true otherwise.</returns>
-			public static bool operator !=(Enumerator lhs, Enumerator rhs)
-			{
-				return !(lhs == rhs);
-			}
             object IDictionaryEnumerator.Key
             {
                 get { return Current.Key; }
@@ -1075,7 +1034,7 @@ namespace HackCraft.LockFree
         }
         /// <summary>A collection of the values in a LockFreeDictionary.</summary>
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
-	    public struct ValueCollection : ICollection<TValue>, IEquatable<ValueCollection>, ICollection
+	    public struct ValueCollection : ICollection<TValue>, ICollection
 	    {
 	    	private readonly LockFreeDictionary<TKey, TValue> _dict;
 	    	internal ValueCollection(LockFreeDictionary<TKey, TValue> dict)
@@ -1122,7 +1081,7 @@ namespace HackCraft.LockFree
             /// <param name="array">The array to copy to.</param>
             /// <param name="arrayIndex">The index within the array to start copying from</param>
             /// <exception cref="System.ArgumentNullException"/>The array was null.
-            /// <exception cref="System.ArgumentOutOfRangeException"/>The array was less than zero.
+            /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
             /// <exception cref="System.ArgumentException"/>The number of items in the collection was
             /// too great to copy into the array at the index given.
 			public void CopyTo(TValue[] array, int arrayIndex)
@@ -1145,7 +1104,7 @@ namespace HackCraft.LockFree
 			/// </summary>
             /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
             /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
-			public struct Enumerator : IEnumerator<TValue>, IEquatable<Enumerator>
+			public struct Enumerator : IEnumerator<TValue>
 			{
 	            private KVEnumerator _src;
 	            internal Enumerator(KVEnumerator src)
@@ -1181,54 +1140,13 @@ namespace HackCraft.LockFree
 	            {
 	                return _src.MoveNext();
 	            }
+	            /// <summary>
+	            /// Reset the enumeration
+	            /// </summary>
 	            public void Reset()
 	            {
 	                _src.Reset();
 	            }
-                /// <summary>Compares the enumerator with another.
-                /// </summary>
-                /// <param name="other">The <see cref="Enumerator"/> to comapre with.</param>
-                /// <returns>True if they are copies of each other, false otherwise.</returns>
-				public bool Equals(Enumerator other)
-				{
-					return object.Equals(this._src, other._src);
-				}
-                /// <summary>Compares the enumerator with another object.
-                /// </summary>
-                /// <param name="obj">The object to compare with.</param>
-                /// <returns>True if the object is an enumerator, and it and this are copies of each other, false otherwise.</returns>
-	            public override bool Equals(object obj)
-				{
-					return obj is Enumerator && Equals((Enumerator)obj);
-				}
-                /// <summary>Calculates a hash-code for the item.
-                /// </summary>
-                /// <returns>The hash-code.</returns>
-				public override int GetHashCode()
-				{
-					return _src.GetHashCode();
-				}
-    			/// <summary>
-    			/// Compares two <see cref="Enumerator"/>s with each other.
-    			/// </summary>
-    			/// <param name="lhs">The first enumerator.</param>
-    			/// <param name="rhs">The second enumerator.</param>
-    			/// <returns>True if the enumerators are copies of each other, false otherwise.</returns>
-				public static bool operator ==(Enumerator lhs, Enumerator rhs)
-				{
-					return lhs.Equals(rhs);
-				}
-    			/// <summary>
-    			/// Compares two <see cref="Enumerator"/>s with each other.
-    			/// </summary>
-    			/// <param name="lhs">The first enumerator.</param>
-    			/// <param name="rhs">The second enumerator.</param>
-    			/// <returns>False if the enumerators are copies of each other, true otherwise.</returns>
-				public static bool operator !=(Enumerator lhs, Enumerator rhs)
-				{
-					return !(lhs == rhs);
-				}
-
 			}
 			/// <summary>
 			/// Returns an enumerator that iterates through the collection.
@@ -1258,53 +1176,6 @@ namespace HackCraft.LockFree
 			{
 				throw new NotSupportedException();
 			}
-			/// <summary>
-			/// Compares the collection with another.
-			/// </summary>
-			/// <param name="other">The <see cref="ValueCollection"/> to compare with this one.</param>
-			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
-			public bool Equals(ValueCollection other)
-			{
-				return _dict == other._dict;
-			}
-			/// <summary>
-			/// Compres the collection with another object.
-			/// </summary>
-			/// <param name="obj">The object to compare with the collection.</param>
-			/// <returns>True if the object is a <see cref="ValueCollection"/> that is a copy of this one,
-			/// false otherwise.</returns>
-			public override bool Equals(object obj)
-			{
-				return (obj is ValueCollection) && Equals((ValueCollection)obj);
-			}
-			/// <summary>
-			/// Returns a hash code for the collection.
-			/// </summary>
-			/// <returns>The hash code.</returns>
-			public override int GetHashCode()
-			{
-				return _dict.GetHashCode();
-			}
-			/// <summary>
-			/// Compares two <see cref="ValueCollection"/>s for equality.
-			/// </summary>
-			/// <param name="lhs">The first collection to compare.</param>
-			/// <param name="rhs">The second collection to compare.</param>
-			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
-			public static bool operator ==(ValueCollection lhs, ValueCollection rhs)
-			{
-				return lhs.Equals(rhs);
-			}
-			/// <summary>
-			/// Compares two <see cref="ValueCollection"/>s for inequality.
-			/// </summary>
-			/// <param name="lhs">The first collection to compare.</param>
-			/// <param name="rhs">The second collection to compare.</param>
-			/// <returns>False if the collections are copies of each other, true otherwise.</returns>
-			public static bool operator !=(ValueCollection lhs, ValueCollection rhs)
-			{
-				return !(lhs == rhs);
-			}
             object ICollection.SyncRoot
             {
                 get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
@@ -1324,7 +1195,7 @@ namespace HackCraft.LockFree
 	    }
         /// <summary>A collection of the keys in a LockFreeDictionary.</summary>
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
-	    public struct KeyCollection : ICollection<TKey>, IEquatable<KeyCollection>, ICollection
+	    public struct KeyCollection : ICollection<TKey>, ICollection
 	    {
 	    	private readonly LockFreeDictionary<TKey, TValue> _dict;
 	    	internal KeyCollection(LockFreeDictionary<TKey, TValue> dict)
@@ -1357,7 +1228,7 @@ namespace HackCraft.LockFree
             /// <param name="array">The array to copy to.</param>
             /// <param name="arrayIndex">The index within the array to start copying from</param>
             /// <exception cref="System.ArgumentNullException"/>The array was null.
-            /// <exception cref="System.ArgumentOutOfRangeException"/>The array was less than zero.
+            /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
             /// <exception cref="System.ArgumentException"/>The number of items in the collection was
             /// too great to copy into the array at the index given.
 			public void CopyTo(TKey[] array, int arrayIndex)
@@ -1379,7 +1250,7 @@ namespace HackCraft.LockFree
 			/// </summary>
             /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
             /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
-			public struct Enumerator : IEnumerator<TKey>, IEquatable<Enumerator>
+			public struct Enumerator : IEnumerator<TKey>
 			{
 	            private KVEnumerator _src;
 	            internal Enumerator(KVEnumerator src)
@@ -1415,53 +1286,13 @@ namespace HackCraft.LockFree
 	            {
 	                return _src.MoveNext();
 	            }
+	            /// <summary>
+	            /// Reset the enumeration
+	            /// </summary>
 	            public void Reset()
 	            {
 	                _src.Reset();
 	            }
-                /// <summary>Compares the enumerator with another.
-                /// </summary>
-                /// <param name="other">The <see cref="Enumerator"/> to comapre with.</param>
-                /// <returns>True if they are copies of each other, false otherwise.</returns>
-	            public bool Equals(Enumerator other)
-	            {
-	            	return _src == other._src;
-	            }
-                /// <summary>Compares the enumerator with another object.
-                /// </summary>
-                /// <param name="obj">The object to compare with.</param>
-                /// <returns>True if the object is an enumerator, and it and this are copies of each other, false otherwise.</returns>
-	            public override bool Equals(object obj)
-				{
-					return obj is Enumerator && Equals((Enumerator)obj);
-				}
-                /// <summary>Calculates a hash-code for the item.
-                /// </summary>
-                /// <returns>The hash-code.</returns>
-				public override int GetHashCode()
-				{
-					return _src.GetHashCode();
-				}
-    			/// <summary>
-    			/// Compares two <see cref="Enumerator"/>s with each other.
-    			/// </summary>
-    			/// <param name="lhs">The first enumerator.</param>
-    			/// <param name="rhs">The second enumerator.</param>
-    			/// <returns>True if the enumerators are copies of each other, false otherwise.</returns>
-				public static bool operator ==(Enumerator lhs, Enumerator rhs)
-				{
-					return lhs.Equals(rhs);
-				}
-    			/// <summary>
-    			/// Compares two <see cref="Enumerator"/>s with each other.
-    			/// </summary>
-    			/// <param name="lhs">The first enumerator.</param>
-    			/// <param name="rhs">The second enumerator.</param>
-    			/// <returns>False if the enumerators are copies of each other, true otherwise.</returns>
-				public static bool operator !=(Enumerator lhs, Enumerator rhs)
-				{
-					return !(lhs == rhs);
-				}
 			}
             /// <summary>Returns an enumerator that iterates through the collection.
             /// </summary>
@@ -1490,54 +1321,6 @@ namespace HackCraft.LockFree
 			{
 				throw new NotSupportedException();
 			}
-			/// <summary>
-			/// Compares the collection with another.
-			/// </summary>
-			/// <param name="other">The <see cref="ValueCollection"/> to compare with this one.</param>
-			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
-			public bool Equals(KeyCollection other)
-			{
-				return _dict == other._dict;
-			}
-			/// <summary>
-			/// Compres the collection with another object.
-			/// </summary>
-			/// <param name="obj">The object to compare with the collection.</param>
-			/// <returns>True if the object is a <see cref="ValueCollection"/> that is a copy of this one,
-			/// false otherwise.</returns>
-			public override bool Equals(object obj)
-			{
-				return (obj is KeyCollection) && Equals((KeyCollection)obj);
-			}
-			/// <summary>
-			/// Returns a hash code for the collection.
-			/// </summary>
-			/// <returns>The hash code.</returns>
-			public override int GetHashCode()
-			{
-				return _dict.GetHashCode();
-			}
-			/// <summary>
-			/// Compares two <see cref="KeyCollection"/>s for equality.
-			/// </summary>
-			/// <param name="lhs">The first collection to compare.</param>
-			/// <param name="rhs">The second collection to compare.</param>
-			/// <returns>True if the collections are copies of each other, false otherwise.</returns>
-			public static bool operator ==(KeyCollection lhs, KeyCollection rhs)
-			{
-				return lhs.Equals(rhs);
-			}
-			/// <summary>
-			/// Compares two <see cref="KeyCollection"/>s for inequality.
-			/// </summary>
-			/// <param name="lhs">The first collection to compare.</param>
-			/// <param name="rhs">The second collection to compare.</param>
-			/// <returns>False if the collections are copies of each other, true otherwise.</returns>
-			public static bool operator !=(KeyCollection lhs, KeyCollection rhs)
-			{
-				return !(lhs == rhs);
-			}
-	        
             object ICollection.SyncRoot
             {
                 get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }

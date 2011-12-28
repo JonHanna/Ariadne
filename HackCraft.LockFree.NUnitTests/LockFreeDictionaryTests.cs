@@ -467,35 +467,6 @@ namespace HackCraft.LockFree.NUnitTests
     		dict.Add(null, "Null Test");
     		dict.Values.CopyTo(arr, 0);
     	}
-    	public void StructEqCorrect<T>(T stru)where T:struct
-    	{
-    		Type t = typeof(T);
-    		var eq = t.GetMethod("Equals", new Type[]{typeof(T)});
-    		Assert.AreEqual(eq.DeclaringType, typeof(T));
-    		var ghc = t.GetMethod("GetHashCode", new Type[]{});
-    		Assert.AreEqual(ghc.DeclaringType, typeof(T));
-    		var opEq = t.GetMethod("op_Equality", new Type[]{typeof(T), typeof(T)});
-    		Assert.AreEqual(opEq.DeclaringType, typeof(T));
-    		var opIneq = t.GetMethod("op_Inequality", new Type[]{typeof(T), typeof(T)});
-    		Assert.AreEqual(opIneq.DeclaringType, typeof(T));
-    		T copy = stru;
-    		Assert.IsTrue((bool)opEq.Invoke(null, new object[]{stru, copy}));
-    		Assert.IsTrue(copy.Equals(stru));
-    		Assert.IsFalse((bool)opIneq.Invoke(null, new object[]{stru, copy}));
-    		Assert.AreEqual(stru.GetHashCode(), copy.GetHashCode());
-    		if(stru is IDisposable)
-    			((IDisposable)stru).Dispose();
-    	}
-    	[Test]
-    	public void StructRecs()
-    	{
-    		var dict = new LockFreeDictionary<string, string>();
-    		StructEqCorrect(dict.GetEnumerator());
-    		StructEqCorrect(dict.Keys);
-    		StructEqCorrect(dict.Keys.GetEnumerator());
-    		StructEqCorrect(dict.Values);
-    		StructEqCorrect(dict.Values.GetEnumerator());
-    	}
     	private class PathalogicalEqualityComparer : IEqualityComparer<int>
     	{
 			public bool Equals(int x, int y)
