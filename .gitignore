@@ -8,3 +8,5 @@
 /HackCraft.LockFree.NUnitTests/PartCover
 /HackCraft.LockFree.NUnitTests/bin
 /HackCraft.LockFree.NUnitTests/obj
+/test-results
+/HackCraft.LockFree.NUnitTests/test-results
