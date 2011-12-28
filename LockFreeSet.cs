@@ -188,7 +188,7 @@ namespace HackCraft.LockFree
         {
             //We must prohibit the value of zero in order to be sure that when we encounter a
             //zero, that the hash has not been written.
-            //We do not use a Wang-Jenkins like Dr. Click's approach, since .NET's IComparer allows
+            //We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
             //users of the class to fix the effects of poor hash algorithms.
             int givenHash = _cmp.GetHashCode(item);
             return givenHash == 0 ? ZERO_HASH : givenHash;
@@ -217,7 +217,7 @@ namespace HackCraft.LockFree
                 Box box = records[idx].Box;
                 if(curHash == hash)//hash we care about, is it the item we care about?
                 {
-                    if(_cmp.Equals(item, box.Value))//items match, and this can't change
+                    if(_cmp.Equals(item, box.Value))//items match, and this can’t change
                     {
                         PrimeBox asPrime = box as PrimeBox;
                         if(asPrime != null)
@@ -268,7 +268,7 @@ namespace HackCraft.LockFree
                 if(curHash == 0)//nothing written here
                 {
                     if(box is TombstoneBox)
-                        return null;//don't change anything
+                        return null;//don’t change anything
                     if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
                         curHash = hash;
                     //now fallthrough to the next check, which we will pass if the above worked
@@ -279,7 +279,7 @@ namespace HackCraft.LockFree
                     //hashes match, do items?
                     //while retrieving the current
                     //if we want to write to empty records
-                    //let's see if we can just write because there's nothing there...
+                    //let’s see if we can just write because there’s nothing there...
                     if(!removing)
                     {
                         if((curBox = Interlocked.CompareExchange(ref records[idx].Box, box, null)) == null)
@@ -292,7 +292,7 @@ namespace HackCraft.LockFree
                     }
                     else
                         curBox = records[idx].Box;
-                    //okay there's something with the same hash here, does it have the same item?
+                    //okay there’s something with the same hash here, does it have the same item?
                     if(_cmp.Equals(curBox.Value, box.Value))
                         break;
                 }
@@ -301,8 +301,8 @@ namespace HackCraft.LockFree
                 if(curBox == Box.DeadItem || ++reprobeCount >= maxProbe)
                 {
                     Table next = table.Next ?? Resize(table);
-                    //test if we're putting from a copy
-                    //and don't do this if that's
+                    //test if we’re putting from a copy
+                    //and don’t do this if that’s
                     //the case
                     PrimeBox prevPrime = curBox as PrimeBox ?? new PrimeBox(curBox.Value);
                     HelpCopy(table, prevPrime, false);
@@ -548,7 +548,7 @@ namespace HackCraft.LockFree
         }
         /// <summary>Retrieves a reference to the specified item, adding it if necessary.</summary>
         /// <param name="item">The item sought.</param>
-        /// <returns>A reference to a matching item if it is present in the set, using the item given if there isn't
+        /// <returns>A reference to a matching item if it is present in the set, using the item given if there isn’t
         /// already a matching item.</returns>
         /// <exception cref="System.InvalidOperationException"> An attempt was made to use this when the generic type of the
         /// set is not a reference type (that is, a value or pointer type).</exception>
@@ -995,7 +995,7 @@ namespace HackCraft.LockFree
                         {
                             PrimeBox prime = box as PrimeBox;
                             if(prime != null)//part-way through being copied to next table
-                                _set.CopySlotsAndCheck(_tab, prime, _idx);//make sure it's there when we come to it.
+                                _set.CopySlotsAndCheck(_tab, prime, _idx);//make sure it’s there when we come to it.
                             else
                             {
                                 _current = box;

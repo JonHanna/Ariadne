@@ -232,7 +232,7 @@ namespace HackCraft.LockFree
         {
             //We must prohibit the value of zero in order to be sure that when we encounter a
             //zero, that the hash has not been written.
-            //We do not use a Wang-Jenkins like Dr. Click's approach, since .NET's IComparer allows
+            //We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
             //users of the class to fix the effects of poor hash algorithms.
             int givenHash = _cmp.GetHashCode(key);
             return givenHash == 0 ? ZERO_HASH : givenHash;
@@ -285,7 +285,7 @@ namespace HackCraft.LockFree
                 KV pair = records[idx].KeyValue;
                 if(curHash == hash)//hash we care about, is it the key we care about?
                 {
-                    if(_cmp.Equals(key, pair.Key))//key's match, and this can't change.
+                    if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
                     {
                     	PrimeKV asPrime = pair as PrimeKV;
                         if(asPrime != null)
@@ -344,7 +344,7 @@ namespace HackCraft.LockFree
                 if(curHash == 0)//nothing written here
                 {
                     if(pair is TombstoneKV)
-                        return null;//don't change anything.
+                        return null;//don’t change anything.
                     if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
                         curHash = hash;
                     //now fallthrough to the next check, which we will pass if the above worked
@@ -355,7 +355,7 @@ namespace HackCraft.LockFree
                     //hashes match, do keys?
                     //while retrieving the current
                     //if we want to write to empty records
-                    //let's see if we can just write because there's nothing there...
+                    //let’s see if we can just write because there’s nothing there...
                     if(oldPair == KV.DeadKey || oldPair == null)
                     {
                         if((curPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, null)) == null)
@@ -368,7 +368,7 @@ namespace HackCraft.LockFree
                     }
                     else
                         curPair = records[idx].KeyValue;
-                    //okay there's something with the same hash here, does it have the same key?
+                    //okay there’s something with the same hash here, does it have the same key?
                     if(_cmp.Equals(curPair.Key, pair.Key))
                         break;
                 }
@@ -377,8 +377,8 @@ namespace HackCraft.LockFree
                 if(curPair == KV.DeadKey || ++reprobeCount >= maxProbe)
                 {
                     Table next = table.Next ?? Resize(table);
-                    //test if we're putting from a copy
-                    //and don't do this if that's
+                    //test if we’re putting from a copy
+                    //and don’t do this if that’s
                     //the case
                     PrimeKV prime = new PrimeKV();
                     HelpCopy(table, prime, false);
@@ -684,7 +684,7 @@ namespace HackCraft.LockFree
         /// <summary>Attempts to remove an item from the collection, identified by its key.
         /// </summary>
         /// <param name="key">The key to remove.</param>
-        /// <returns>True if the item was removed, false if it wasn't found.</returns>
+        /// <returns>True if the item was removed, false if it wasn’t found.</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key)
@@ -941,7 +941,7 @@ namespace HackCraft.LockFree
                         {
                         	PrimeKV prime = kv as PrimeKV;
                         	if(prime != null)//part-way through being copied to next table
-                        		_dict.CopySlotsAndCheck(_tab, prime, _idx);//make sure it's there when we come to it.
+                        		_dict.CopySlotsAndCheck(_tab, prime, _idx);//make sure it’s there when we come to it.
                         	else
                         	{
 	                            _current = kv;
