@@ -29,6 +29,8 @@ namespace HackCraft.LockFree.NUnitTests
         public void FillSourceData()
         {
         	HashSet<string> hs = new HashSet<string>();
+        	//There’s something abhorrent about the way this creates strings with non-characters
+        	//and mis-matched surrogates, but it serves the purpose well.
             Random rnd = new Random(1);
             while(hs.Count < SourceDataLen)
             {
@@ -307,7 +309,7 @@ namespace HackCraft.LockFree.NUnitTests
     	[ExpectedException(typeof(KeyNotFoundException))]
     	public void KeyNotFound()
     	{
-    		string val = FilledStringDict()["Well, it would be pretty amazing if this was found, wouldn't it‽"];
+    		string val = FilledStringDict()["Well, it would be pretty amazing if this was found, wouldn’t it‽"];
     	}
     	private void NullCopy<T>(ICollection<T> seq)
     	{
