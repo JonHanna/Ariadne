@@ -1,4 +1,23 @@
-﻿using System;
+﻿// © 2011 Jon Hanna.
+// This source code is licensed under the EUPL, Version 1.1 only (the “Licence”).
+// You may not use, modify or distribute this work except in compliance with the Licence.
+// You may obtain a copy of the Licence at:
+// <http://joinup.ec.europa.eu/software/page/eupl/licence-eupl>
+// A copy is also distributed with this source code.
+// Unless required by applicable law or agreed to in writing, software distributed under the
+// Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
+
+// My first implementation of a lock-free hashtable was a relatively straight port of Dr. Cliff
+// Click’s Java implementation barring it’s use of IEqualityComparer<T> and taking advantage of
+// .NET’s making it easier to have hashes stored on the same cache-line as values.
+// This uses a somewhat different approach, which while clearly borrowing from Click’s work,
+// goes further in matching itself to .NET’s pros and cons. In particular, by banning zero from
+// the set of allowed hashes (replacing with another value when it occurs), we can make the
+// memoised hash a first-order part of the record. A hash will either be zero - unwritten - or
+// match the hash sought - a possible but not definite key match - or not match the hash sought
+// - a definite miss.
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
