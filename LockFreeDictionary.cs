@@ -7,16 +7,6 @@
 // Unless required by applicable law or agreed to in writing, software distributed under the
 // Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
 
-// My first implementation of a lock-free hashtable was a relatively straight port of Dr. Cliff
-// Click’s Java implementation barring it’s use of IEqualityComparer<T> and taking advantage of
-// .NET’s making it easier to have hashes stored on the same cache-line as values.
-// This uses a somewhat different approach, which while clearly borrowing from Click’s work,
-// goes further in matching itself to .NET’s pros and cons. In particular, by banning zero from
-// the set of allowed hashes (replacing with another value when it occurs), we can make the
-// memoised hash a first-order part of the record. A hash will either be zero - unwritten - or
-// match the hash sought - a possible but not definite key match - or not match the hash sought
-// - a definite miss.
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,6 +28,63 @@ namespace HackCraft.LockFree
         private const int REPROBE_SHIFT = 5;
         private const int ZERO_HASH = 0x55555555;
         
+// The dictionary is implemented as an open-addressed hash-table with linear re-probing and
+// lazy deletion.
+//
+// Each bucket consists of a value-type (Record) that stores the hash of the key, and a
+// reference type (KV) that stores the key and value.
+//
+// The stored hash is not just a memoised hash to avoid recomputing it, but a first-
+// class part of the algorithm. Because hash values of zero are banned (any object which
+// hashes to zero is given a new hash), any record with a hash of zero is guaranteed to be
+// empty.
+//
+// Hashes once set (non-zero) are never changed. Key-values once set are only ever changed
+// to a key-value with equivalent keys, or dead keys (when the key-value has been fully
+// copied into a new table during an incremental resize). The leaked hashes and keys this
+// results in are collected after a table resize. It is these restrictions upon the
+// possible state transitions that allow safe lock-free writes from multiple threads.
+// Derived classes of KV allow for detection of a lazily-deleted value, or a key-value that
+// is part-way through being copied to a new table.
+// 
+// Possible States:
+// Hash KeyValue
+// 0    null    (empty record)
+// h    null    (half-way through write – considered empty by read – note that unlike some,
+//                  but not all, JVMs .NET CompareExchange imposes an ordering, which while it
+//                  costs us performance in some cases allows us to be sure of the order of the
+//                  {0, null} → {h, null} → {h → KV} transitions)
+// h    KV      (h == Hash(K))
+// h    KVₓ     (Tombstone KV for deleted value)
+// h    KV′     (Prime KV for part-way through resize copy).
+// 0    X       (Dead record that was never written to).
+// h    X       (Dead record that had been written to, now copied to new table unless held
+//                  tombstone).
+//
+// Possible Transitions:
+//
+// {0, null}    →   {h, null}   partway through set value.
+//              →   {0, X}    dead record, use next table if you need this slot
+// 
+// {h, null}    →   {h, KV} where h == Hash(K)
+//              →   {h, X} dead record (write never completed)
+//
+// {h, KV}      →   {h, KV} different value, equivalent key.
+//              →   {h, KVₓ} deleted value, equivalent key, key left until resize.
+//              →   {h, KV′} part-way through copying to new table.
+// 
+// {h, KV′}     →   {h, X} dead record
+//
+// The CAS-and-test mechanism that is common with lock-free mutable transitions, are used
+// to ensure that only these transitions take place. E.g. after transitioning from
+// {0, null} to {h, null} we test that either we succeeded or that the thread that pre-
+// empted us wrote the same h we were going to write. Either way we can then safely attempt
+// to try the {h, null} to {h, KV} transition. If not, we obtain another record.
+//
+// All the objects involved in this storage are Plain Old Data classes with no
+// encapsulation (they are hidden from other assemblies entirely). This allows CASing from
+// the outside code that encapsulates the transition logic.
+
         internal class KV
         {
             public TKey Key;
@@ -47,15 +94,18 @@ namespace HackCraft.LockFree
                 Key = key;
                 Value = value;
             }
+            // Give a prime the same values as this record.
             public void FillPrime(PrimeKV prime)
             {
             	prime.Key = Key;
             	prime.Value = Value;
             }
+            // a KV that is definitely not a prime
             public KV StripPrime()
             {
             	return this is PrimeKV ? new KV(Key, Value) : this;
             }
+            // A dead record. Any relevant record is in the next table.
             public static readonly TombstoneKV DeadKey = new TombstoneKV(default(TKey));
             public static implicit operator KV(KeyValuePair<TKey, TValue> kvp)
             {
@@ -66,20 +116,32 @@ namespace HackCraft.LockFree
                 return new KeyValuePair<TKey, TValue>(kv.Key, kv.Value);
             }
         }
+        // Marks the record as part-way copied to the next table.
         internal sealed class PrimeKV : KV
         {
         	public PrimeKV()
         	    :base(default(TKey), default(TValue)){}
         }
+        // There used to be a value here, but it was deleted. We can write to this
+        // record again if the key is to be inserted again. Otherwise the key stays
+        // stored until the next resize, when it will not be copied over.
         internal sealed class TombstoneKV : KV
         {
         	public TombstoneKV(TKey key)
         		:base(key, default(TValue)){}
         }
+        // used to see if a value should be considered equal to one that is
+        // in the dictionary for operations that only replace matching value
+        // such as Remove(key, cmpValue, out removed).
+        // To keep the mechanism consistent, we use such comparisons for all
+        // cases, but change the comparer used.
         interface IKVEqualityComparer
         {
         	bool Equals(KV livePair, KV cmpPair);
         }
+        // Returns true for every comparison. Used for wild-card case where
+        // we don’t care about the existing value (e.g. dict[key] = newValue
+        // or dict.Remove(key).
         private sealed class MatchesAll : IKVEqualityComparer
         {
         	private MatchesAll(){}
@@ -89,6 +151,9 @@ namespace HackCraft.LockFree
 			}
 			public static readonly MatchesAll Instance = new MatchesAll();
         }
+        // "Normal" comparer. Matches dead and empty records to each
+        // other, and otherwise passes through to IEqualityComparer<T>’s
+        // implementation.
         private sealed class KVEqualityComparer : IKVEqualityComparer
         {
         	private readonly IEqualityComparer<TValue> _ecmp;
@@ -108,11 +173,13 @@ namespace HackCraft.LockFree
 			public static KVEqualityComparer Default = new KVEqualityComparer(DefIEQ);
 			public static KVEqualityComparer Create(IEqualityComparer<TValue> ieq)
 			{
+			    // avoid multiple allocations for the most common case.
 				if(ieq.Equals(DefIEQ))
 					return Default;
 				return new KVEqualityComparer(ieq);
 			}
         }
+        // only true if the current record has not been written to.
         private sealed class NullPairEqualityComparer : IKVEqualityComparer
         {
         	private NullPairEqualityComparer(){}
@@ -122,6 +189,12 @@ namespace HackCraft.LockFree
 			}
 			public static NullPairEqualityComparer Instance = new NullPairEqualityComparer();
         }
+        // Because this is a value-type, scanning through an array of these types should play
+        // nicely with CPU caches. Examinging KV requires an extra indirection into memory that
+        // is less likely to be in a given level cache, but this should only rarely not give
+        // us the key we are interested in (and only rarely happen at all when the key isn’t
+        // present), as we don’t need to examine it at all unless we’ve found or created a
+        // matching hash.
         [StructLayout(LayoutKind.Sequential, Pack=1)]
         private struct Record
         {
@@ -172,6 +245,9 @@ namespace HackCraft.LockFree
         		capacity = DefaultCapacity;
         	else
         	{
+        	    // A classic hash-table trade-off. The (debated) advantages
+        	    // of prime-number sized tables vs. the speed of masking rather
+        	    // than modding. We go for the latter.
 	            unchecked // binary round-up
 	            {
 	                --capacity;
@@ -203,14 +279,24 @@ namespace HackCraft.LockFree
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<KeyValuePair<TKey, TValue>> collection)
         {
+            // we want to avoid pointless re-sizes if we can tell what size the source collection is, (though in
+            // worse cases it could be a million items!), but can only do so for some collection types.
         	if(collection == null)
         		throw new ArgumentNullException("collection", "Cannot create a new lock-free dictionary from a null source collection");
-        	ICollection<KeyValuePair<TKey, TValue>> colKVP = collection as ICollection<KeyValuePair<TKey, TValue>>;
-        	if(colKVP != null)
-        		return colKVP.Count;
-        	ICollection col = collection as ICollection;
-        	if(col != null)
-        		return col.Count;
+        	try
+        	{
+            	ICollection<KeyValuePair<TKey, TValue>> colKVP = collection as ICollection<KeyValuePair<TKey, TValue>>;
+            	if(colKVP != null)
+            	    return Math.Min(colKVP.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
+            	ICollection col = collection as ICollection;
+            	if(col != null)
+            	    return Math.Min(col.Count, 1024);
+        	}
+        	catch
+        	{
+        	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
+        	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
+        	}
         	return DefaultCapacity;
         }
         /// <summary>Constructs a new LockFreeDictionary
@@ -233,7 +319,8 @@ namespace HackCraft.LockFree
             //We must prohibit the value of zero in order to be sure that when we encounter a
             //zero, that the hash has not been written.
             //We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
-            //users of the class to fix the effects of poor hash algorithms.
+            //users of the class to fix the effects of poor hash algorithms. Let’s not penalise great
+            //hashes with more work and potentially even make good hashes less good.
             int givenHash = _cmp.GetHashCode(key);
             return givenHash == 0 ? ZERO_HASH : givenHash;
         }
@@ -261,10 +348,12 @@ namespace HackCraft.LockFree
             for(int i = 0; i != count; ++i)
                 this[(TKey)info.GetValue("k" + i, typeof(TKey))] = (TValue)info.GetValue("v" + i, typeof(TValue));
         }
+        // Try to get a value from the dictionary.
         private bool Obtain(TKey key, out TValue value)
         {
             return Obtain(_table, key, Hash(key), out value);
         }
+        // Try to get a value from a table. If necessary, move to the next table. 
         private bool Obtain(Table table, TKey key, int hash, out TValue value)
         {
             int idx = hash & table.Mask;
@@ -290,7 +379,15 @@ namespace HackCraft.LockFree
                     	PrimeKV asPrime = pair as PrimeKV;
                         if(asPrime != null)
                         {
+                            // A resize-copy is part-way through. Let’s make sure it completes before hitting that
+                            // other table (we do this rather than trust the value we found, because the next table
+                            // could have a more recently-written value).
                         	CopySlotsAndCheck(table, asPrime, idx);
+                        	// Note that Click has reading operations help the resize operation.
+                        	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
+                            // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
+                        	// in heavily memory-constrained scenarios. Since reading wouldn’t conceptually add to
+                        	// memory use, this could be surprising to users.
                             return Obtain(table.Next, key, hash, out value);
                         }
                         else if(pair is TombstoneKV)
@@ -305,8 +402,10 @@ namespace HackCraft.LockFree
                         }
                     }
                 }
-                if(/*pair == KV.DeadKey ||*/ ++reprobeCount >= maxProbe)
+                if(++reprobeCount >= maxProbe)
                 {
+                    //if there’s a resize in progress, the desired value might be in the next table.
+                    //otherwise, it doesn’t exist.
                     Table next = table.Next;
                     if(next == null)
                     {
@@ -318,18 +417,16 @@ namespace HackCraft.LockFree
                 idx = (idx + 1) & table.Mask;
             }
         }
-        private static bool Equals(IEqualityComparer<TValue> valCmp, KV x, KV y)
-        {
-            if(x is TombstoneKV)
-                return y is TombstoneKV;
-            if(y is TombstoneKV)
-                return false;
-            return valCmp.Equals(x.Value, y.Value);
-        }
+        // try to put a value into the dictionary, as long as the current value
+        // matches oldPair based on the dictionary’s key-comparison rules
+        // and the value-comparison rule passed through.
         private KV PutIfMatch(KV pair, KV oldPair, IKVEqualityComparer valCmp)
         {
             return PutIfMatch(_table, pair, Hash(pair.Key), oldPair, valCmp);
         }
+        // try to put a value into a table. If there is a resize in progress
+        // we mark the relevant slot in this table if necessary before writing
+        // to the next table.
         private KV PutIfMatch(Table table, KV pair, int hash, KV oldPair, IKVEqualityComparer valCmp)
         {
             int mask = table.Mask;
@@ -349,6 +446,7 @@ namespace HackCraft.LockFree
                         curHash = hash;
                     //now fallthrough to the next check, which we will pass if the above worked
                     //or if another thread happened to write the same hash we wanted to write
+                    //(hence our doing curHash = hash in the failure case)
                 }
                 if(curHash == hash)
                 {
@@ -389,7 +487,13 @@ namespace HackCraft.LockFree
             //we have a record with a matching key.
             if(!typeof(TValue).IsValueType && !typeof(TValue).IsPointer && ReferenceEquals(pair.Value, curPair.Value))
                 return pair;//short-cut on quickly-discovered no change.
+            //(If the type of TValue is a value or pointer type, then the call to reference equals can only ever return false
+            //(after an expensive box), and is pretty much meaningless. Hopefully the jitter would have done a nice job of either
+            //removing the IsValueType and IsPointer checks and leaving the ReferenceEquals call or or removing the entire thing).
             
+            //If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
+            //current record is copied over - so that any reader won’t end up finding the previous value and not realise it
+            //should look to the next table - and then we write there.
             if(table.Next != null)
             {
                 PrimeKV prime = new PrimeKV();
@@ -400,6 +504,8 @@ namespace HackCraft.LockFree
             
             for(;;)
             {
+                //if we don’t match the conditions in which we want to overwrite a value
+                //then we just return the current value, and change nothing.
             	if(!valCmp.Equals(curPair, oldPair))
                     return curPair;
                 
@@ -434,13 +540,19 @@ namespace HackCraft.LockFree
                     curPair = prevPair;
             }
         }
+        // Copies a record to the next table, and checks if there should be a promotion.
         private void CopySlotsAndCheck(Table table, PrimeKV prime, int idx)
         {
             if(CopySlot(table, prime, idx))
                 CopySlotAndPromote(table, 1);
         }
+        // Copy a bunch of records to the next table.
         private void HelpCopy(Table table, PrimeKV prime, bool all)
         {
+            //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
+            //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
+            //at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
+            //cache-lines to be invalidated with each write.
             int chunk = table.Capacity;
             if(chunk > 1024)
                 chunk = 1024;
@@ -457,6 +569,9 @@ namespace HackCraft.LockFree
                     return;
             }
         }
+        //If we’ve just finished copying the current table, then we should make the next table
+        //the current table, let the old one be collected, and then check to make sure that
+        //it isn’t also copied over.
         private void CopySlotAndPromote(Table table, int workDone)
         {
             if(Interlocked.Add(ref table.CopyDone, workDone) >= table.Capacity && table == _table)
@@ -469,6 +584,20 @@ namespace HackCraft.LockFree
         }
         private bool CopySlot(Table table, PrimeKV prime, int idx)
         {
+            //Note that the prime is passed through. This prevents the allocation of multiple
+            //objects which will in the normal case become unnecessary after this method completes
+            //and in the case of an exception would be abandoned by the thread anyway.
+            //This is pretty much a pure optimisation, but does profile as giving real improvements.
+            //There could be a temptation to go further and have a single permanent prime in tread-local
+            //storage. However, this fails in the following case:
+            //1. Thread is aborted or otherwise rudely interrupted after putting the prime in the table
+            //but before over-writing it with the dead record.
+            //2. This exception is caught, and the thread is put back into service.
+            //3. The thread uses it’s thread-local prime in another operation, hence mutating the value
+            //written in step 1 above (perhaps in a different table in a different dictionary).
+            //Besides which, such thread-local implementation could profile as giving a tiny improvement in tests
+            //and then hammer memory usage in real world use!
+
             Record[] records = table.Records;
             //if unwritten-to we should be able to just mark it as dead.
             if(records[idx].Hash == 0 && Interlocked.CompareExchange(ref records[idx].KeyValue, KV.DeadKey, null) == null)
@@ -511,6 +640,8 @@ namespace HackCraft.LockFree
         }
         private Table Resize(Table tab)
         {
+            //Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
+            //but determining just how best to do so requires the consideration of many different cases.
             int sz = tab.Size;
             int cap = tab.Capacity;
             Table next = tab.Next;
