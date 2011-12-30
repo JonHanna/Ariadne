@@ -356,65 +356,73 @@ namespace HackCraft.LockFree
         // Try to get a value from a table. If necessary, move to the next table. 
         private bool Obtain(Table table, TKey key, int hash, out TValue value)
         {
-            int idx = hash & table.Mask;
-            int reprobeCount = 0;
-            int maxProbe = table.ReprobeLimit;
-            Record[] records = table.Records;
             for(;;)
             {
-                int curHash = records[idx].Hash;
-                if(curHash == 0)//nothing written to this record
+                int idx = hash & table.Mask;
+                int reprobeCount = 0;
+                int maxProbe = table.ReprobeLimit;
+                Record[] records = table.Records;
+                for(;;)
                 {
-                    Table next = table.Next;
-                    if(next != null)
-                        return Obtain(next, key, hash, out value);
-                    value = default(TValue);
-                    return false;
-                }
-                KV pair = records[idx].KeyValue;
-                if(curHash == hash)//hash we care about, is it the key we care about?
-                {
-                    if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
+                    int curHash = records[idx].Hash;
+                    if(curHash == 0)//nothing written to this record
                     {
-                    	PrimeKV asPrime = pair as PrimeKV;
-                        if(asPrime != null)
+                        Table next = table.Next;
+                        if(next != null)
                         {
-                            // A resize-copy is part-way through. Let’s make sure it completes before hitting that
-                            // other table (we do this rather than trust the value we found, because the next table
-                            // could have a more recently-written value).
-                        	CopySlotsAndCheck(table, asPrime, idx);
-                        	// Note that Click has reading operations help the resize operation.
-                        	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
-                            // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
-                        	// in heavily memory-constrained scenarios. Since reading wouldn’t conceptually add to
-                        	// memory use, this could be surprising to users.
-                            return Obtain(table.Next, key, hash, out value);
+                            table = next;
+                            break;
                         }
-                        else if(pair is TombstoneKV)
+                        value = default(TValue);
+                        return false;
+                    }
+                    KV pair = records[idx].KeyValue;
+                    if(curHash == hash)//hash we care about, is it the key we care about?
+                    {
+                        if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
+                        {
+                        	PrimeKV asPrime = pair as PrimeKV;
+                            if(asPrime != null)
+                            {
+                                // A resize-copy is part-way through. Let’s make sure it completes before hitting that
+                                // other table (we do this rather than trust the value we found, because the next table
+                                // could have a more recently-written value).
+                            	CopySlotsAndCheck(table, asPrime, idx);
+                            	// Note that Click has reading operations help the resize operation.
+                            	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
+                                // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
+                            	// in heavily memory-constrained scenarios. Since reading wouldn’t conceptually add to
+                            	// memory use, this could be surprising to users.
+                                table = table.Next;
+                                break;
+                            }
+                            else if(pair is TombstoneKV)
+                            {
+                                value = default(TValue);
+                                return false;
+                            }
+                            else
+                            {
+                                value = pair.Value;
+                                return true;
+                            }
+                        }
+                    }
+                    if(++reprobeCount >= maxProbe)
+                    {
+                        //if there’s a resize in progress, the desired value might be in the next table.
+                        //otherwise, it doesn’t exist.
+                        Table next = table.Next;
+                        if(next == null)
                         {
                             value = default(TValue);
                             return false;
                         }
-                        else
-                        {
-                            value = pair.Value;
-                            return true;
-                        }
+                        table = next;
+                        break;
                     }
+                    idx = (idx + 1) & table.Mask;
                 }
-                if(++reprobeCount >= maxProbe)
-                {
-                    //if there’s a resize in progress, the desired value might be in the next table.
-                    //otherwise, it doesn’t exist.
-                    Table next = table.Next;
-                    if(next == null)
-                    {
-                        value = default(TValue);
-                        return false;
-                    }
-                    return Obtain(next, key, hash, out value);
-                }
-                idx = (idx + 1) & table.Mask;
             }
         }
         // try to put a value into the dictionary, as long as the current value
@@ -429,6 +437,9 @@ namespace HackCraft.LockFree
         // to the next table.
         private KV PutIfMatch(Table table, KV pair, int hash, KV oldPair, IKVEqualityComparer valCmp)
         {
+            //Restart with next table by goto-ing to this label. Just as flame-bait for people quoting
+            //Dijkstra (well, that and it avoids recursion with a measurable performance improvement).
+        restart:
             int mask = table.Mask;
             int idx = hash & mask;
             int reprobeCount = 0;
@@ -480,7 +491,8 @@ namespace HackCraft.LockFree
                     //the case
                     PrimeKV prime = new PrimeKV();
                     HelpCopy(table, prime, false);
-                    return PutIfMatch(next, pair, hash, oldPair, valCmp);
+                    table = next;
+                    goto restart;
                 }
                 idx = (idx + 1) & mask;
             }
@@ -499,7 +511,8 @@ namespace HackCraft.LockFree
                 PrimeKV prime = new PrimeKV();
                 CopySlotsAndCheck(table, prime, idx);
                 HelpCopy(table, prime, false);
-                return PutIfMatch(table.Next, pair, hash, oldPair, valCmp);
+                table = table.Next;
+                goto restart;
             }
             
             for(;;)
@@ -532,10 +545,14 @@ namespace HackCraft.LockFree
                     CopySlotsAndCheck(table, prevPrime, idx);
                     if(oldPair != null)
                         HelpCopy(table, prevPrime, false);
-                    return PutIfMatch(table.Next, pair, hash, oldPair, valCmp);
+                    table = table.Next;
+                    goto restart;
                 }
                 else if(prevPair == KV.DeadKey)
-                    return PutIfMatch(table.Next, pair, hash, oldPair, valCmp);
+                {
+                    table = table.Next;
+                    goto restart;
+                }
                 else
                     curPair = prevPair;
             }

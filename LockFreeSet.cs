@@ -199,55 +199,63 @@ namespace HackCraft.LockFree
         }
         private bool Obtain(Table table, T item, int hash, out T storedItem)
         {
-            int idx = hash & table.Mask;
-            int reprobeCount = 0;
-            int maxProbe = table.ReprobeLimit;
-            Record[] records = table.Records;
             for(;;)
             {
-                int curHash = records[idx].Hash;
-                if(curHash  == 0)// nothing written yet
+                int idx = hash & table.Mask;
+                int reprobeCount = 0;
+                int maxProbe = table.ReprobeLimit;
+                Record[] records = table.Records;
+                for(;;)
                 {
-                    Table next = table.Next;
-                    if(next != null)
-                        return Obtain(next, item, hash, out storedItem);
-                    storedItem = default(T);
-                    return false;
-                }
-                Box box = records[idx].Box;
-                if(curHash == hash)//hash we care about, is it the item we care about?
-                {
-                    if(_cmp.Equals(item, box.Value))//items match, and this can’t change
+                    int curHash = records[idx].Hash;
+                    if(curHash  == 0)// nothing written yet
                     {
-                        PrimeBox asPrime = box as PrimeBox;
-                        if(asPrime != null)
+                        Table next = table.Next;
+                        if(next != null)
                         {
-                            CopySlotsAndCheck(table, asPrime, idx);
-                            return Obtain(table.Next, item, hash, out storedItem);
+                            table = next;
+                            break;
                         }
-                        else if(box is TombstoneBox)
+                        storedItem = default(T);
+                        return false;
+                    }
+                    Box box = records[idx].Box;
+                    if(curHash == hash)//hash we care about, is it the item we care about?
+                    {
+                        if(_cmp.Equals(item, box.Value))//items match, and this can’t change
+                        {
+                            PrimeBox asPrime = box as PrimeBox;
+                            if(asPrime != null)
+                            {
+                                CopySlotsAndCheck(table, asPrime, idx);
+                                table = table.Next;
+                                break;
+                            }
+                            else if(box is TombstoneBox)
+                            {
+                                storedItem = default(T);
+                                return false;
+                            }
+                            else
+                            {
+                                storedItem = box.Value;
+                                return true;
+                            }
+                        }
+                    }
+                    if(++reprobeCount >= maxProbe)
+                    {
+                        Table next = table.Next;
+                        if(next == null)
                         {
                             storedItem = default(T);
                             return false;
                         }
-                        else
-                        {
-                            storedItem = box.Value;
-                            return true;
-                        }
+                        table = next;
+                        break;
                     }
+                    idx = (idx + 1) & table.Mask;
                 }
-                if(++reprobeCount >= maxProbe)
-                {
-                    Table next = table.Next;
-                    if(next == null)
-                    {
-                        storedItem = default(T);
-                        return false;
-                    }
-                    return Obtain(next, item, hash, out storedItem);
-                }
-                idx = (idx + 1) & table.Mask;
             }
         }
         private Box PutIfMatch(Box box, bool removing, bool emptyOnly)
@@ -256,6 +264,7 @@ namespace HackCraft.LockFree
         }
         private Box PutIfMatch(Table table, Box box, int hash, bool removing, bool emptyOnly)
         {
+        restart:
             int mask = table.Mask;
             int idx = hash & mask;
             int reprobeCount = 0;
@@ -306,7 +315,8 @@ namespace HackCraft.LockFree
                     //the case
                     PrimeBox prevPrime = curBox as PrimeBox ?? new PrimeBox(curBox.Value);
                     HelpCopy(table, prevPrime, false);
-                    return PutIfMatch(next, box, hash, removing, emptyOnly);
+                    table = next;
+                    goto restart;
                 }
                 idx = (idx + 1) & mask;
             }
@@ -319,7 +329,8 @@ namespace HackCraft.LockFree
                 PrimeBox prevPrime = curBox as PrimeBox ?? new PrimeBox(curBox.Value);
                 CopySlotsAndCheck(table, prevPrime, idx);
                 HelpCopy(table, prevPrime, false);
-                return PutIfMatch(table.Next, box, hash, removing, emptyOnly);
+                table = table.Next;
+                goto restart;
             }
             for(;;)
             {
@@ -345,10 +356,14 @@ namespace HackCraft.LockFree
                     CopySlotsAndCheck(table, prevPrime, idx);
                     if(!emptyOnly)
                         HelpCopy(table, prevPrime, false);
-                    return PutIfMatch(table.Next, box, hash, removing, emptyOnly);
+                    table = table.Next;
+                    goto restart;
                 }
                 else if(prevBox == Box.DeadItem)
-                    return PutIfMatch(table.Next, box, hash, removing, emptyOnly);
+                {
+                    table = table.Next;
+                    goto restart;
+                }
                 else if((box is TombstoneBox) == (prevBox is TombstoneBox))
                     return prevBox;//no change, return that stored.
                 curBox = prevBox;
