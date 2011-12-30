@@ -348,11 +348,6 @@ namespace HackCraft.LockFree
             for(int i = 0; i != count; ++i)
                 this[(TKey)info.GetValue("k" + i, typeof(TKey))] = (TValue)info.GetValue("v" + i, typeof(TValue));
         }
-        // Try to get a value from the dictionary.
-        private bool Obtain(TKey key, out TValue value)
-        {
-            return Obtain(_table, key, Hash(key), out value);
-        }
         // Try to get a value from a table. If necessary, move to the next table. 
         private bool Obtain(Table table, TKey key, int hash, out TValue value)
         {
@@ -765,7 +760,7 @@ namespace HackCraft.LockFree
             get
             {
                 TValue ret;
-                if(Obtain(key, out ret))
+                if(TryGetValue(key, out ret))
                     return ret;
                 throw new KeyNotFoundException(key.ToString());
             }
@@ -816,7 +811,7 @@ namespace HackCraft.LockFree
         public bool ContainsKey(TKey key)
         {
             TValue dummy;
-            return Obtain(key, out dummy);
+            return TryGetValue(key, out dummy);
         }
         /// <summary>Adds a key and value to the collection, as long as it is not currently present.
         /// </summary>
@@ -847,7 +842,7 @@ namespace HackCraft.LockFree
         /// <returns>True if the key was found, false otherwise.</returns>
         public bool TryGetValue(TKey key, out TValue value)
         {
-            return Obtain(key, out value);
+            return Obtain(_table, key, Hash(key), out value);
         }
         /// <summary>Adds a key and value to the collection, as long as it is not currently present.
         /// </summary>
@@ -876,7 +871,7 @@ namespace HackCraft.LockFree
         public bool Contains(KeyValuePair<TKey, TValue> item, IEqualityComparer<TValue> valueComparer)
         {
             TValue test;
-            return Obtain(item.Key, out test) && valueComparer.Equals(item.Value, test);
+            return TryGetValue(item.Key, out test) && valueComparer.Equals(item.Value, test);
         }
         /// <summary>
         /// Tests whether a key and value matching that passed are present in the dictionary
