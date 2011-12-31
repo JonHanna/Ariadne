@@ -1347,7 +1347,15 @@ namespace HackCraft.LockFree
         }
         void ICollection.CopyTo(Array array, int index)
         {
-            throw new NotImplementedException();
+        	if(array == null)
+        		throw new ArgumentNullException("array");
+        	if(array.Rank != 1)
+        	    throw new ArgumentException("Cannot copy to a multi-dimensional array", "array");
+        	if(array.GetLowerBound(0) != 0)
+        	    throw new ArgumentException("Cannot copy to an array whose lower bound is not zero", "array");
+        	if(index < 0)
+        		throw new ArgumentOutOfRangeException("arrayIndex");
+        	((ICollection)ToHashSet()).CopyTo(array, index);
         }
     }
 }
