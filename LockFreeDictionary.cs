@@ -433,7 +433,9 @@ namespace HackCraft.LockFree
         private KV PutIfMatch(Table table, KV pair, int hash, KV oldPair, IKVEqualityComparer valCmp)
         {
             //Restart with next table by goto-ing to this label. Just as flame-bait for people quoting
-            //Dijkstra (well, that and it avoids recursion with a measurable performance improvement).
+            //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
+            //essentially this is doing tail-call optimisation by hand, the compiler could do this, but
+            //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
         restart:
             int mask = table.Mask;
             int idx = hash & mask;
@@ -484,8 +486,7 @@ namespace HackCraft.LockFree
                     //test if we’re putting from a copy
                     //and don’t do this if that’s
                     //the case
-                    PrimeKV prime = new PrimeKV();
-                    HelpCopy(table, prime, false);
+                    HelpCopy(table, new PrimeKV(), false);
                     table = next;
                     goto restart;
                 }
@@ -650,7 +651,7 @@ namespace HackCraft.LockFree
             
             return copied;
         }
-        private Table Resize(Table tab)
+        private static Table Resize(Table tab)
         {
             //Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
             //but determining just how best to do so requires the consideration of many different cases.
@@ -989,53 +990,119 @@ namespace HackCraft.LockFree
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.
         /// <para>The returned enumerable is lazily executed, and items are only removed from the dictionary as it is enumerated.</para></remarks>
-        public IEnumerable<KeyValuePair<TKey, TValue>> RemoveWhere(Func<TKey, TValue, bool> predicate)
+        public RemovingEnumeration RemoveWhere(Func<TKey, TValue, bool> predicate)
         {
-        	int removed;
-        	Table table = _table;
-        	for(;;)
-        	{
-	        	removed = 0;
-	            Record[] records = table.Records;
-	            for(int idx = 0; idx != records.Length; ++idx)
-	            {
-	            	Record record = records[idx];
-	            	KV pair = record.KeyValue;
-	            	PrimeKV prime = pair as PrimeKV;
-	            	if(prime != null)
-	            		CopySlotsAndCheck(table, prime, idx);
-	            	else if(pair != null && !(pair is TombstoneKV) && predicate(pair.Key, pair.Value))
-	            	{
-	            		TombstoneKV tomb = new TombstoneKV(pair.Key);
-	            		for(;;)
-	            		{
-		            		KV oldPair = Interlocked.CompareExchange(ref records[idx].KeyValue, tomb, pair);
-		            		if(oldPair == pair)
-		            		{
-		            			table.Size.Decrement();
-		            			yield return pair;
-		            			++removed;
-		            			break;
-		            		}
-		            		else if(oldPair is PrimeKV)
-		            		    CopySlotsAndCheck(table, (PrimeKV)oldPair, idx);
-		            		else if(oldPair is TombstoneKV || !predicate(oldPair.Key, oldPair.Value))
-		            			break;
-		            		else
-		            			pair = oldPair;
-	            		}
-	            	}
-	            }
-	            Table next = table.Next;
-	            if(next != null)
-	            	table = next;
-	            else
-	            {
-	            	if(removed > table.Capacity >> 4 || removed > Count >> 2)
-	            		Resize(table);
-	            	yield break;
-	            }
-        	}
+            return new RemovingEnumeration(this, predicate);
+        }
+        /// <summary>Enumerates a <see cref="LockFreeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
+        /// and removing them from the dictionary.
+        /// </summary>
+        public class RemovingEnumeration : IEnumerator<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
+        {
+            private readonly LockFreeDictionary<TKey, TValue> _dict;
+            private Table _table;
+            private readonly AliasedInt _size;
+            private readonly Func<TKey, TValue, bool> _predicate;
+            private int _idx;
+            private int _removed;
+            private KV _current;
+            internal RemovingEnumeration(LockFreeDictionary<TKey, TValue> dict, Func<TKey, TValue, bool> predicate)
+            {
+                _size = (_table = (_dict = dict)._table).Size;
+                _predicate = predicate;
+                _idx = -1;
+            }
+            /// <summary>
+            /// The current pair being enumerated.
+            /// </summary>
+            public KeyValuePair<TKey, TValue> Current
+            {
+                get { return _current; }
+            }
+            object IEnumerator.Current
+            {
+                get { return _current; }
+            }
+            /// <summary>
+            /// Moves to the next item being enumerated.
+            /// </summary>
+            /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
+            public bool MoveNext()
+            {
+                while(_table != null)
+                {
+                    Record[] records = _table.Records;
+                    for(++_idx; _idx != records.Length; ++_idx)
+                    {
+                        KV kv = records[_idx].KeyValue;
+                        PrimeKV prime = kv as PrimeKV;
+                        if(prime != null)
+                            _dict.CopySlotsAndCheck(_table, prime, _idx);
+                        else if(kv != null && !(kv is TombstoneKV) && _predicate(kv.Key, kv.Value))
+                        {
+                            TombstoneKV tomb = new TombstoneKV(kv.Key);
+                            for(;;)
+                            {
+                                KV oldKV = Interlocked.CompareExchange(ref records[_idx].KeyValue, tomb, kv);
+                                if(oldKV == kv)
+                                {
+                                    _size.Decrement();
+                                    _current = kv;
+                                    ++_removed;
+                                    return true;
+                                }
+                                else if(oldKV is PrimeKV)
+                                {
+                                    _dict.CopySlotsAndCheck(_table, (PrimeKV)oldKV, _idx);
+                                    break;
+                                }
+                                else if(oldKV is TombstoneKV || !_predicate(oldKV.Key, oldKV.Value))
+                                    break;
+                                else
+                                    kv = oldKV;
+                            }
+                        }
+                    }
+                    Table next = _table.Next;
+                    if(next == null)
+                        ResizeIfManyRemoved();
+                    _table = next;
+                }
+                return false;
+            }
+            //An optimisation, rather than necessary. If we’ve set a lot of records as tombstones,
+            //then we should do well to resize now. Note that it’s safe for us to not call this
+            //so we need not try-finally in internal code. Note also that it is already called if
+            //we reach the end of the enumeration.
+            private void ResizeIfManyRemoved()
+            {
+                if(_table != null && _table.Next == null && (_removed > _table.Capacity >> 4 || _removed > _table.Size >> 2))
+                    LockFreeDictionary<TKey, TValue>.Resize(_table);
+            }
+            void IDisposable.Dispose()
+            {
+                ResizeIfManyRemoved();
+            }
+            void IEnumerator.Reset()
+            {
+                throw new NotSupportedException();
+            }
+            /// <summary>
+            /// Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator
+            /// </summary>
+            /// <returns>The enumeration itself.</returns>
+            public RemovingEnumeration GetEnumerator()
+            {
+                return this;
+            }
+            IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+            {
+                return this;
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return this;
+            }
         }
         /// <summary>Removes all key-value pairs that match a predicate.
         /// </summary>
@@ -1046,8 +1113,9 @@ namespace HackCraft.LockFree
         public int Remove(Func<TKey, TValue, bool> predicate)
         {
         	int total = 0;
-        	foreach(KeyValuePair<TKey, TValue> kvp in RemoveWhere(predicate))
-        		++total;
+        	RemovingEnumeration remover = new RemovingEnumeration(this, predicate);
+        	while(remover.MoveNext())
+        	    ++total;
         	return total;
         }
         internal sealed class KVEnumerator : IEnumerator<KV>, IEnumerable<KV>

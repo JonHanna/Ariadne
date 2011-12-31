@@ -444,7 +444,7 @@ namespace HackCraft.LockFree
             
             return copied;
         }
-        private Table Resize(Table tab)
+        private static Table Resize(Table tab)
         {
             int sz = tab.Size;
             int cap = tab.Capacity;
@@ -529,11 +529,92 @@ namespace HackCraft.LockFree
         /// <param name="items">The items to add.</param>
         /// <returns>An enumeration of those items which where added to the set, excluding those which were already present.</returns>
         /// <remarks>The returned enumerable is lazily executed, and items are only added to the set as it is enumerated.</remarks>
-        public IEnumerable<T> FilterAdd(IEnumerable<T> items)
+        public AddedEnumeration FilterAdd(IEnumerable<T> items)
         {
-            foreach(T item in items)
-                if(Add(item))
-                    yield return item;
+            return new AddedEnumeration(this, items.GetEnumerator());
+        }
+        /// <summary>
+        /// An enumeration that adds to the set as it is enumerated, returning only those items added.
+        /// </summary>
+        public class AddedEnumeration : IEnumerable<T>, IEnumerator<T>
+        {
+            private LockFreeSet<T> _set;
+            private IEnumerator<T> _srcEnumerator;
+            private T _current;
+            internal AddedEnumeration(LockFreeSet<T> _set, IEnumerator<T> _srcEnumerator)
+            {
+                this._set = _set;
+                this._srcEnumerator = _srcEnumerator;
+            }
+            /// <summary>Returns an enumerator that iterates through the collection.
+            /// </summary>
+            /// <returns>The enumerator.</returns>
+            public AddedEnumeration GetEnumerator()
+            {
+                return this;
+            }
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return this;
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return this;
+            }
+            /// <summary>
+            /// Returns the current item.
+            /// </summary>
+            public T Current
+            {
+                get { return _current; }
+            }
+            object IEnumerator.Current
+            {
+                get { return this; }
+            }
+            /// <summary>
+            /// Disposes of the enumeration, doing any necessary clean-up operations.
+            /// </summary>
+            public void Dispose()
+            {
+                _srcEnumerator.Dispose();
+            }
+            /// <summary>
+            /// Moves to the next item in the enumeration.
+            /// </summary>
+            /// <returns>True if an item was found, false it the end of the enumeration was reached.</returns>
+            public bool MoveNext()
+            {
+                while(_srcEnumerator.MoveNext())
+                {
+                    T current = _srcEnumerator.Current;
+                    if(_set.Add(current))
+                    {
+                        _current = current;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            /// <summary>
+            /// Resets the enumerations.
+            /// </summary>
+            /// <exception cref="NotSupportedException"/>The source enumeration does not support resetting (
+            public void Reset()
+            {
+                try
+                {
+                    _srcEnumerator.Reset();
+                }
+                catch(NotSupportedException nse)
+                {
+                    throw new NotSupportedException("Resetting not supported by the source enumeration", nse);
+                }
+                catch(NotImplementedException)
+                {
+                    throw new NotSupportedException("Resetting not supported by the source enumeration.");
+                }
+            }
         }
         /// <summary>Attempts to add a collection of items to the set, returning the number added.</summary>
         /// <param name="items">The items to add.</param>
@@ -898,54 +979,118 @@ namespace HackCraft.LockFree
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.
         /// <para>The returned enumerable is lazily executed, and items are only removed from the dictionary as it is enumerated.</para></remarks>
-        public IEnumerable<T> RemoveWhere(Func<T, bool> predicate)
+        public RemovingEnumeration RemoveWhere(Func<T, bool> predicate)
         {
-            if(predicate == null)
-                throw new ArgumentNullException("predicate");
-            int removed = 0;
-            Table table = _table;
-            for(;;)
+            return new RemovingEnumeration(this, predicate);
+        }
+        /// <summary>Enumerates a <see cref="LockFreeSet&lt;T>"/>, returning items that match a predicate,
+        /// and removing them from the dictionary.
+        /// </summary>
+        public class RemovingEnumeration : IEnumerator<T>, IEnumerable<T>
+        {
+            private readonly LockFreeSet<T> _set;
+            private Table _table;
+            private readonly AliasedInt _size;
+            private readonly Func<T, bool> _predicate;
+            private int _idx;
+            private int _removed;
+            private Box _current;
+            internal RemovingEnumeration(LockFreeSet<T> lfSet, Func<T, bool> predicate)
             {
-                removed = 0;
-                Record[] records = table.Records;
-                for(int idx = 0; idx != records.Length; ++idx)
+                _size = (_table = (_set = lfSet)._table).Size;
+                _predicate = predicate;
+                _idx = -1;
+            }
+            /// <summary>
+            /// The current item being enumerated.
+            /// </summary>
+            public T Current
+            {
+                get { return _current.Value; }
+            }
+            object IEnumerator.Current
+            {
+                get { return _current.Value; }
+            }
+            /// <summary>
+            /// Moves to the next item being enumerated.
+            /// </summary>
+            /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
+            public bool MoveNext()
+            {
+                while(_table != null)
                 {
-                    Record record = records[idx];
-                    Box box = record.Box;
-                    PrimeBox prime = box as PrimeBox;
-                    if(prime != null)
-                        CopySlotsAndCheck(table, prime, idx);
-                    else if(box != null && !(box is TombstoneBox) && predicate(box.Value))
+                    Record[] records = _table.Records;
+                    for(++_idx; _idx != records.Length; ++_idx)
                     {
-                        TombstoneBox tomb = new TombstoneBox(box.Value);
-                        for(;;)
+                        Box box = records[_idx].Box;
+                        PrimeBox prime = box as PrimeBox;
+                        if(prime != null)
+                            _set.CopySlotsAndCheck(_table, prime, _idx);
+                        else if(box != null && !(box is TombstoneBox) && _predicate(box.Value))
                         {
-                            Box oldBox = Interlocked.CompareExchange(ref records[idx].Box, tomb, box);
-                            if(oldBox == box)
+                            TombstoneBox tomb = new TombstoneBox(box.Value);
+                            for(;;)
                             {
-                                table.Size.Decrement();
-                                yield return oldBox.Value;
-                                ++removed;
-                                break;
+                                Box oldBox = Interlocked.CompareExchange(ref records[_idx].Box, tomb, box);
+                                if(oldBox == box)
+                                {
+                                    _size.Decrement();
+                                    _current = box;
+                                    ++_removed;
+                                    return true;
+                                }
+                                else if(oldBox is PrimeBox)
+                                {
+                                    _set.CopySlotsAndCheck(_table, prime, _idx);
+                                    break;
+                                }
+                                else if(oldBox is TombstoneBox || !_predicate(oldBox.Value))
+                                    break;
+                                else
+                                    box = oldBox;
                             }
-                            else if(oldBox is PrimeBox)
-                                CopySlotsAndCheck(table, (PrimeBox)oldBox, idx);
-                            else if(oldBox is TombstoneBox || !predicate(oldBox.Value))
-                                break;
-                            else
-                                box = oldBox;
                         }
                     }
+                    Table next = _table.Next;
+                    if(next != null)
+                        ResizeIfManyRemoved();
+                    _table = next;
                 }
-                Table next = table.Next;
-                if(next != null)
-                    table = next;
-                else
-                {
-                    if(removed > Capacity >> 4 || removed > Count >> 2)
-                        Resize(table);
-                    yield break;
-                }
+                return false;
+            }
+            //An optimisation, rather than necessary. If we’ve set a lot of records as tombstones,
+            //then we should do well to resize now. Note that it’s safe for us to not call this
+            //so we need not try-finally in internal code. Note also that it is already called if
+            //we reach the end of the enumeration.
+            private void ResizeIfManyRemoved()
+            {
+                if(_table != null && _table.Next == null && (_removed > _table.Capacity >> 4 || _removed > _table.Size >> 2))
+                    LockFreeSet<T>.Resize(_table);
+            }
+            void IDisposable.Dispose()
+            {
+                ResizeIfManyRemoved();
+            }
+            void IEnumerator.Reset()
+            {
+                throw new NotSupportedException();
+            }
+            /// <summary>
+            /// Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator
+            /// </summary>
+            /// <returns>The enumeration itself.</returns>
+            public RemovingEnumeration GetEnumerator()
+            {
+                return this;
+            }
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return this;
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return this;
             }
         }
         /// <summary>Removes all items that match a predicate.
@@ -957,7 +1102,8 @@ namespace HackCraft.LockFree
         public int Remove(Func<T, bool> predicate)
         {
             int total = 0;
-            foreach(T item in RemoveWhere(predicate))
+            RemovingEnumeration remover = new RemovingEnumeration(this, predicate);
+            while(remover.MoveNext())
                 ++total;
             return total;
         }
