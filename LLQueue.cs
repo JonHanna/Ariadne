@@ -28,8 +28,8 @@ namespace HackCraft.LockFree
     [Serializable]
     public sealed class LLQueue<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
     {
-        private volatile SinglyLinkedNode<T> _head;
-        private volatile SinglyLinkedNode<T> _tail;
+        private SinglyLinkedNode<T> _head;
+        private SinglyLinkedNode<T> _tail;
         public LLQueue()
         {
             _head = _tail = new SinglyLinkedNode<T>(default(T));
