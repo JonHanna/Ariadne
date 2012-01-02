@@ -198,11 +198,6 @@ namespace HackCraft.LockFree.NUnitTests
     	{
     		new LockFreeDictionary<string, bool>(((int.MaxValue >> 1) + 2));
     	}
-    	[Test]
-    	public void DefaultCapacity()
-    	{
-    		Assert.AreEqual(new LockFreeDictionary<object, object>(0).Capacity, LockFreeDictionary<object, object>.DefaultCapacity);
-    	}
     	private class RoundedEquality : IEqualityComparer<int>
     	{
 			public bool Equals(int x, int y)

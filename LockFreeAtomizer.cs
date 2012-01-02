@@ -22,7 +22,6 @@ namespace HackCraft.LockFree
     [Serializable]
     public class LockFreeAtomizer<T> : ICollection<T>, ICloneable where T:class
     {
-        public static int DefaultCapacity = LockFreeSet<T>.DefaultCapacity;
         private readonly LockFreeSet<T> _store;
         private LockFreeAtomizer(LockFreeSet<T> store)
         {
@@ -35,7 +34,11 @@ namespace HackCraft.LockFree
         public LockFreeAtomizer(int capacity)
             :this(capacity, EqualityComparer<T>.Default){}
         public LockFreeAtomizer(IEqualityComparer<T> comparer)
-            :this(DefaultCapacity, comparer){}
+        {
+            _store = new LockFreeSet<T>(comparer);
+        }
+        public LockFreeAtomizer()
+            :this(EqualityComparer<T>.Default){}
         public LockFreeAtomizer(IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
             _store = new LockFreeSet<T>(collection, comparer);
@@ -58,6 +61,18 @@ namespace HackCraft.LockFree
         {
             return _store.GetEnumerator();
         }
+        public LockFreeAtomizer<T> Clone()
+        {
+            return new LockFreeAtomizer<T>(_store.Clone());
+        }
+        public int Count
+        {
+            get { return _store.Count; }
+        }
+        public void Clear()
+        {
+            _store.Clear();
+        }
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return GetEnumerator();
@@ -66,17 +81,9 @@ namespace HackCraft.LockFree
         {
             return GetEnumerator();
         }
-        public LockFreeAtomizer<T> Clone()
-        {
-            return new LockFreeAtomizer<T>(_store.Clone());
-        }
         object ICloneable.Clone()
         {
             return Clone();
-        }
-        public int Count
-        {
-            get { return _store.Count; }
         }
         bool ICollection<T>.IsReadOnly
         {
@@ -85,10 +92,6 @@ namespace HackCraft.LockFree
         void ICollection<T>.Add(T item)
         {
             Atomize(item);
-        }
-        public void Clear()
-        {
-            _store.Clear();
         }
         bool ICollection<T>.Contains(T item)
         {

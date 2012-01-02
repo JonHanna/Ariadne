@@ -229,9 +229,7 @@ namespace HackCraft.LockFree
         private Table _table;
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<TKey> _cmp;
-        /// <summary>The capacity used with those constructors that do not take a capacity parameter.
-        /// </summary>
-        public static readonly int DefaultCapacity = 1;
+        private const int DefaultCapacity = 1;
         /// <summary>Constructs a new LockFreeDictionary
         /// </summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>

@@ -92,9 +92,7 @@ namespace HackCraft.LockFree
         private Table _table;
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<T> _cmp;
-        /// <summary>The capacity used with those constructors that do not take a capacity parameter.
-        /// </summary>
-        public static readonly int DefaultCapacity = 1;
+        private const int DefaultCapacity = 1;
         /// <summary>Creates a new lock-free set.
         /// </summary>
         /// <param name="capacity">The initial capacity of the set.</param>

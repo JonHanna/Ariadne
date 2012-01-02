@@ -158,11 +158,6 @@ namespace HackCraft.LockFree.NUnitTests
     		var dict = new LockFreeSet<decimal>(((int.MaxValue >> 1) + 2));
     	}
     	[Test]
-    	public void DefaultCapacity()
-    	{
-    		Assert.AreEqual(new LockFreeSet<object>(0).Capacity, LockFreeSet<object>.DefaultCapacity);
-    	}
-    	[Test]
     	public void EqualityComparer()
     	{
     		var hs = new LockFreeSet<string>(StringComparer.InvariantCultureIgnoreCase);
