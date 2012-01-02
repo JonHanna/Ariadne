@@ -106,11 +106,6 @@ namespace HackCraft.LockFree
                 if(Interlocked.CompareExchange(ref _head, curHeadNext, curHead) == curHead)
                 {
                     item = curHeadNext.Item;
-                    //There are two schools of thought on this. On the one hand, setting the item in this node
-                    //to default means that we don't have the situation where objects get left in memory for a long time.
-                    //On the other hand it's only one item, and won't be for long in most situations, so we should just
-                    //wait. On the gripping hand, it's a cheap operation.
-                    curHeadNext.Item = default(T);
                     return true;
                 }
             }
@@ -139,6 +134,20 @@ namespace HackCraft.LockFree
                 return head == _tail && head.Next == null;
             }
         }
+        /// <summary>Clears the last item dequeued from the queue, allowing it to be collected.</summary>
+        /// <remarks>The last item to be dequeued from the queue remains referenced by the queue. In the majority of cases, this will not be an issue,
+        /// but calling this method will be necessary if:
+        /// <list type="number">
+        /// <item>The collection may be held in memory for some time.</item>
+        /// <item>The collection may not be dequeued for some time.</item>
+        /// <item>The collection consumes a large amount of memory that will not be cleared by disposing it.</item>
+        /// </list>
+        /// As a rule, this should almost never be necessary, and it is best avoided as the enumerating methods will then encounter a default
+        /// value (null for a reference type) rather than that which was originally enqueued, but this method exists for this rare case.</remarks>
+        public void ClearLastItem()
+        {
+            _head.Item = default(T);
+        }
         /// <summary>An enumeration &amp; enumerator of items that were removed from the queue as an atomic operation.</summary>
         /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
         public class AtDequeuEnumerator : IEnumerable<T>, IEnumerator<T>
@@ -162,7 +171,7 @@ namespace HackCraft.LockFree
                         head = oldHead;
                 }
             }
-            /// <summary>Returns the enumeration itself, as it is also it's own enumerator.</summary>
+            /// <summary>Returns the enumeration itself, as it is also it’s own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public AtDequeuEnumerator GetEnumerator()
             {
@@ -187,7 +196,7 @@ namespace HackCraft.LockFree
             }
             void IDisposable.Dispose()
             {
-                _end.Item = default(T);
+                //nop
             }
             /// <summary>Moves through the enumeration to the next item.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
@@ -241,7 +250,7 @@ namespace HackCraft.LockFree
             {
                 //nop
             }
-            /// <summary>Returns the enumeration itself, as it is also it's own enumerator.</summary>
+            /// <summary>Returns the enumeration itself, as it is also it’s own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public DequeuEnumerator GetEnumerator()
             {
@@ -367,7 +376,7 @@ namespace HackCraft.LockFree
         /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
         public List<T> ToList()
         {
-        	//As an optimisation, if you past an ICollection<T> to List<T>'s constructor that takes an IEnumerable<T>
+        	//As an optimisation, if you past an ICollection<T> to List<T>’s constructor that takes an IEnumerable<T>
         	//it casts to ICollection<T> and calls Count on it to decide on the initial capacity. Since our Count
         	//is O(n) and since we could grow in the meantime, this optimisation actually makes things worse, so we avoid it.
         	List<T> list = new List<T>();
@@ -416,7 +425,6 @@ namespace HackCraft.LockFree
             SinglyLinkedNode<T> oldHead;
             while((oldHead = Interlocked.CompareExchange(ref _head, _tail, head)) != head)
                 head = oldHead;
-            _head.Item = default(T);
         }
         /// <summary>Examines the queue for the presence of an item.</summary>
         /// <param name="item">The item to search for.</param>
