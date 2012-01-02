@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="InternalHelpers.cs" />
+    <Compile Include="LockFreeAtomizer.cs" />
     <Compile Include="LockFreeDictionary.cs" />
     <Compile Include="LockFreeSet.cs" />
     <Compile Include="LLQueue.cs" />
