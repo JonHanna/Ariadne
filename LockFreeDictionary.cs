@@ -493,11 +493,11 @@ namespace HackCraft.LockFree
                 idx = (idx + 1) & mask;
             }
             //we have a record with a matching key.
-            if(!typeof(TValue).IsValueType && !typeof(TValue).IsPointer && ReferenceEquals(pair.Value, curPair.Value))
+            if(!typeof(TValue).IsValueType && ReferenceEquals(pair.Value, curPair.Value))
                 return pair;//short-cut on quickly-discovered no change.
             //(If the type of TValue is a value or pointer type, then the call to reference equals can only ever return false
             //(after an expensive box), and is pretty much meaningless. Hopefully the jitter would have done a nice job of either
-            //removing the IsValueType and IsPointer checks and leaving the ReferenceEquals call or or removing the entire thing).
+            //removing the IsValueType checks and leaving the ReferenceEquals call or or removing the entire thing).
             
             //If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
             //current record is copied over - so that any reader won’t end up finding the previous value and not realise it
@@ -900,7 +900,7 @@ namespace HackCraft.LockFree
         		throw new ArgumentOutOfRangeException("arrayIndex");
         	Dictionary<TKey, TValue> snapshot = ToDictionary();
         	TValue valForNull;
-        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && TryGetValue(default(TKey), out valForNull))
+        	if(!typeof(TKey).IsValueType && TryGetValue(default(TKey), out valForNull))
         	{
 	        	if(arrayIndex + snapshot.Count + 1 > array.Length)
 	        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
@@ -1322,7 +1322,7 @@ namespace HackCraft.LockFree
 	        		throw new ArgumentOutOfRangeException("arrayIndex");
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
 	        	TValue valForNull;
-	        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && _dict.TryGetValue(default(TKey), out valForNull))
+	        	if(!typeof(TKey).IsValueType && _dict.TryGetValue(default(TKey), out valForNull))
 	        	{
 		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
 		        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
@@ -1468,7 +1468,7 @@ namespace HackCraft.LockFree
 	        	if(arrayIndex < 0)
 	        		throw new ArgumentOutOfRangeException("arrayIndex");
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
-	        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && _dict.ContainsKey(default(TKey)))
+	        	if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
 	        	{
 		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
 		        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
@@ -1575,7 +1575,7 @@ namespace HackCraft.LockFree
             get
             {
                 TValue ret;
-                if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
+                if(typeof(TKey).IsValueType && key == null)
                     return null;
                 if(key is TKey || key == null)
                     return TryGetValue((TKey)key, out ret) ? (object)ret : null;
@@ -1583,9 +1583,9 @@ namespace HackCraft.LockFree
             }
             set
             {
-                if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
+                if(typeof(TKey).IsValueType && key == null)
                     throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
-                if(value == null && (typeof(TValue).IsValueType || typeof(TValue).IsPointer))
+                if(typeof(TValue).IsValueType && value == null)
                     throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
                 try
                 {
@@ -1634,15 +1634,15 @@ namespace HackCraft.LockFree
         bool IDictionary.Contains(object key)
         {
             if(key == null)
-                return !typeof(TKey).IsValueType && !typeof(TKey).IsPointer && ContainsKey(default(TKey));
+                return !typeof(TKey).IsValueType && ContainsKey(default(TKey));
             return key is TKey && ContainsKey((TKey)key);
         }
         
         void IDictionary.Add(object key, object value)
         {
-            if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
+            if(typeof(TKey).IsValueType && key == null)
                 throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
-            if(value == null && (typeof(TValue).IsValueType || typeof(TValue).IsPointer))
+            if(typeof(TValue).IsValueType && value == null)
                 throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
             try
             {
@@ -1668,7 +1668,7 @@ namespace HackCraft.LockFree
         }
         void IDictionary.Remove(object key)
         {
-            if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
+            if(typeof(TKey).IsValueType && key == null)
                 return;
             if(key == null || key is TKey)
                 Remove((TKey)key);

@@ -637,7 +637,7 @@ namespace HackCraft.LockFree
         /// only valid for reference types.</remarks>
         public T Find(T item)
         {
-            if(typeof(T).IsValueType || typeof(T).IsPointer)
+            if(typeof(T).IsValueType)
                 throw new InvalidOperationException(Strings.Retrieving_Non_Reference);
             T found;
             return Obtain(item, out found) ? found : default(T);
@@ -654,7 +654,7 @@ namespace HackCraft.LockFree
         /// only valid for reference types.</remarks>
         public T FindOrStore(T item)
         {
-            if(typeof(T).IsValueType || typeof(T).IsPointer)
+            if(typeof(T).IsValueType)
                 throw new InvalidOperationException(Strings.Retrieving_Non_Reference);
             Box found = PutIfMatch(new Box(item), false, false);
             return found == null || found is TombstoneBox ? item : found.Value;
