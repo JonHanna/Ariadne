@@ -169,10 +169,6 @@ namespace HackCraft.LockFree
         {
             info.AddValue("ic", _initialCapacity);
             info.AddValue("cmp", _cmp, typeof(IEqualityComparer<T>));
-//            int cItems = 0;
-//            foreach(Box box in EnumerateBoxes())
-//                info.AddValue("i" + cItems++, box.Value, typeof(T));
-//            info.AddValue("c", cItems);
             T[] arr = ToArray();
             info.AddValue("arr", arr);
             info.AddValue("c", arr.Length);
@@ -181,11 +177,6 @@ namespace HackCraft.LockFree
             :this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
         {
             _initialCapacity = info.GetInt32("ic");
-//            int count = info.GetInt32("c");
-//            if(count < 0)
-//                throw new SerializationException();
-//            for(int i = 0; i != count; ++i)
-//                this.Add((T)info.GetValue("i" + i, typeof(T)));
             AddRange((T[])info.GetValue("arr", typeof(T[])));
         }
         private int Hash(T item)
