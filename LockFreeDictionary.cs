@@ -890,10 +890,7 @@ namespace HackCraft.LockFree
         /// too great to copy into the array at the index given.
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-        	if(array == null)
-        		throw new ArgumentNullException("array");
-        	if(arrayIndex < 0)
-        		throw new ArgumentOutOfRangeException("arrayIndex");
+            Validation.CopyTo(array, arrayIndex);
         	Dictionary<TKey, TValue> snapshot = ToDictionary();
         	TValue valForNull;
         	if(!typeof(TKey).IsValueType && TryGetValue(default(TKey), out valForNull))
@@ -1312,10 +1309,7 @@ namespace HackCraft.LockFree
             /// too great to copy into the array at the index given.
 			public void CopyTo(TValue[] array, int arrayIndex)
 			{
-	        	if(array == null)
-	        		throw new ArgumentNullException("array");
-	        	if(arrayIndex < 0)
-	        		throw new ArgumentOutOfRangeException("arrayIndex");
+			    Validation.CopyTo(array, arrayIndex);
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
 	        	TValue valForNull;
 	        	if(!typeof(TKey).IsValueType && _dict.TryGetValue(default(TKey), out valForNull))
@@ -1412,10 +1406,7 @@ namespace HackCraft.LockFree
             }
             void ICollection.CopyTo(Array array, int index)
             {
-	        	if(array == null)
-	        		throw new ArgumentNullException("array");
-	        	if(index < 0)
-	        		throw new ArgumentOutOfRangeException("arrayIndex");
+                Validation.CopyTo(array, index);
 	        	((ICollection)_dict.ToDictionary().Values).CopyTo(array, index);
             }
 	    }
@@ -1459,10 +1450,7 @@ namespace HackCraft.LockFree
             /// too great to copy into the array at the index given.
 			public void CopyTo(TKey[] array, int arrayIndex)
 			{
-	        	if(array == null)
-	        		throw new ArgumentNullException("array");
-	        	if(arrayIndex < 0)
-	        		throw new ArgumentOutOfRangeException("arrayIndex");
+			    Validation.CopyTo(array, arrayIndex);
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
 	        	if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
 	        	{
@@ -1558,10 +1546,7 @@ namespace HackCraft.LockFree
             }
             void ICollection.CopyTo(Array array, int index)
             {
-	        	if(array == null)
-	        		throw new ArgumentNullException("array");
-	        	if(index < 0)
-	        		throw new ArgumentOutOfRangeException("arrayIndex");
+                Validation.CopyTo(array, index);
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
 	        	((ICollection)_dict.ToDictionary().Keys).CopyTo(array, index);
             }
@@ -1672,14 +1657,7 @@ namespace HackCraft.LockFree
         
         void ICollection.CopyTo(Array array, int index)
         {
-        	if(array == null)
-        		throw new ArgumentNullException("array");
-        	if(array.Rank != 1)
-        	    throw new ArgumentException(Strings.Cant_Copy_Multidimensional, "array");
-        	if(array.GetLowerBound(0) != 0)
-        	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
-        	if(index < 0)
-        		throw new ArgumentOutOfRangeException("arrayIndex");
+            Validation.CopyTo(array, index);
         	((ICollection)ToDictionary()).CopyTo(array, index);
         }
     }

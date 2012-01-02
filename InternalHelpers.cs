@@ -39,6 +39,27 @@ namespace HackCraft.LockFree
             Item = item;
         }
     }
+    internal static class Validation
+    {
+        public static void CopyTo<T>(T[] array, int arrayIndex)
+        {
+        	if(array == null)
+        		throw new ArgumentNullException("array");
+        	if(arrayIndex < 0)
+        		throw new ArgumentOutOfRangeException("arrayIndex");
+        }
+        public static void CopyTo(Array array, int index)
+        {
+        	if(array == null)
+        		throw new ArgumentNullException("array");
+        	if(array.Rank != 1)
+        	    throw new ArgumentException(Strings.Cant_Copy_Multidimensional, "array");
+        	if(array.GetLowerBound(0) != 0)
+        	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
+        	if(index < 0)
+        		throw new ArgumentOutOfRangeException("arrayIndex");
+        }
+    }
     internal static class Strings
     {
         private static readonly ResourceManager rm = new ResourceManager("HackCraft.LockFree", typeof(Strings).Assembly);

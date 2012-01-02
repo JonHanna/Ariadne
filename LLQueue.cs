@@ -344,10 +344,7 @@ namespace HackCraft.LockFree
         }
         public void CopyTo(T[] array, int arrayIndex)
         {
-        	if(array == null)
-        		throw new ArgumentNullException("array");
-        	if(arrayIndex < 0)
-        		throw new ArgumentOutOfRangeException("arrayIndex");
+            Validation.CopyTo(array, arrayIndex);
         	ToList().CopyTo(array, arrayIndex);
         }
         bool ICollection<T>.Remove(T item)
@@ -377,14 +374,7 @@ namespace HackCraft.LockFree
         }
         void ICollection.CopyTo(Array array, int index)
         {
-        	if(array == null)
-        		throw new ArgumentNullException("array");
-        	if(array.Rank != 1)
-        	    throw new ArgumentException(Strings.Cant_Copy_Multidimensional, "array");
-        	if(array.GetLowerBound(0) != 0)
-        	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
-        	if(index < 0)
-        		throw new ArgumentOutOfRangeException("arrayIndex");
+            Validation.CopyTo(array, index);
         	((ICollection)ToList()).CopyTo(array, index);
         }
     }
