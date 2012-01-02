@@ -831,8 +831,9 @@ namespace HackCraft.LockFree
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
+            Table newTable = new Table(_initialCapacity, new AliasedInt());
             Thread.MemoryBarrier();
-            _table = new Table(_initialCapacity, new AliasedInt());
+            _table = newTable;
         }
         /// <summary>Tests whether a key and value matching that passed are present in the dictionary.</summary>
         /// <param name="item">A <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> defining the item sought.</param>

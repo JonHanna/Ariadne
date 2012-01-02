@@ -875,8 +875,9 @@ namespace HackCraft.LockFree
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
+            Table newTable = new Table(_initialCapacity, new AliasedInt());
             Thread.MemoryBarrier();
-            _table = new Table(_initialCapacity, new AliasedInt());
+            _table = newTable;
         }
         /// <summary>Determines whether an item is present in the set.</summary>
         /// <param name="item">The item sought.</param>
