@@ -28,10 +28,10 @@
     <value>Null (nothing) values cannot be cast to {0}.</value>
   </data>
   <data name="Invalid_Cast_Keys" xml:space="preserve">
-    <value>Cannot use {0} arguments as {1] keys.</value>
+    <value>Cannot use {0} arguments as {1} keys.</value>
   </data>
   <data name="Invalid_Cast_Values" xml:space="preserve">
-    <value>Cannot use {0} arguments as {1] values.</value>
+    <value>Cannot use {0} arguments as {1} values.</value>
   </data>
   <data name="Cant_Copy_Multidimensional" xml:space="preserve">
     <value>Cannot copy to a multi-dimensional array.</value>
