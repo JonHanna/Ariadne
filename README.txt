@@ -28,69 +28,6 @@ but faster when a small number of keys becomes “interesting” and the subject
 to the same key. (Acutally, the implementation at the time of writing beats
 ConcurrentDictionary for at least some low-contention cases).
 
-History:
-
-Dr. Cliff Click published details of a lock-free hash-table that he has implemented in Java
-(see <http://video.google.com/videoplay?docid=2139967204534450862> and 
-<http://www.azulsystems.com/events/javaone_2007/2007_LockFreeHash.pdf>). The similarities
-between the JVM and CLR are great enough that a .NET version seemed likely to be fruitful,
-especially since ConcurrentDictionary wasn’t available at the time. I produced a relatively
-straight port, with the main differences being that hash codes were stored adjacent to the
-keys and values (something Click described as desirable but “hard to do in Java” — .NET
-value types make this easy), and it’s using the IEqualityComparer<T>-based approach to
-determining equality that is the norm in .NET and Mono. The class saw practical use in
-projects for my employers.
-
-Considering the heavy use of casting (which means boxing when the types involved are value)
-undesirable, I decided to approach the problem from scratch for a more purely .NET-oriented
-algorithm. Generic type-safe key-value nodes avoids casting at the cost of extra
-allocations. Banning hash values of zero (substituting another value when it arises) allows
-the memoised hash values to be considered a first-class member of the record, short-cutting
-on more key misses and reliably identifying empty slots by hash code alone. This and some
-efforts to reduce allocations during copies due to resizing offset the cost of allocating
-when putting.
-
-Bringing Your Own Synchronisation:
-
-The use of a thread-safe collection does not solve all threading issues with non thread-
-safe collections that implement the same interface.
-
-In particular, operating upon the value of a given key in the LockFreeDictionary is
-comparable to atomic operations upon a shared variable. Operating upon another given key is
-comparable to separate atomic operations upon a different shared variable. While the
-collection guarantees to ensure that each such operation is correct, it does not
-synchronise between them.
-
-A classic incorrect case is something like:
-
-if(dict.ContainsKey("abc"))
-    return dict["abc"];     //may have been removed after ContainsKey check.
-
-The above should be replaced with:
-
-string result;
-if(dict.TryGetValue("abc", out result))
-    return result;
-
-Other cases can be more complicated, but still make the use of a thread-safe collection
-fruitful.
-
-While supplying lock-free implementations is the entire point of this library, this does
-not mean that its use may not interoperate well with lock-based synchronisation strategies.
-In particular, ReaderWriterLockSlim can be used well if a small number operations do not
-play well with others. The trick is to think of the lock not in terms of reader-writer, but
-in terms of shared-exclusive. Say for example we have multiple threads that may read and
-write to a LockFreeSet, and occasional threads that calls SetEquals. While SetEquals is
-thread-safe in that it will not corrupt state and will give a correct answer if no change
-to the state while it is operating is such that would affect the result, it is not atomic —
-a set could be equal to another when the method began and unequal by the time it completes,
-or vice versa. Hence for most uses, the “thread-safety” of SetEquals is more theoretical
-than practical.
-
-Here though, we can make use of a ReaderWriterLockSlim, so that all readers and writers use
-EnterReadLock() (remember, think of this as “shared” rather than as “read”, so writers use
-this lock), while the operation that calls SetEquals uses EnterWriteLock().
-
 To-Do:
 
 Testing! Lots of Testing! This is library should currently be considered alpha. Both
