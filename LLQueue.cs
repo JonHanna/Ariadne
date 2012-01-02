@@ -11,6 +11,9 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using System.Threading;
 
 namespace HackCraft.LockFree
@@ -22,7 +25,8 @@ namespace HackCraft.LockFree
     //enqueues or multiple dequeues in quick succession.
 
 #pragma warning disable 420 // volatile semantics not lost as only by-ref calls are interlocked
-    public sealed class LLQueue<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable
+    [Serializable]
+    public sealed class LLQueue<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
     {
         private volatile SinglyLinkedNode<T> _head;
         private volatile SinglyLinkedNode<T> _tail;
@@ -35,6 +39,24 @@ namespace HackCraft.LockFree
         {
             foreach(T item in collection)
                 Enqueue(item);
+        }
+        private LLQueue(SerializationInfo info, StreamingContext context)
+        {
+            int count = info.GetInt32("c");
+            if(count < 0)
+                throw new SerializationException();
+            for(int i = 0; i != count; ++i)
+                Enqueue((T)info.GetValue("i" + i, typeof(T)));
+        }
+        [SecurityCritical]
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            List<T> list = ToList();
+            int count = list.Count;
+            info.AddValue("c", count);
+            for(int i = 0; i != count; ++i)
+                info.AddValue("i" + i, list[i], typeof(T));
         }
         public void Enqueue(T item)
         {

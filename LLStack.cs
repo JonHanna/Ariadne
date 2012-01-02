@@ -11,6 +11,9 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using System.Threading;
 
 namespace HackCraft.LockFree
@@ -18,8 +21,8 @@ namespace HackCraft.LockFree
     //This stack is mostly for competion or for use in other classes in the library, considering that
     //the 4.0 FCL already has a lock-free stack.
     
-    
-    public class LLStack<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable
+    [Serializable]
+    public class LLStack<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
     {
         private SinglyLinkedNode<T> _head = new SinglyLinkedNode<T>(default(T));
         public LLStack()
@@ -29,6 +32,24 @@ namespace HackCraft.LockFree
         {
             foreach(T item in collection)
                 Push(item);
+        }
+        private LLStack(SerializationInfo info, StreamingContext context)
+        {
+            int count = info.GetInt32("c");
+            if(count < 0)
+                throw new SerializationException();
+            for(int i = 0; i != count; ++i)
+                Push((T)info.GetValue("i" + i, typeof(T)));
+        }
+        [SecurityCritical]
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            List<T> list = ToList();
+            int count = list.Count;
+            info.AddValue("c", count);
+            for(int i = 0; i != count; ++i)
+                info.AddValue("i" + i, list[i], typeof(T));
         }
         public void Push(T item)
         {
