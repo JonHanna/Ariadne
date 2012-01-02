@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
@@ -324,6 +325,7 @@ namespace HackCraft.LockFree
             int givenHash = _cmp.GetHashCode(key);
             return givenHash == 0 ? ZERO_HASH : givenHash;
         }
+        [SecurityCritical] 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {

@@ -16,6 +16,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
@@ -164,6 +165,7 @@ namespace HackCraft.LockFree
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         public LockFreeSet(IEnumerable<T> collection)
             :this(collection, EqualityComparer<T>.Default){}
+        [SecurityCritical] 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
