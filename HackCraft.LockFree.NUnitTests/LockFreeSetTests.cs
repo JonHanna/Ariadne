@@ -275,6 +275,8 @@ namespace HackCraft.LockFree.NUnitTests
     	    hs.Clear();
     	    hs.AddRange(Enumerable.Range(0, 1000));
     	    Assert.AreEqual(1000, hs.Count);
+    	    hs.AddRange(Enumerable.Range(0, 1500));
+    	    Assert.AreEqual(1500, hs.Count);
     	}
     	[Test]
     	public void Serialisation()
