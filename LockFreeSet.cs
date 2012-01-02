@@ -22,8 +22,7 @@ using System.Threading;
 
 namespace HackCraft.LockFree
 {
-    /// <summary>A hash-based set which is thread-safe for all operations, without locking.
-    /// </summary>
+    /// <summary>A hash-based set which is thread-safe for all operations, without locking.</summary>
     [Serializable]
     public sealed class LockFreeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
     {
@@ -93,8 +92,7 @@ namespace HackCraft.LockFree
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<T> _cmp;
         private const int DefaultCapacity = 1;
-        /// <summary>Creates a new lock-free set.
-        /// </summary>
+        /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public LockFreeSet(int capacity, IEqualityComparer<T> comparer)
@@ -122,18 +120,15 @@ namespace HackCraft.LockFree
             _table = new Table(_initialCapacity = capacity, new AliasedInt());
             _cmp = comparer;
         }
-        /// <summary>Creates a new lock-free set.
-        /// </summary>
+        /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
         public LockFreeSet(int capacity)
             :this(capacity, EqualityComparer<T>.Default){}
-        /// <summary>Creates a new lock-free set.
-        /// </summary>
+        /// <summary>Creates a new lock-free set.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public LockFreeSet(IEqualityComparer<T> comparer)
             :this(DefaultCapacity, comparer){}
-        /// <summary>Creates a new lock-free set.
-        /// </summary>
+        /// <summary>Creates a new lock-free set.</summary>
         public LockFreeSet()
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<T> collection)
@@ -148,8 +143,7 @@ namespace HackCraft.LockFree
         		return col.Count;
         	return DefaultCapacity;
         }
-        /// <summary>Creates a new lock-free set.
-        /// </summary>
+        /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>"/> that compares the items.</param>
         public LockFreeSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
@@ -158,8 +152,7 @@ namespace HackCraft.LockFree
             foreach(T item in collection)
                 Add(item);
         }
-        /// <summary>Creates a new lock-free set.
-        /// </summary>
+        /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         public LockFreeSet(IEnumerable<T> collection)
             :this(collection, EqualityComparer<T>.Default){}
@@ -494,15 +487,12 @@ namespace HackCraft.LockFree
             return Interlocked.CompareExchange(ref tab.Next, next, null) ?? next;
 			#pragma warning restore 420
         }
-        /// <summary>Returns an estimate of the current number of items in the set.
-        /// </summary>
+        /// <summary>Returns an estimate of the current number of items in the set.</summary>
         public int Count
         {
             get { return _table.Size; }
         }
-        /// <summary>
-        /// The current capacity of the set.
-        /// </summary>
+        /// <summary>The current capacity of the set.</summary>
         /// <remarks>If the set is in the midst of a resize, the capacity it is resizing to is returned, ignoring other internal storage in use.</remarks>
         public int Capacity
         {
@@ -528,9 +518,7 @@ namespace HackCraft.LockFree
         {
             return new AddedEnumeration(this, items.GetEnumerator());
         }
-        /// <summary>
-        /// An enumeration that adds to the set as it is enumerated, returning only those items added.
-        /// </summary>
+        /// <summary>An enumeration that adds to the set as it is enumerated, returning only those items added.</summary>
         public class AddedEnumeration : IEnumerable<T>, IEnumerator<T>
         {
             private LockFreeSet<T> _set;
@@ -541,8 +529,7 @@ namespace HackCraft.LockFree
                 this._set = _set;
                 this._srcEnumerator = _srcEnumerator;
             }
-            /// <summary>Returns an enumerator that iterates through the collection.
-            /// </summary>
+            /// <summary>Returns an enumerator that iterates through the collection.</summary>
             /// <returns>The enumerator.</returns>
             public AddedEnumeration GetEnumerator()
             {
@@ -556,9 +543,7 @@ namespace HackCraft.LockFree
             {
                 return this;
             }
-            /// <summary>
-            /// Returns the current item.
-            /// </summary>
+            /// <summary>Returns the current item.</summary>
             public T Current
             {
                 get { return _current; }
@@ -567,16 +552,12 @@ namespace HackCraft.LockFree
             {
                 get { return this; }
             }
-            /// <summary>
-            /// Disposes of the enumeration, doing any necessary clean-up operations.
-            /// </summary>
+            /// <summary>Disposes of the enumeration, doing any necessary clean-up operations.</summary>
             public void Dispose()
             {
                 _srcEnumerator.Dispose();
             }
-            /// <summary>
-            /// Moves to the next item in the enumeration.
-            /// </summary>
+            /// <summary>Moves to the next item in the enumeration.</summary>
             /// <returns>True if an item was found, false it the end of the enumeration was reached.</returns>
             public bool MoveNext()
             {
@@ -591,9 +572,7 @@ namespace HackCraft.LockFree
                 }
                 return false;
             }
-            /// <summary>
-            /// Resets the enumerations.
-            /// </summary>
+            /// <summary>Resets the enumerations.</summary>
             /// <exception cref="NotSupportedException"/>The source enumeration does not support resetting (
             public void Reset()
             {
@@ -892,18 +871,14 @@ namespace HackCraft.LockFree
         {
             Add(item);
         }
-        /// <summary>
-        /// Removes all items from the set.
-        /// </summary>
+        /// <summary>Removes all items from the set.</summary>
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
             Thread.MemoryBarrier();
             _table = new Table(_initialCapacity, new AliasedInt());
         }
-        /// <summary>
-        /// Determines whether an item is present in the set.
-        /// </summary>
+        /// <summary>Determines whether an item is present in the set.</summary>
         /// <param name="item">The item sought.</param>
         /// <returns>True if the item is found, false otherwise.</returns>
         public bool Contains(T item)
@@ -911,9 +886,7 @@ namespace HackCraft.LockFree
             T found;
             return Obtain(item, out found);
         }
-        /// <summary>
-        /// Copies the contents of the set to an array.
-        /// </summary>
+        /// <summary>Copies the contents of the set to an array.</summary>
         /// <param name="array">The array to copy to.</param>
         /// <param name="arrayIndex">The index within the array to start copying from</param>
         /// <exception cref="System.ArgumentNullException"/>The array was null.
@@ -925,9 +898,7 @@ namespace HackCraft.LockFree
             Validation.CopyTo(array, arrayIndex);
             ToHashSet().CopyTo(array, arrayIndex);
         }
-        /// <summary>
-        /// Copies the contents of the set to an array.
-        /// </summary>
+        /// <summary>Copies the contents of the set to an array.</summary>
         /// <param name="array">The array to copy to.</param>
         /// <exception cref="System.ArgumentNullException"/>The array was null.
         /// <exception cref="System.ArgumentException"/>The number of items in the collection was
@@ -936,9 +907,7 @@ namespace HackCraft.LockFree
         {
             CopyTo(array, 0);
         }
-        /// <summary>
-        /// Removes an item from the set.
-        /// </summary>
+        /// <summary>Removes an item from the set.</summary>
         /// <param name="item">The item to remove.</param>
         /// <returns>True if the item was removed, false if it was not found.</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
@@ -948,9 +917,7 @@ namespace HackCraft.LockFree
             T dummy;
             return Remove(item, out dummy);
         }
-        /// <summary>
-        /// Removes an item from the set.
-        /// </summary>
+        /// <summary>Removes an item from the set.</summary>
         /// <param name="item">The item to remove.</param>
         /// <param name="removed">Upon returning, the item removed.</param>
         /// <returns>True if an item was removed, false if no matching item was found.</returns>
@@ -965,9 +932,7 @@ namespace HackCraft.LockFree
             removed = prev.Value;
             return true;
         }
-        /// <summary>
-        /// Removes items from the set that match a predicate.
-        /// </summary>
+        /// <summary>Removes items from the set that match a predicate.</summary>
         /// <param name="predicate">A <see cref="System.Func&lt;T, TResult>"/> that returns true for the items that should be removed.</param>
         /// <returns>A <see cref="System.Collections.Generic.IEnumerable&lt;T>"/> of the items removed.</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
@@ -978,8 +943,7 @@ namespace HackCraft.LockFree
             return new RemovingEnumeration(this, predicate);
         }
         /// <summary>Enumerates a <see cref="LockFreeSet&lt;T>"/>, returning items that match a predicate,
-        /// and removing them from the dictionary.
-        /// </summary>
+        /// and removing them from the dictionary.</summary>
         public class RemovingEnumeration : IEnumerator<T>, IEnumerable<T>
         {
             private readonly LockFreeSet<T> _set;
@@ -995,9 +959,7 @@ namespace HackCraft.LockFree
                 _predicate = predicate;
                 _idx = -1;
             }
-            /// <summary>
-            /// The current item being enumerated.
-            /// </summary>
+            /// <summary>The current item being enumerated.</summary>
             public T Current
             {
                 get { return _current.Value; }
@@ -1006,9 +968,7 @@ namespace HackCraft.LockFree
             {
                 get { return _current.Value; }
             }
-            /// <summary>
-            /// Moves to the next item being enumerated.
-            /// </summary>
+            /// <summary>Moves to the next item being enumerated.</summary>
             /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
             public bool MoveNext()
             {
@@ -1070,9 +1030,7 @@ namespace HackCraft.LockFree
             {
                 throw new NotSupportedException();
             }
-            /// <summary>
-            /// Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator
-            /// </summary>
+            /// <summary>Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public RemovingEnumeration GetEnumerator()
             {
@@ -1087,8 +1045,7 @@ namespace HackCraft.LockFree
                 return this;
             }
         }
-        /// <summary>Removes all items that match a predicate.
-        /// </summary>
+        /// <summary>Removes all items that match a predicate.</summary>
         /// <param name="predicate">A <see cref="System.Func&lt;T, TResult>"/> that returns true when passed an item that should be removed.</param>
         /// <returns>The number of items removed</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
@@ -1168,8 +1125,7 @@ namespace HackCraft.LockFree
                 _idx = -1;
             }
         }
-        /// <summary>Enumerates a LockFreeSet&lt;T>.
-        /// </summary>
+        /// <summary>Enumerates a LockFreeSet&lt;T>.</summary>
         /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
         /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
         public struct Enumerator : IEnumerator<T>
@@ -1179,9 +1135,7 @@ namespace HackCraft.LockFree
             {
                 _src = src;
             }
-            /// <summary>
-            /// Returns the current item being enumerated.
-            /// </summary>
+            /// <summary>Returns the current item being enumerated.</summary>
             public T Current
             {
                 get { return _src.Current.Value; }
@@ -1193,17 +1147,13 @@ namespace HackCraft.LockFree
             void IDisposable.Dispose()
             {
             }
-            /// <summary>
-            /// Moves to the next item in the enumeration.
-            /// </summary>
+            /// <summary>Moves to the next item in the enumeration.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
             public bool MoveNext()
             {
                 return _src.MoveNext();
             }
-            /// <summary>
-            /// Reset the enumeration
-            /// </summary>
+            /// <summary>Reset the enumeration</summary>
             public void Reset()
             {
                 _src.Reset();
@@ -1213,8 +1163,7 @@ namespace HackCraft.LockFree
         {
             return new BoxEnumerator(this);
         }
-        /// <summary>Returns an enumerator that iterates through the collection.
-        /// </summary>
+        /// <summary>Returns an enumerator that iterates through the collection.</summary>
         /// <returns>The enumerator.</returns>
         public Enumerator GetEnumerator()
         {
@@ -1228,9 +1177,7 @@ namespace HackCraft.LockFree
         {
             return GetEnumerator();
         }
-    	/// <summary>
-    	/// Returns a copy of the current set.
-    	/// </summary>
+    	/// <summary>Returns a copy of the current set.</summary>
         /// <remarks>Because this operation does not lock, the resulting set’s contents
         /// could be inconsistent in terms of an application’s use of the values.
         /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
@@ -1246,10 +1193,8 @@ namespace HackCraft.LockFree
         {
             return Clone();
         }
-        /// <summary>
-        /// Returns a <see cref="HashSet&lt;T>"/> with the same contents and equality comparer as
-        /// the lock-free set.
-        /// </summary>
+        /// <summary>Returns a <see cref="HashSet&lt;T>"/> with the same contents and equality comparer as
+        /// the lock-free set.</summary>
         /// <returns>The HashSet.</returns>
         /// <remarks>Because this operation does not lock, the resulting set’s contents
         /// could be inconsistent in terms of an application’s use of the values.</remarks>
@@ -1257,10 +1202,8 @@ namespace HackCraft.LockFree
         {
             return new HashSet<T>(this, _cmp);
         }
-        /// <summary>
-        /// Returns a <see cref="List&lt;T>"/> with the same contents as
-        /// the lock-free set.
-        /// </summary>
+        /// <summary>Returns a <see cref="List&lt;T>"/> with the same contents as
+        /// the lock-free set.</summary>
         /// <returns>The List.</returns>
         /// <remarks>Because this operation does not lock, the resulting set’s contents
         /// could be inconsistent in terms of an application’s use of the values, or include duplicate items</remarks>
@@ -1268,10 +1211,8 @@ namespace HackCraft.LockFree
         {
             return new List<T>(ToHashSet());
         }
-        /// <summary>
-        /// Returns an array with the same contents as
-        /// the lock-free set.
-        /// </summary>
+        /// <summary>Returns an array with the same contents as
+        /// the lock-free set.</summary>
         /// <returns>The array.</returns>
         /// <remarks>Because this operation does not lock, the resulting set’s contents
         /// could be inconsistent in terms of an application’s use of the values, or include duplicate items</remarks>
@@ -1297,9 +1238,7 @@ namespace HackCraft.LockFree
         {
             return Add(item);
         }
-        /// <summary>
-        /// Attempts to take a single item from the set.
-        /// </summary>
+        /// <summary>Attempts to take a single item from the set.</summary>
         /// <param name="item">On return, the item removed, if successful.</param>
         /// <returns>True if an item was removed, false if the set had been empty.</returns>
         /// <remarks>The item returned is arbitrarily determined, with no guaranteed ordering.</remarks>

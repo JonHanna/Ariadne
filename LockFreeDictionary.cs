@@ -18,8 +18,7 @@ using System.Threading;
 
 namespace HackCraft.LockFree
 {
-    /// <summary>A dictionary which is thread-safe for all operations, without locking.
-    /// </summary>
+    /// <summary>A dictionary which is thread-safe for all operations, without locking.</summary>
     /// <remarks>The documentation of <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> states
     /// that null keys may or may not be allowed by a conformant implentation. In this case, they are (for reference types).</remarks>
     [Serializable]
@@ -230,8 +229,7 @@ namespace HackCraft.LockFree
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<TKey> _cmp;
         private const int DefaultCapacity = 1;
-        /// <summary>Constructs a new LockFreeDictionary
-        /// </summary>
+        /// <summary>Constructs a new LockFreeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public LockFreeDictionary(int capacity, IEqualityComparer<TKey> comparer)
@@ -262,18 +260,15 @@ namespace HackCraft.LockFree
             _table = new Table(_initialCapacity = capacity, new AliasedInt());
             _cmp = comparer;
         }
-        /// <summary>Constructs a new LockFreeDictionary
-        /// </summary>
+        /// <summary>Constructs a new LockFreeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
         public LockFreeDictionary(int capacity)
             :this(capacity, EqualityComparer<TKey>.Default){}
-        /// <summary>Constructs a new LockFreeDictionary
-        /// </summary>
+        /// <summary>Constructs a new LockFreeDictionary.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public LockFreeDictionary(IEqualityComparer<TKey> comparer)
             :this(DefaultCapacity, comparer){}
-        /// <summary>Constructs a new LockFreeDictionary
-        /// </summary>
+        /// <summary>Constructs a new LockFreeDictionary.</summary>
         public LockFreeDictionary()
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<KeyValuePair<TKey, TValue>> collection)
@@ -298,8 +293,7 @@ namespace HackCraft.LockFree
         	}
         	return DefaultCapacity;
         }
-        /// <summary>Constructs a new LockFreeDictionary
-        /// </summary>
+        /// <summary>Constructs a new LockFreeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public LockFreeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
@@ -308,8 +302,7 @@ namespace HackCraft.LockFree
         	foreach(KeyValuePair<TKey, TValue> kvp in collection)
         		this[kvp.Key] = kvp.Value;
         }
-        /// <summary>Constructs a new LockFreeDictionary
-        /// </summary>
+        /// <summary>Constructs a new LockFreeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
         public LockFreeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
             :this(collection, EqualityComparer<TKey>.Default){}
@@ -704,9 +697,7 @@ namespace HackCraft.LockFree
             return Interlocked.CompareExchange(ref tab.Next, next, null) ?? next;
 			#pragma warning restore 420
         }
-        /// <summary>
-        /// The current capacity of the dictionary.
-        /// </summary>
+        /// <summary>The current capacity of the dictionary.</summary>
         /// <remarks>If the dictionary is in the midst of a resize, the capacity it is resizing to is returned, ignoring other internal storage in use.</remarks>
         public int Capacity
         {
@@ -716,10 +707,8 @@ namespace HackCraft.LockFree
         	}
         }
         private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
-        /// <summary>
-        /// Creates an <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> that is
-        /// a copy of the current contents.
-        /// </summary>
+        /// <summary>Creates an <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> that is
+        /// a copy of the current contents.</summary>
         /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
         /// could be inconsistent in terms of an application’s use of the values.
         /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
@@ -736,9 +725,7 @@ namespace HackCraft.LockFree
     	{
     	    return Clone();
     	}
-    	/// <summary>
-    	/// Returns a copy of the current dictionary.
-    	/// </summary>
+    	/// <summary>Returns a copy of the current dictionary.</summary>
         /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
         /// could be inconsistent in terms of an application’s use of the values.</remarks>
         /// <returns>The <see cref="LockFreeDictionary&lt;TKey, TValue>"/>.</returns>
@@ -749,8 +736,7 @@ namespace HackCraft.LockFree
         		snapshot.PutIfMatch(kv, KV.DeadKey, MatchesAll.Instance);
         	return snapshot;
         }
-        /// <summary>Gets or sets the value for a particular key.
-        /// </summary>
+        /// <summary>Gets or sets the value for a particular key.</summary>
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">The key was not present in the dictionary.</exception>
         public TValue this[TKey key]
         {
@@ -766,8 +752,7 @@ namespace HackCraft.LockFree
             	PutIfMatch(new KV(key, value), KV.DeadKey, MatchesAll.Instance);
             }
         }
-        /// <summary>Returns the collection of keys in the system.
-        /// </summary>
+        /// <summary>Returns the collection of keys in the system.</summary>
         /// <remarks>This is a live collection, which changes with changes to the dictionary.</remarks>
         public KeyCollection Keys
         {
@@ -777,8 +762,7 @@ namespace HackCraft.LockFree
         {
         	get { return Keys; }
         }
-        /// <summary>Returns the collection of values in the system.
-        /// </summary>
+        /// <summary>Returns the collection of values in the system.</summary>
         /// <remarks>This is a live collection, which changes with changes to the dictionary.</remarks>
         public ValueCollection Values
         {
@@ -788,8 +772,7 @@ namespace HackCraft.LockFree
         {
         	get { return Values; }
         }
-        /// <summary>Returns an estimate of the current number of items in the dictionary.
-        /// </summary>
+        /// <summary>Returns an estimate of the current number of items in the dictionary.</summary>
         public int Count
         {
             get { return _table.Size; }
@@ -803,15 +786,13 @@ namespace HackCraft.LockFree
         {
             get { return false; }
         }
-        /// <summary>Tests whether a given key is present in the collection
-        /// </summary>
+        /// <summary>Tests whether a given key is present in the collection.</summary>
         public bool ContainsKey(TKey key)
         {
             TValue dummy;
             return TryGetValue(key, out dummy);
         }
-        /// <summary>Adds a key and value to the collection, as long as it is not currently present.
-        /// </summary>
+        /// <summary>Adds a key and value to the collection, as long as it is not currently present.</summary>
         /// <param name="key">The key to add.</param>
         /// <param name="value">The value to add.</param>
         /// <exception cref="System.ArgumentException">An item with the same key has already been added.</exception>
@@ -821,8 +802,7 @@ namespace HackCraft.LockFree
             if(ret != null && !(ret is TombstoneKV))
                 throw new ArgumentException(Strings.Dict_Same_Key, "key");
         }
-        /// <summary>Attempts to remove an item from the collection, identified by its key.
-        /// </summary>
+        /// <summary>Attempts to remove an item from the collection, identified by its key.</summary>
         /// <param name="key">The key to remove.</param>
         /// <returns>True if the item was removed, false if it wasn’t found.</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
@@ -832,8 +812,7 @@ namespace HackCraft.LockFree
         	KV ret = PutIfMatch(new TombstoneKV(key), KV.DeadKey, MatchesAll.Instance);
         	return ret != null && !(ret is TombstoneKV);
         }
-        /// <summary>Attempts to retrieve the value associated with a key.
-        /// </summary>
+        /// <summary>Attempts to retrieve the value associated with a key.</summary>
         /// <param name="key">The key searched for.</param>
         /// <param name="value">The value found (if successful).</param>
         /// <returns>True if the key was found, false otherwise.</returns>
@@ -841,26 +820,21 @@ namespace HackCraft.LockFree
         {
             return Obtain(_table, key, Hash(key), out value);
         }
-        /// <summary>Adds a key and value to the collection, as long as it is not currently present.
-        /// </summary>
+        /// <summary>Adds a key and value to the collection, as long as it is not currently present.</summary>
         /// <param name="item">The key and value to add.</param>
         /// <exception cref="System.ArgumentException">An item with the same key has already been added.</exception>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
             Add(item.Key, item.Value);
         }
-        /// <summary>
-        /// Removes all items from the dictionary.
-        /// </summary>
+        /// <summary>Removes all items from the dictionary.</summary>
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
             Thread.MemoryBarrier();
             _table = new Table(_initialCapacity, new AliasedInt());
         }
-        /// <summary>
-        /// Tests whether a key and value matching that passed are present in the dictionary
-        /// </summary>
+        /// <summary>Tests whether a key and value matching that passed are present in the dictionary.</summary>
         /// <param name="item">A <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> defining the item sought.</param>
         /// <param name="valueComparer">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> used to test a value found
         /// with that sought.</param>
@@ -870,18 +844,14 @@ namespace HackCraft.LockFree
             TValue test;
             return TryGetValue(item.Key, out test) && valueComparer.Equals(item.Value, test);
         }
-        /// <summary>
-        /// Tests whether a key and value matching that passed are present in the dictionary
-        /// </summary>
+        /// <summary>Tests whether a key and value matching that passed are present in the dictionary.</summary>
         /// <param name="item">A <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> defining the item sought.</param>
         /// <returns>True if the key and value are found, false otherwise.</returns>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
             return Contains(item, EqualityComparer<TValue>.Default);
         }
-        /// <summary>
-        /// Copies the contents of the dictionary to an array.
-        /// </summary>
+        /// <summary>Copies the contents of the dictionary to an array.</summary>
         /// <param name="array">The array to copy to.</param>
         /// <param name="arrayIndex">The index within the array to start copying from</param>
         /// <exception cref="System.ArgumentNullException"/>The array was null.
@@ -901,8 +871,7 @@ namespace HackCraft.LockFree
         	}
         	((ICollection<KeyValuePair<TKey, TValue>>)snapshot).CopyTo(array, arrayIndex);
         }
-        /// <summary>Removes an item from the collection.
-        /// </summary>
+        /// <summary>Removes an item from the collection.</summary>
         /// <param name="item">The item to remove</param>
         /// <param name="valueComparer">A <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> that is used in considering whether
         /// an item found is equal to that searched for.</param>
@@ -921,8 +890,7 @@ namespace HackCraft.LockFree
         	removed = rem;
         	return true;
         }
-        /// <summary>Removes an item from the collection.
-        /// </summary>
+        /// <summary>Removes an item from the collection.</summary>
         /// <param name="item">The item to remove</param>
         /// <param name="valueComparer">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> used to test a value found</param>
         /// <returns>True if the item was removed, false if no matching item was found.</returns>
@@ -933,8 +901,7 @@ namespace HackCraft.LockFree
             KeyValuePair<TKey, TValue> dummy;
             return Remove(item, valueComparer, out dummy);
         }
-        /// <summary>Removes an item from the collection.
-        /// </summary>
+        /// <summary>Removes an item from the collection.</summary>
         /// <param name="key">The key to remove.</param>
         /// <param name="cmpValue">The value to remove.</param>
         /// <param name="valueComparer">A <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> that is used in considering whether
@@ -954,8 +921,7 @@ namespace HackCraft.LockFree
         	removed = rem.Value;
         	return true;
         }
-        /// <summary>Removes an item from the collection.
-        /// </summary>
+        /// <summary>Removes an item from the collection.</summary>
         /// <param name="key">The key to remove.</param>
         /// <param name="cmpValue">The value to remove.</param>
         /// <param name="removed">The item removed (if successful).</param>
@@ -966,8 +932,7 @@ namespace HackCraft.LockFree
         {
         	return Remove(key, cmpValue, DefaultValCmp, out removed);
         }
-        /// <summary>Removes a <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> from the collection.
-        /// </summary>
+        /// <summary>Removes a <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> from the collection.</summary>
         /// <param name="item">The item to remove</param>
         /// <returns>True if the item was removed, false if no matching item was found.</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
@@ -976,8 +941,7 @@ namespace HackCraft.LockFree
         {
             return Remove(item, DefaultValCmp);
         }
-        /// <summary>Removes items from the dictionary that match a predicate.
-        /// </summary>
+        /// <summary>Removes items from the dictionary that match a predicate.</summary>
         /// <param name="predicate">A <see cref="System.Func&lt;T1, T2, TResult>"/> that returns true for the items that should be removed.</param>
         /// <returns>A <see cref="System.Collections.Generic.IEnumerable&lt;T>"/> of the items removed.</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
@@ -988,8 +952,7 @@ namespace HackCraft.LockFree
             return new RemovingEnumeration(this, predicate);
         }
         /// <summary>Enumerates a <see cref="LockFreeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
-        /// and removing them from the dictionary.
-        /// </summary>
+        /// and removing them from the dictionary.</summary>
         public class RemovingEnumeration : IEnumerator<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
         {
             private readonly LockFreeDictionary<TKey, TValue> _dict;
@@ -1005,9 +968,7 @@ namespace HackCraft.LockFree
                 _predicate = predicate;
                 _idx = -1;
             }
-            /// <summary>
-            /// The current pair being enumerated.
-            /// </summary>
+            /// <summary>The current pair being enumerated.</summary>
             public KeyValuePair<TKey, TValue> Current
             {
                 get { return _current; }
@@ -1016,9 +977,7 @@ namespace HackCraft.LockFree
             {
                 get { return _current; }
             }
-            /// <summary>
-            /// Moves to the next item being enumerated.
-            /// </summary>
+            /// <summary>Moves to the next item being enumerated.</summary>
             /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
             public bool MoveNext()
             {
@@ -1080,9 +1039,7 @@ namespace HackCraft.LockFree
             {
                 throw new NotSupportedException();
             }
-            /// <summary>
-            /// Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator
-            /// </summary>
+            /// <summary>Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public RemovingEnumeration GetEnumerator()
             {
@@ -1097,8 +1054,7 @@ namespace HackCraft.LockFree
                 return this;
             }
         }
-        /// <summary>Removes all key-value pairs that match a predicate.
-        /// </summary>
+        /// <summary>Removes all key-value pairs that match a predicate.</summary>
         /// <param name="predicate">A <see cref="System.Func&lt;T1, T2, TResult>"/> that returns true when passed a key and value that should be removed.</param>
         /// <returns>The number of items removed</returns>
         /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
@@ -1180,8 +1136,7 @@ namespace HackCraft.LockFree
         {
             return new KVEnumerator(this);
         }
-        /// <summary>Enumerates a LockFreeDictionary&lt;TKey, TValue>.
-        /// </summary>
+        /// <summary>Enumerates a LockFreeDictionary&lt;TKey, TValue>.</summary>
         /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
         /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
@@ -1191,9 +1146,7 @@ namespace HackCraft.LockFree
             {
                 _src = src;
             }
-            /// <summary>
-            /// Returns the current <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> being enumerated.
-            /// </summary>
+            /// <summary>Returns the current <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> being enumerated.</summary>
             public KeyValuePair<TKey, TValue> Current
             {
                 get
@@ -1212,17 +1165,13 @@ namespace HackCraft.LockFree
             {
                 _src.Dispose();
             }
-            /// <summary>
-            /// Moves to the next item in the enumeration.
-            /// </summary>
+            /// <summary>Moves to the next item in the enumeration.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
             public bool MoveNext()
             {
                 return _src.MoveNext();
             }
-            /// <summary>
-            /// Reset the enumeration
-            /// </summary>
+            /// <summary>Reset the enumeration.</summary>
             public void Reset()
             {
                 _src.Reset();
@@ -1240,8 +1189,7 @@ namespace HackCraft.LockFree
                 get { return new DictionaryEntry(Current.Key, Current.Value); }
             }
         }
-        /// <summary>Returns an enumerator that iterates through the collection.
-        /// </summary>
+        /// <summary>Returns an enumerator that iterates through the collection.</summary>
         /// <returns>The enumerator.</returns>
         public Enumerator GetEnumerator()
         {
@@ -1264,9 +1212,7 @@ namespace HackCraft.LockFree
 	    	{
 	    		_dict = dict;
 	    	}
-	    	/// <summary>
-	    	/// The number of items in the collection.
-	    	/// </summary>
+	    	/// <summary>The number of items in the collection.</summary>
 			public int Count
 			{
 				get { return _dict.Count; }
@@ -1275,9 +1221,7 @@ namespace HackCraft.LockFree
 			{
 				get { return true; }
 			}
-			/// <summary>
-			/// Tests the collection for the presence of an item.
-			/// </summary>
+			/// <summary>Tests the collection for the presence of an item.</summary>
 			/// <param name="item">The item to search for.</param>
 			/// <param name="cmp">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> to use in comparing
 			/// items found with that sought.</param>
@@ -1289,18 +1233,14 @@ namespace HackCraft.LockFree
 						return true;
 				return false;
 			}
-			/// <summary>
-			/// Tests the collection for the presence of an item.
-			/// </summary>
+			/// <summary>Tests the collection for the presence of an item.</summary>
 			/// <param name="item">The item to search for.</param>
 			/// <returns>True if a matching item  was found, false otherwise.</returns>
 			public bool Contains(TValue item)
 			{
 				return Contains(item, DefaultValCmp);
 			}
-            /// <summary>
-            /// Copies the contents of the collection to an array.
-            /// </summary>
+            /// <summary>Copies the contents of the collection to an array.</summary>
             /// <param name="array">The array to copy to.</param>
             /// <param name="arrayIndex">The index within the array to start copying from</param>
             /// <exception cref="System.ArgumentNullException"/>The array was null.
@@ -1320,8 +1260,7 @@ namespace HackCraft.LockFree
 	        	}
 	        	snapshot.Values.CopyTo(array, arrayIndex);
 			}
-			/// <summary>Enumerates a value collection.
-			/// </summary>
+			/// <summary>Enumerates a value collection.</summary>
             /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
             /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
 			public struct Enumerator : IEnumerator<TValue>
@@ -1331,9 +1270,7 @@ namespace HackCraft.LockFree
 	            {
 	                _src = src;
 	            }
-	            /// <summary>
-	            /// Returns the current value being enumerated.
-	            /// </summary>
+	            /// <summary>Returns the current value being enumerated.</summary>
 	            public TValue Current
 	            {
 	                get
@@ -1352,25 +1289,19 @@ namespace HackCraft.LockFree
 	            {
 	                _src.Dispose();
 	            }
-	            /// <summary>
-	            /// Moves to the next item being iterated.
-	            /// </summary>
+	            /// <summary>Moves to the next item being iterated.</summary>
 	            /// <returns>True if another item is found, false if the end of the collection is reached.</returns>
 	            public bool MoveNext()
 	            {
 	                return _src.MoveNext();
 	            }
-	            /// <summary>
-	            /// Reset the enumeration
-	            /// </summary>
+	            /// <summary>Reset the enumeration.</summary>
 	            public void Reset()
 	            {
 	                _src.Reset();
 	            }
 			}
-			/// <summary>
-			/// Returns an enumerator that iterates through the collection.
-			/// </summary>
+			/// <summary>Returns an enumerator that iterates through the collection.</summary>
 			/// <returns>The <see cref="Enumerator"/> that performs the iteration.</returns>
 			public Enumerator GetEnumerator()
 			{
@@ -1419,9 +1350,7 @@ namespace HackCraft.LockFree
 	    	{
 	    		_dict = dict;
 	    	}
-	    	/// <summary>
-	    	/// The number of items in the collection.
-	    	/// </summary>
+	    	/// <summary>The number of items in the collection.</summary>
 			public int Count
 			{
 				get { return _dict.Count; }
@@ -1430,18 +1359,14 @@ namespace HackCraft.LockFree
 			{
 				get { return true; }
 			}
-			/// <summary>
-			/// Tests for the presence of a key in the collection.
-			/// </summary>
+			/// <summary>Tests for the presence of a key in the collection.</summary>
 			/// <param name="item">The key to search for.</param>
 			/// <returns>True if the key is found, false otherwise.</returns>
 			public bool Contains(TKey item)
 			{
 				return _dict.ContainsKey(item);
 			}
-            /// <summary>
-            /// Copies the contents of the dictionary to an array.
-            /// </summary>
+            /// <summary>Copies the contents of the dictionary to an array.</summary>
             /// <param name="array">The array to copy to.</param>
             /// <param name="arrayIndex">The index within the array to start copying from</param>
             /// <exception cref="System.ArgumentNullException"/>The array was null.
@@ -1460,8 +1385,7 @@ namespace HackCraft.LockFree
 	        	}
 	        	snapshot.Keys.CopyTo(array, arrayIndex);
 			}
-			/// <summary>Enumerates a key collection
-			/// </summary>
+			/// <summary>Enumerates a key collection.</summary>
             /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
             /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
 			public struct Enumerator : IEnumerator<TKey>
@@ -1471,9 +1395,7 @@ namespace HackCraft.LockFree
 	            {
 	                _src = src;
 	            }
-	            /// <summary>
-	            /// Returns the current item being enumerated.
-	            /// </summary>
+	            /// <summary>Returns the current item being enumerated.</summary>
 	            public TKey Current
 	            {
 	                get
@@ -1492,24 +1414,19 @@ namespace HackCraft.LockFree
 	            {
 	                _src.Dispose();
 	            }
-                /// <summary>
-                /// Moves to the next item in the enumeration.
-                /// </summary>
+                /// <summary>Moves to the next item in the enumeration.</summary>
                 /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
 	            public bool MoveNext()
 	            {
 	                return _src.MoveNext();
 	            }
-	            /// <summary>
-	            /// Reset the enumeration
-	            /// </summary>
+	            /// <summary>Reset the enumeration.</summary>
 	            public void Reset()
 	            {
 	                _src.Reset();
 	            }
 			}
-            /// <summary>Returns an enumerator that iterates through the collection.
-            /// </summary>
+            /// <summary>Returns an enumerator that iterates through the collection.</summary>
             /// <returns>The enumerator.</returns>
 			public Enumerator GetEnumerator()
 			{
