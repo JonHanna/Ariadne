@@ -20,8 +20,6 @@
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <RunSourceAnalysis>False</RunSourceAnalysis>
     <DelaySign>False</DelaySign>
-    <DefineConstants>DEBUG</DefineConstants>
-    <Optimize>false</Optimize>
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <BaseAddress>9633792</BaseAddress>
@@ -42,16 +40,18 @@
     <ErrorReport>prompt</ErrorReport>
     <ConsolePause>false</ConsolePause>
     <DebugType>none</DebugType>
-    <DocumentationFile>bin\Release\HackCraft.LockFree.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugType>Full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG</DefineConstants>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>None</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <DocumentationFile>bin\Release\HackCraft.LockFree.xml</DocumentationFile>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -64,6 +64,8 @@
     <Compile Include="InternalHelpers.cs" />
     <Compile Include="LockFreeDictionary.cs" />
     <Compile Include="LockFreeSet.cs" />
+    <Compile Include="LLQueue.cs" />
+    <Compile Include="LLStack.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

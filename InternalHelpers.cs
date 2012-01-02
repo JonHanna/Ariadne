@@ -8,6 +8,7 @@
 // Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
 
 using System;
+using System.Resources;
 using System.Threading;
 
 namespace HackCraft.LockFree
@@ -27,6 +28,23 @@ namespace HackCraft.LockFree
         public int Decrement()
         {
             return Interlocked.Decrement(ref _value);
+        }
+    }
+    internal sealed class SinglyLinkedNode<T>
+    {
+        public T Item;
+        public SinglyLinkedNode<T> Next;
+        public SinglyLinkedNode(T item)
+        {
+            Item = item;
+        }
+    }
+    internal static class Strings
+    {
+        private static readonly ResourceManager rm = new ResourceManager("HackCraft.LockFree", typeof(Strings).Assembly);
+        public static string Dict_Null_Source_Collection
+        {
+            get { return rm.GetString("Dict_Null_Source_Collection"); }
         }
     }
 }
