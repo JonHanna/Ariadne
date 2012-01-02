@@ -57,10 +57,6 @@ namespace HackCraft.LockFree
         {
             return _store.Remove(item);
         }
-        public LockFreeSet<T>.Enumerator GetEnumerator()
-        {
-            return _store.GetEnumerator();
-        }
         public LockFreeAtomizer<T> Clone()
         {
             return new LockFreeAtomizer<T>(_store.Clone());
@@ -72,6 +68,10 @@ namespace HackCraft.LockFree
         public void Clear()
         {
             _store.Clear();
+        }
+        public LockFreeSet<T>.Enumerator GetEnumerator()
+        {
+            return _store.GetEnumerator();
         }
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
