@@ -383,6 +383,7 @@ namespace HackCraft.LockFree.NUnitTests
     	{
     		new LockFreeDictionary<int, int>((IEqualityComparer<int>)null);
     	}
+    	[Test]
     	[ExpectedException(typeof(ArgumentNullException))]
     	public void NullSourceCollection()
     	{
@@ -533,7 +534,7 @@ namespace HackCraft.LockFree.NUnitTests
     }
     public abstract class MultiThreadTests
 	{
-    	protected const int SourceDataLen = 1048576;
+    	protected const int SourceDataLen = 0x400000;
     	protected static string[] SourceData = new string[SourceDataLen];
         public void FillSourceData()
         {
