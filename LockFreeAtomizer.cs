@@ -54,9 +54,13 @@ namespace HackCraft.LockFree
         {
             return _store.Remove(item);
         }
-        public IEnumerator<T> GetEnumerator()
+        public LockFreeSet<T>.Enumerator GetEnumerator()
         {
             return _store.GetEnumerator();
+        }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
