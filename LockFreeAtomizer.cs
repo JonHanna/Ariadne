@@ -13,13 +13,13 @@ using System.Collections.Generic;
 
 namespace HackCraft.LockFree
 {
-    [Serializable]
     /// <summary>
     /// Allows for one copy of each distinct value of a reference type to be stored,
     /// reducing memory use and often speeding equality comparisons. Comparable to the
     /// string intern pool, but available for other types, and other equality comparisons
     /// (e.g. case-insensitive), removal of objects, and maintaining separate pools.
     /// </summary>
+    [Serializable]
     public class LockFreeAtomizer<T> : ICollection<T>, ICloneable where T:class
     {
         public static int DefaultCapacity = LockFreeSet<T>.DefaultCapacity;
