@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AliasedInt.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="InternalHelpers.cs" />
     <Compile Include="LockFreeAtomizer.cs" />
