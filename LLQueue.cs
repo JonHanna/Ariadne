@@ -35,28 +35,18 @@ namespace HackCraft.LockFree
             _head = _tail = new SinglyLinkedNode<T>(default(T));
         }
         public LLQueue(IEnumerable<T> collection)
-            :base()
+            :this()
         {
             foreach(T item in collection)
                 Enqueue(item);
         }
         private LLQueue(SerializationInfo info, StreamingContext context)
-        {
-            int count = info.GetInt32("c");
-            if(count < 0)
-                throw new SerializationException();
-            for(int i = 0; i != count; ++i)
-                Enqueue((T)info.GetValue("i" + i, typeof(T)));
-        }
+            :this((T[])info.GetValue("arr", typeof(T[]))){}
         [SecurityCritical]
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            List<T> list = ToList();
-            int count = list.Count;
-            info.AddValue("c", count);
-            for(int i = 0; i != count; ++i)
-                info.AddValue("i" + i, list[i], typeof(T));
+            info.AddValue("arr", ToArray(), typeof(T[]));
         }
         public void Enqueue(T item)
         {
@@ -381,7 +371,7 @@ namespace HackCraft.LockFree
         {
             return TryDequeue(out item);
         }
-        T[] IProducerConsumerCollection<T>.ToArray()
+        public T[] ToArray()
         {
             return ToList().ToArray();
         }

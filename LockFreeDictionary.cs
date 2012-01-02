@@ -85,7 +85,7 @@ namespace HackCraft.LockFree
 // All the objects involved in this storage are Plain Old Data classes with no
 // encapsulation (they are hidden from other assemblies entirely). This allows CASing from
 // the outside code that encapsulates the transition logic.
-
+        [Serializable]
         internal class KV
         {
             public TKey Key;
@@ -329,24 +329,20 @@ namespace HackCraft.LockFree
         {
             info.AddValue("ic", _initialCapacity);
             info.AddValue("cmp", _cmp, typeof(IEqualityComparer<TKey>));
-            int cItems = 0;
+            List<KV> list = new List<KV>(Count);
             foreach(KV pair in EnumerateKVs())
-            {
-                info.AddValue("k" + cItems, pair.Key, typeof(TKey));
-                info.AddValue("v" + cItems, pair.Value, typeof(TValue));
-                ++cItems;
-            }
-            info.AddValue("cKVP", cItems);
+                list.Add(pair);
+            KV[] arr = list.ToArray();
+            info.AddValue("arr", arr);
+            info.AddValue("cKVP", arr.Length);
         }
         private LockFreeDictionary(SerializationInfo info, StreamingContext context)
             :this(info.GetInt32("cKVP"), (IEqualityComparer<TKey>)info.GetValue("cmp", typeof(IEqualityComparer<TKey>)))
         {
             _initialCapacity = info.GetInt32("ic");
-            int count = info.GetInt32("cKVP");
-            if(count < 0)
-                throw new SerializationException();
-            for(int i = 0; i != count; ++i)
-                this[(TKey)info.GetValue("k" + i, typeof(TKey))] = (TValue)info.GetValue("v" + i, typeof(TValue));
+            KV[] arr = (KV[])info.GetValue("arr", typeof(KV[]));
+            for(int i = 0; i != arr.Length; ++i)
+                this[arr[i].Key] = arr[i].Value;
         }
         // Try to get a value from a table. If necessary, move to the next table. 
         private bool Obtain(Table table, TKey key, int hash, out TValue value)

@@ -34,22 +34,12 @@ namespace HackCraft.LockFree
                 Push(item);
         }
         private LLStack(SerializationInfo info, StreamingContext context)
-        {
-            int count = info.GetInt32("c");
-            if(count < 0)
-                throw new SerializationException();
-            for(int i = 0; i != count; ++i)
-                Push((T)info.GetValue("i" + i, typeof(T)));
-        }
+            :this((T[])info.GetValue("arr", typeof(T[]))){}
         [SecurityCritical]
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            List<T> list = ToList();
-            int count = list.Count;
-            info.AddValue("c", count);
-            for(int i = 0; i != count; ++i)
-                info.AddValue("i" + i, list[i], typeof(T));
+            info.AddValue("arr", ToArray(), typeof(T[]));
         }
         public void Push(T item)
         {
@@ -359,7 +349,7 @@ namespace HackCraft.LockFree
         {
             return TryPop(out item);
         }
-        T[] IProducerConsumerCollection<T>.ToArray()
+        public T[] ToArray()
         {
             return ToList().ToArray();
         }
