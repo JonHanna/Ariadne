@@ -9,7 +9,9 @@
 
 using System;
 using System.Reflection;
+using System.Resources;
 using System.Runtime.InteropServices;
+using System.Security;
 
 [assembly: AssemblyTitle("HackCraft LockFree Collections")]
 [assembly: AssemblyDescription("Lock-free thread safe collection classes.")]
@@ -24,3 +26,5 @@ using System.Runtime.InteropServices;
 #else
 [assembly: AssemblyConfiguration("Release")]
 #endif
+[assembly: NeutralResourcesLanguage("en", UltimateResourceFallbackLocation.MainAssembly)]
+[assembly: AllowPartiallyTrustedCallers]

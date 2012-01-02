@@ -344,7 +344,7 @@ namespace HackCraft.LockFree
         }
         object ICollection.SyncRoot
         {
-            get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+            get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
         }
         bool ICollection.IsSynchronized
         {
@@ -368,9 +368,9 @@ namespace HackCraft.LockFree
         	if(array == null)
         		throw new ArgumentNullException("array");
         	if(array.Rank != 1)
-        	    throw new ArgumentException("Cannot copy to a multi-dimensional array", "array");
+        	    throw new ArgumentException(Strings.Cant_Copy_Multidimensional, "array");
         	if(array.GetLowerBound(0) != 0)
-        	    throw new ArgumentException("Cannot copy to an array whose lower bound is not zero", "array");
+        	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
         	if(index < 0)
         		throw new ArgumentOutOfRangeException("arrayIndex");
         	((ICollection)ToList()).CopyTo(array, index);

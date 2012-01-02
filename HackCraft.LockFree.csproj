@@ -68,5 +68,13 @@
     <Compile Include="LLQueue.cs" />
     <Compile Include="LLStack.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\resources.resx">
+      <LogicalName>HackCraft.LockFree.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -140,7 +140,7 @@ namespace HackCraft.LockFree
         private static int EstimateNecessaryCapacity(IEnumerable<T> collection)
         {
         	if(collection == null)
-        		throw new ArgumentNullException("collection", "Cannot create a new lock-free set from a null source collection");
+        		throw new ArgumentNullException("collection", Strings.Set_Null_Source_Collection);
         	ICollection<T> colKVP = collection as ICollection<T>;
         	if(colKVP != null)
         		return colKVP.Count;
@@ -608,11 +608,11 @@ namespace HackCraft.LockFree
                 }
                 catch(NotSupportedException nse)
                 {
-                    throw new NotSupportedException("Resetting not supported by the source enumeration", nse);
+                    throw new NotSupportedException(Strings.Resetting_Not_Supported_By_Source, nse);
                 }
                 catch(NotImplementedException)
                 {
-                    throw new NotSupportedException("Resetting not supported by the source enumeration.");
+                    throw new NotSupportedException(Strings.Resetting_Not_Supported_By_Source);
                 }
             }
         }
@@ -638,7 +638,7 @@ namespace HackCraft.LockFree
         public T Find(T item)
         {
             if(typeof(T).IsValueType || typeof(T).IsPointer)
-                throw new InvalidOperationException("Retrieving stored reference is only valid for reference types");
+                throw new InvalidOperationException(Strings.Retrieving_Non_Reference);
             T found;
             return Obtain(item, out found) ? found : default(T);
         }
@@ -654,6 +654,8 @@ namespace HackCraft.LockFree
         /// only valid for reference types.</remarks>
         public T FindOrStore(T item)
         {
+            if(typeof(T).IsValueType || typeof(T).IsPointer)
+                throw new InvalidOperationException(Strings.Retrieving_Non_Reference);
             Box found = PutIfMatch(new Box(item), false, false);
             return found == null || found is TombstoneBox ? item : found.Value;
         }
@@ -1293,7 +1295,7 @@ namespace HackCraft.LockFree
         
         object ICollection.SyncRoot
         {
-            get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+            get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
         }
         
         bool ICollection.IsSynchronized
@@ -1350,9 +1352,9 @@ namespace HackCraft.LockFree
         	if(array == null)
         		throw new ArgumentNullException("array");
         	if(array.Rank != 1)
-        	    throw new ArgumentException("Cannot copy to a multi-dimensional array", "array");
+        	    throw new ArgumentException(Strings.Cant_Copy_Multidimensional, "array");
         	if(array.GetLowerBound(0) != 0)
-        	    throw new ArgumentException("Cannot copy to an array whose lower bound is not zero", "array");
+        	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
         	if(index < 0)
         		throw new ArgumentOutOfRangeException("arrayIndex");
         	((ICollection)ToHashSet()).CopyTo(array, index);

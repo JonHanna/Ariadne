@@ -46,5 +46,49 @@ namespace HackCraft.LockFree
         {
             get { return rm.GetString("Dict_Null_Source_Collection"); }
         }
+        public static string Set_Null_Source_Collection
+        {
+            get { return rm.GetString("Set_Null_Source_Collection"); }
+        }
+        public static string Dict_Same_Key
+        {
+            get { return rm.GetString("Dict_Same_Key"); }
+        }
+        public static string Copy_To_Array_Too_Small
+        {
+            get { return rm.GetString("Copy_To_Array_Too_Small"); }
+        }
+        public static string SyncRoot_Not_Supported
+        {
+            get { return rm.GetString("SyncRoot_Not_Supported"); }
+        }
+        public static string Cant_Cast_Null_To_Value_Type(Type type)
+        {
+            return string.Format(rm.GetString("Cant_Cast_Null_To_Value_Type"), type.FullName);
+        }
+        public static string Invalid_Cast_Keys(Type argument, Type target)
+        {
+            return string.Format(rm.GetString("Invalid_Cast_Keys"), argument.FullName, target.FullName);
+        }
+        public static string Invalid_Cast_Values(Type argument, Type target)
+        {
+            return string.Format(rm.GetString("Invalid_Cast_Values"), argument.FullName, target.FullName);
+        }
+        public static string Cant_Copy_Multidimensional
+        {
+            get { return rm.GetString("Cant_Copy_Multidimensional"); }
+        }
+        public static string Cant_Copy_NonZero
+        {
+            get { return rm.GetString("Cant_Copy_NonZero"); }
+        }
+        public static string Resetting_Not_Supported_By_Source
+        {
+            get { return rm.GetString("Resetting_Not_Supported_By_Source"); }
+        }
+        public static string Retrieving_Non_Reference
+        {
+            get { return rm.GetString("Retrieving_Non_Reference"); }
+        }
     }
 }

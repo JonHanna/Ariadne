@@ -282,7 +282,7 @@ namespace HackCraft.LockFree
             // we want to avoid pointless re-sizes if we can tell what size the source collection is, (though in
             // worse cases it could be a million items!), but can only do so for some collection types.
         	if(collection == null)
-        		throw new ArgumentNullException("collection", "Cannot create a new lock-free dictionary from a null source collection");
+        	    throw new ArgumentNullException("collection", Strings.Dict_Null_Source_Collection);
         	try
         	{
             	ICollection<KeyValuePair<TKey, TValue>> colKVP = collection as ICollection<KeyValuePair<TKey, TValue>>;
@@ -823,7 +823,7 @@ namespace HackCraft.LockFree
         {
             KV ret = PutIfMatch(new KV(key, value), KV.DeadKey, KVEqualityComparer.Default);
             if(ret != null && !(ret is TombstoneKV))
-                throw new ArgumentException("An item with the same key has already been added.", "key");
+                throw new ArgumentException(Strings.Dict_Same_Key, "key");
         }
         /// <summary>Attempts to remove an item from the collection, identified by its key.
         /// </summary>
@@ -903,7 +903,7 @@ namespace HackCraft.LockFree
         	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && TryGetValue(default(TKey), out valForNull))
         	{
 	        	if(arrayIndex + snapshot.Count + 1 > array.Length)
-	        		throw new ArgumentException("The array is not large enough to contain the values that would be copied to it.");
+	        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
 	        	array[arrayIndex++] = new KeyValuePair<TKey, TValue>(default(TKey), valForNull);
         	}
         	((ICollection<KeyValuePair<TKey, TValue>>)snapshot).CopyTo(array, arrayIndex);
@@ -1325,7 +1325,7 @@ namespace HackCraft.LockFree
 	        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && _dict.TryGetValue(default(TKey), out valForNull))
 	        	{
 		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
-		        		throw new ArgumentException("The array is not large enough to contain the values that would be copied to it.");
+		        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
 		        	array[arrayIndex++] = valForNull;
 	        	}
 	        	snapshot.Values.CopyTo(array, arrayIndex);
@@ -1408,7 +1408,7 @@ namespace HackCraft.LockFree
 			}
             object ICollection.SyncRoot
             {
-                get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+                get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
             }	        
             bool ICollection.IsSynchronized
             {
@@ -1471,7 +1471,7 @@ namespace HackCraft.LockFree
 	        	if(!typeof(TKey).IsValueType && !typeof(TKey).IsPointer && _dict.ContainsKey(default(TKey)))
 	        	{
 		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
-		        		throw new ArgumentException("The array is not large enough to contain the values that would be copied to it.");
+		        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
 	        		array[arrayIndex++] = default(TKey);
 	        	}
 	        	snapshot.Keys.CopyTo(array, arrayIndex);
@@ -1553,7 +1553,7 @@ namespace HackCraft.LockFree
 			}
             object ICollection.SyncRoot
             {
-                get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+                get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
             }
 	        
             bool ICollection.IsSynchronized
@@ -1584,9 +1584,9 @@ namespace HackCraft.LockFree
             set
             {
                 if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
-                    throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TKey).FullName + ".", "key");
+                    throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
                 if(value == null && (typeof(TValue).IsValueType || typeof(TValue).IsPointer))
-                    throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TValue).FullName + ".", "value");
+                    throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
                 try
                 {
                     TKey convKey = (TKey)key;
@@ -1596,12 +1596,12 @@ namespace HackCraft.LockFree
                     }
                     catch(InvalidCastException)
                     {
-                        throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TValue).FullName + " values.", "value");
+                        throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
                     }
                 }
                 catch(InvalidCastException)
                 {
-                    throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TKey).FullName + " keys.", "key");
+                    throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
                 }
             }
         }
@@ -1623,7 +1623,7 @@ namespace HackCraft.LockFree
         
         object ICollection.SyncRoot
         {
-            get { throw new NotSupportedException("SyncRoot property is not supported, and unnecesary with this class."); }
+            get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
         }
         
         bool ICollection.IsSynchronized
@@ -1641,9 +1641,9 @@ namespace HackCraft.LockFree
         void IDictionary.Add(object key, object value)
         {
             if(key == null && (typeof(TKey).IsValueType || typeof(TKey).IsPointer))
-                throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TKey).FullName + ".", "key");
+                throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
             if(value == null && (typeof(TValue).IsValueType || typeof(TValue).IsPointer))
-                throw new ArgumentException("Null (nothing) values cannot be cast to " + typeof(TValue).FullName + ".", "value");
+                throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
             try
             {
                 TKey convKey = (TKey)key;
@@ -1653,12 +1653,12 @@ namespace HackCraft.LockFree
                 }
                 catch(InvalidCastException)
                 {
-                    throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TValue).FullName + " values.", "value");
+                    throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
                 }
             }
             catch(InvalidCastException)
             {
-                throw new ArgumentException("Cannot use " + key.GetType().FullName + " arguments as " + typeof(TKey).FullName + " keys.", "key");
+                throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
             }
         }
         
@@ -1679,9 +1679,9 @@ namespace HackCraft.LockFree
         	if(array == null)
         		throw new ArgumentNullException("array");
         	if(array.Rank != 1)
-        	    throw new ArgumentException("Cannot copy to a multi-dimensional array", "array");
+        	    throw new ArgumentException(Strings.Cant_Copy_Multidimensional, "array");
         	if(array.GetLowerBound(0) != 0)
-        	    throw new ArgumentException("Cannot copy to an array whose lower bound is not zero", "array");
+        	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
         	if(index < 0)
         		throw new ArgumentOutOfRangeException("arrayIndex");
         	((ICollection)ToDictionary()).CopyTo(array, index);
