@@ -152,7 +152,7 @@ namespace HackCraft.LockFree
                     node = oldNext;
                 }
             }
-            /// <summary>Returns the enumeration itself, as it is also it's own enumerator.</summary>
+            /// <summary>Returns the enumeration itself, as it is also it’s own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public AtPopEnumerator GetEnumerator()
             {
@@ -232,7 +232,7 @@ namespace HackCraft.LockFree
             {
                 //nop
             }
-            /// <summary>Returns the enumeration itself, as it is also it's own enumerator.</summary>
+            /// <summary>Returns the enumeration itself, as it is also it’s own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public PopEnumerator GetEnumerator()
             {
