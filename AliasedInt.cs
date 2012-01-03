@@ -49,18 +49,21 @@ namespace HackCraft.LockFree
 	        return Interlocked.Decrement(ref _value);
 	    }
 	    /// <summary>Atomically add a value to the AliasedInt.</summary>
+	    /// <param name="addend">The number to add to the AliasedInt.</param>
 	    /// <returns>The new value.</returns>
 	    public int Add(int addend)
 	    {
 	        return Interlocked.Add(ref _value, addend);
 	    }
 	    /// <summary>Atomically replace the value of the AliasedInt, returning the previous value.</summary>
+	    /// <param name="value">The number to set the AliasedInt to.</param>
 	    /// <returns>The old value.</returns>
 	    public int Exchange(int value)
 	    {
 	        return Interlocked.Exchange(ref _value, value);
 	    }
 	    /// <summary>Atomically subtract a value from the AliasedInt.</summary>
+	    /// <param name="subtrahend">The number to subtract from the AliasedInt.</param>
 	    /// <returns>The new value.</returns>
 	    public int Subtract(int subtrahend)
 	    {
