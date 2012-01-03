@@ -23,6 +23,7 @@ using System.Threading;
 namespace Ariadne
 {
     /// <summary>A hash-based set which is thread-safe for all operations, without locking.</summary>
+    /// <typeparam name="T">The type of the values stored.</typeparam>
     [Serializable]
     public sealed class LockFreeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
     {
@@ -700,6 +701,7 @@ namespace Ariadne
         }
         /// <summary>Determines whether a set is a subset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
+        /// <returns>True if the set is a subset of the parameter, false otherwise.</returns>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
         /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
         /// use).</remarks>
@@ -727,6 +729,7 @@ namespace Ariadne
         }
         /// <summary>Determines whether the current set is a superset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
+        /// <returns>True if the set is a superset of the parameter, false otherwise.</returns>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
         /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
         /// use).</remarks>
@@ -756,6 +759,7 @@ namespace Ariadne
         }
         /// <summary>Determines whether the current set is a correct superset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
+        /// <returns>True if the set is a proper superset of the parameter, false otherwise.</returns>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
         /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
         /// use).</remarks>
@@ -788,6 +792,7 @@ namespace Ariadne
         }
         /// <summary>Determines whether the current set is a property (strict) subset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
+        /// <returns>True if the set is a proper subset of the parameter, false otherwise.</returns>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
         /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
         /// use).</remarks>
@@ -818,6 +823,7 @@ namespace Ariadne
         }
         /// <summary>Determines whether the current set overlaps with the specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
+        /// <returns>True if the sets have at least one item in common, false otherwise.</returns>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
         /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
         /// use).</remarks>
@@ -833,6 +839,7 @@ namespace Ariadne
         }
         /// <summary>Determines whether the current set and the specified collection contain the same elements.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
+        /// <returns>True if the sets have the same items, false otherwise.</returns>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
         /// purposes it will be only be useful while the collection is being operated upon by only one thread (perhaps before or after unlocked multi-threaded
         /// use).</remarks>

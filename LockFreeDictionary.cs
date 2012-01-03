@@ -21,6 +21,8 @@ namespace Ariadne
     /// <summary>A dictionary which is thread-safe for all operations, without locking.</summary>
     /// <remarks>The documentation of <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> states
     /// that null keys may or may not be allowed by a conformant implentation. In this case, they are (for reference types).</remarks>
+    /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+    /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     [Serializable]
     public sealed class LockFreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable, IDictionary
     {
@@ -787,6 +789,8 @@ namespace Ariadne
             get { return false; }
         }
         /// <summary>Tests whether a given key is present in the collection.</summary>
+        /// <param name="key">The key to search for.</param>
+        /// <returns>True if the key is present, false otherwise.</returns>
         public bool ContainsKey(TKey key)
         {
             TValue dummy;

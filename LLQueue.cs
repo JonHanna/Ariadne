@@ -29,6 +29,7 @@ namespace Ariadne
     /// adoption to framework versions prior to the introduction of <see cref="ConcurrentQueue&lt;T>"/>
     /// and for use as the basis of other algorithms in this library. It does however also offer
     /// some other functionality</summary>
+    /// <typeparam name="T">The type of the values stored.</typeparam>
     [Serializable]
     public sealed class LLQueue<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
     {

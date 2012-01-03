@@ -22,6 +22,7 @@ namespace Ariadne
     /// future to wrap another set-type class), that calls into the FindOrStore and Find
     /// methods, which exist with exactly this sort of functionality in mind - considering
     /// the lack of such functionality in <see cref="HashSet&lt;T>"/> to be a lack.</summary>
+    /// <typeparam name="T">The type of the values stored (must be a reference type).</typeparam>
     [Serializable]
     public sealed class LockFreeAtomizer<T> : ICollection<T>, ICloneable where T:class
     {
