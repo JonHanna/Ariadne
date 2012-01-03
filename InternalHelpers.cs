@@ -10,7 +10,7 @@
 using System;
 using System.Resources;
 
-namespace HackCraft.LockFree
+namespace Ariadne
 {
 
     internal sealed class SinglyLinkedNode<T>
@@ -45,7 +45,7 @@ namespace HackCraft.LockFree
     }
     internal static class Strings
     {
-        private static readonly ResourceManager rm = new ResourceManager("HackCraft.LockFree", typeof(Strings).Assembly);
+        private static readonly ResourceManager rm = new ResourceManager("Ariadne", typeof(Strings).Assembly);
         public static string Dict_Null_Source_Collection
         {
             get { return rm.GetString("Dict_Null_Source_Collection"); }

@@ -18,7 +18,7 @@ using System.Threading;
 
 using NUnit.Framework;
 
-namespace HackCraft.LockFree.NUnitTests
+namespace Ariadne.NUnitTests
 {
     [TestFixture]
     public class LockFreeDictionaryTests

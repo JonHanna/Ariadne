@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{95CAF4E7-ADA0-471F-9930-C0F252D92368}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>HackCraft.LockFree</RootNamespace>
-    <AssemblyName>HackCraft.LockFree</AssemblyName>
+    <RootNamespace>Ariadne</RootNamespace>
+    <AssemblyName>Ariadne</AssemblyName>
     <CodePage>65001</CodePage>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -50,7 +50,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>None</DebugType>
     <DebugSymbols>false</DebugSymbols>
-    <DocumentationFile>bin\Release\HackCraft.LockFree.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Ariadne.xml</DocumentationFile>
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
@@ -60,7 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AliasedInt.cs" />
+    <Compile Include="SharedInt.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="InternalHelpers.cs" />
     <Compile Include="LockFreeAtomizer.cs" />
@@ -74,7 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\resources.resx">
-      <LogicalName>HackCraft.LockFree.resources</LogicalName>
+      <LogicalName>Ariadne.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

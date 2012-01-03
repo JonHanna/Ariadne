@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>HackCraft.LockFree.NUnitTests</RootNamespace>
-    <AssemblyName>HackCraft.LockFree.NUnitTests</AssemblyName>
+    <AssemblyName>Ariadne.NUnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -55,9 +55,9 @@
     <Compile Include="LockFreeSetTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HackCraft.LockFree.csproj">
+    <ProjectReference Include="..\Ariadne.csproj">
       <Project>{95CAF4E7-ADA0-471F-9930-C0F252D92368}</Project>
-      <Name>HackCraft.LockFree</Name>
+      <Name>Ariadne</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />

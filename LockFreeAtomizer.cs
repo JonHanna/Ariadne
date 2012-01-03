@@ -11,7 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace HackCraft.LockFree
+namespace Ariadne
 {
     /// <summary>Allows for one copy of each distinct value of a reference type to be stored,
     /// reducing memory use and often speeding equality comparisons. It can be the basis of

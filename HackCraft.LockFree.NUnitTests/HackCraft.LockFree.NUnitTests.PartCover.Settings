@@ -1,5 +1,0 @@
-﻿<PartCoverSettings>
-  <Rule>-[nunit*]*</Rule>
-  <Rule>-[*NUnitTests]*</Rule>
-  <Rule>-[*]*.RefInt</Rule>
-</PartCoverSettings>

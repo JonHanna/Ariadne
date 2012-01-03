@@ -1,4 +1,4 @@
-﻿HackCraft.LockFree
+﻿Ariadne
 
 A library of lock-free thread-safe collections for .NET and Mono.
 
@@ -22,7 +22,7 @@ namespace for those restricted to .NET 2.0 through .NET 3.5.
 
 Performance should be comparable to that offered by System.Collections.Concurrent in most
 cases, but not need compete with it in all, with the intention that there be cases where
-HackCraft.LockFree is the optimal solution. E.g. a lock-free dictionary would be considered
+Ariadne is the optimal solution, even if it isn’t always. E.g. a lock-free dictionary would be considered
 successful if it was normally slower than System.Collections.Concurrent.ConcurrentDictionary
 but faster when a small number of keys becomes “interesting” and the subject of many writes
 to the same key. (Acutally, the implementation at the time of writing beats
