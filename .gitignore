@@ -5,8 +5,8 @@
 *.log
 *.pidb
 *.userprefs
-/HackCraft.LockFree.NUnitTests/PartCover
-/HackCraft.LockFree.NUnitTests/bin
-/HackCraft.LockFree.NUnitTests/obj
-/test-results
-/HackCraft.LockFree.NUnitTests/test-results
+/NUnitTests/PartCover
+/NUnitTests/bin
+/NUnitTests/obj
+/NUnitTests/test-results
+*.Settings

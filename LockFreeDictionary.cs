@@ -16,7 +16,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
-namespace HackCraft.LockFree
+namespace Ariadne
 {
     /// <summary>A dictionary which is thread-safe for all operations, without locking.</summary>
     /// <remarks>The documentation of <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> states
@@ -205,8 +205,8 @@ namespace HackCraft.LockFree
         {
             public readonly Record[] Records;
             public volatile Table Next;
-            public readonly AliasedInt Size;
-            public readonly AliasedInt Slots = new AliasedInt();
+            public readonly SharedInt Size;
+            public readonly SharedInt Slots = new SharedInt();
             public readonly int Capacity;
             public readonly int Mask;
             public readonly int PrevSize;
@@ -214,7 +214,7 @@ namespace HackCraft.LockFree
             public int CopyIdx;
             public int Resizers;
             public int CopyDone;
-            public Table(int capacity, AliasedInt size)
+            public Table(int capacity, SharedInt size)
             {
                 Records = new Record[Capacity = capacity];
                 Mask = capacity - 1;
@@ -257,7 +257,7 @@ namespace HackCraft.LockFree
 	            }
         	}
             	
-            _table = new Table(_initialCapacity = capacity, new AliasedInt());
+            _table = new Table(_initialCapacity = capacity, new SharedInt());
             _cmp = comparer;
         }
         /// <summary>Constructs a new LockFreeDictionary.</summary>
@@ -831,7 +831,7 @@ namespace HackCraft.LockFree
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
-            Table newTable = new Table(_initialCapacity, new AliasedInt());
+            Table newTable = new Table(_initialCapacity, new SharedInt());
             Thread.MemoryBarrier();
             _table = newTable;
         }
@@ -958,7 +958,7 @@ namespace HackCraft.LockFree
         {
             private readonly LockFreeDictionary<TKey, TValue> _dict;
             private Table _table;
-            private readonly AliasedInt _size;
+            private readonly SharedInt _size;
             private readonly Func<TKey, TValue, bool> _predicate;
             private int _idx;
             private int _removed;

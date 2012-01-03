@@ -16,7 +16,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
-namespace HackCraft.LockFree
+namespace Ariadne
 {
     //This queue is mostly for competion or for use in other classes in the library, considering that
     //the 4.0 FCL already has a lock-free queue.

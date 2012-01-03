@@ -10,17 +10,17 @@
 using System;
 using System.Threading;
 
-namespace HackCraft.LockFree
+namespace Ariadne
 {
 	/// <summary>A simple means to share an atomically-maintained count between objects.</summary>
-	public sealed class AliasedInt
+	public sealed class SharedInt
 	{
 	    private int _value;
 	    /// <summary>Creates a new AliasedInt with a value of zero.</summary>
-	    public AliasedInt(){}
+	    public SharedInt(){}
 	    /// <summary>Creates a new AliasedInt.</summary>
 	    /// <param name="value">The initial value of the object.</param>
-	    public AliasedInt(int value)
+	    public SharedInt(int value)
 	    {
 	        _value = value;
 	    }
@@ -32,7 +32,7 @@ namespace HackCraft.LockFree
 	    /// <summary>Returns the value of the AliasedInt.</summary>
 	    /// <param name="ri">The AliasedInt to cast.</param>
 	    /// <returns>An integer of the same value as the AliasedInt.</returns>
-	    public static implicit operator int(AliasedInt ri)
+	    public static implicit operator int(SharedInt ri)
 	    {
 	        return ri._value;
 	    }
