@@ -19,7 +19,6 @@
     <SourceAnalysisOverrideSettingsFile>d:\Users\Jon\AppData\Roaming\ICSharpCode\SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <RunSourceAnalysis>False</RunSourceAnalysis>
-    <DelaySign>False</DelaySign>
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <BaseAddress>9633792</BaseAddress>
