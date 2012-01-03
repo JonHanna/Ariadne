@@ -23,7 +23,7 @@ namespace Ariadne
     /// methods, which exist with exactly this sort of functionality in mind - considering
     /// the lack of such functionality in <see cref="HashSet&lt;T>"/> to be a lack.</summary>
     [Serializable]
-    public class LockFreeAtomizer<T> : ICollection<T>, ICloneable where T:class
+    public sealed class LockFreeAtomizer<T> : ICollection<T>, ICloneable where T:class
     {
         private readonly LockFreeSet<T> _store;
         private LockFreeAtomizer(LockFreeSet<T> store)

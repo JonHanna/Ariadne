@@ -26,7 +26,7 @@ namespace Ariadne
     /// and for use as the basis of other algorithms in this library. It does however also offer
     /// some other functionality.</summary>
     [Serializable]
-    public class LLStack<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
+    public sealed class LLStack<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
     {
         private SinglyLinkedNode<T> _head = new SinglyLinkedNode<T>(default(T));
         /// <summary>Creates a new <see cref="LLStack&lt;T>"/></summary>
@@ -68,7 +68,7 @@ namespace Ariadne
         public void PushRange(IEnumerable<T> items)
         {
             if(items == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("items");
             using(IEnumerator<T> en = items.GetEnumerator())
             {
                 if(!en.MoveNext())
@@ -135,7 +135,7 @@ namespace Ariadne
         }
         /// <summary>An enumeration &amp; enumerator of items that were removed from the stack as an atomic operation.</summary>
         /// <remarks><see cref="AtomicPopAll"/> for more information.</remarks>
-        public class AtPopEnumerator : IEnumerable<T>, IEnumerator<T>
+        public sealed class AtPopEnumerator : IEnumerable<T>, IEnumerator<T>
         {
             private SinglyLinkedNode<T> _node = new SinglyLinkedNode<T>(default(T));
             internal AtPopEnumerator(LLStack<T> stack)
@@ -196,7 +196,7 @@ namespace Ariadne
         }
         /// <summary>An enumeration &amp; enumerator of items that are removed from the stack as the enumeration is processed</summary>
         /// <remarks><see cref="PopAll"/> for more information.</remarks>
-        public class PopEnumerator : IEnumerable<T>, IEnumerator<T>
+        public sealed class PopEnumerator : IEnumerable<T>, IEnumerator<T>
         {
             private readonly LLStack<T> _stack;
             private T _current;
@@ -252,7 +252,7 @@ namespace Ariadne
         /// until it reaches what is then the end. It may therefore on the one hand return items that
         /// have already been popped, and on the other never reach an end should new items be added
         /// frequently enough.</remarks>
-        public class Enumerator : IEnumerator<T>
+        public sealed class Enumerator : IEnumerator<T>
         {
             private readonly LLStack<T> _stack;
             private SinglyLinkedNode<T> _node;

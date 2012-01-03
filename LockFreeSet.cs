@@ -519,7 +519,7 @@ namespace Ariadne
             return new AddedEnumeration(this, items.GetEnumerator());
         }
         /// <summary>An enumeration that adds to the set as it is enumerated, returning only those items added.</summary>
-        public class AddedEnumeration : IEnumerable<T>, IEnumerator<T>
+        public sealed class AddedEnumeration : IEnumerable<T>, IEnumerator<T>
         {
             private LockFreeSet<T> _set;
             private IEnumerator<T> _srcEnumerator;
@@ -945,7 +945,7 @@ namespace Ariadne
         }
         /// <summary>Enumerates a <see cref="LockFreeSet&lt;T>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
-        public class RemovingEnumeration : IEnumerator<T>, IEnumerable<T>
+        public sealed class RemovingEnumeration : IEnumerator<T>, IEnumerable<T>
         {
             private readonly LockFreeSet<T> _set;
             private Table _table;

@@ -8,6 +8,7 @@
 // Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
 
 using System;
+using System.Globalization;
 using System.Resources;
 
 namespace Ariadne
@@ -40,7 +41,7 @@ namespace Ariadne
         	if(array.GetLowerBound(0) != 0)
         	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
         	if(index < 0)
-        		throw new ArgumentOutOfRangeException("arrayIndex");
+        		throw new ArgumentOutOfRangeException("index");
         }
     }
     internal static class Strings
@@ -68,15 +69,15 @@ namespace Ariadne
         }
         public static string Cant_Cast_Null_To_Value_Type(Type type)
         {
-            return string.Format(rm.GetString("Cant_Cast_Null_To_Value_Type"), type.FullName);
+            return string.Format(CultureInfo.CurrentCulture, rm.GetString("Cant_Cast_Null_To_Value_Type"), type.FullName);
         }
         public static string Invalid_Cast_Keys(Type argument, Type target)
         {
-            return string.Format(rm.GetString("Invalid_Cast_Keys"), argument.FullName, target.FullName);
+            return string.Format(CultureInfo.CurrentCulture, rm.GetString("Invalid_Cast_Keys"), argument.FullName, target.FullName);
         }
         public static string Invalid_Cast_Values(Type argument, Type target)
         {
-            return string.Format(rm.GetString("Invalid_Cast_Values"), argument.FullName, target.FullName);
+            return string.Format(CultureInfo.CurrentCulture, rm.GetString("Invalid_Cast_Values"), argument.FullName, target.FullName);
         }
         public static string Cant_Copy_Multidimensional
         {

@@ -79,7 +79,7 @@ namespace Ariadne
         public void EnqueueRange(IEnumerable<T> items)
         {
             if(items == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("items");
             foreach(T item in items)
                 Enqueue(item);
         }
@@ -150,7 +150,7 @@ namespace Ariadne
         }
         /// <summary>An enumeration &amp; enumerator of items that were removed from the queue as an atomic operation.</summary>
         /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
-        public class AtDequeuEnumerator : IEnumerable<T>, IEnumerator<T>
+        public sealed class AtDequeuEnumerator : IEnumerable<T>, IEnumerator<T>
         {
             private SinglyLinkedNode<T> _node;
             private SinglyLinkedNode<T> _end;
@@ -214,7 +214,7 @@ namespace Ariadne
         }
         /// <summary>An enumeration &amp; enumerator of items that are removed from the queue as the enumeration is processed</summary>
         /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
-        public class DequeuEnumerator : IEnumerable<T>, IEnumerator<T>
+        public sealed class DequeuEnumerator : IEnumerable<T>, IEnumerator<T>
         {
             private readonly LLQueue<T> _queue;
             private T _current;
@@ -270,7 +270,7 @@ namespace Ariadne
         /// until it reaches what is then the end. It may therefore on the one hand return items that
         /// have already been dequeued, and on the other never reach an end should new items be added
         /// frequently enough.</remarks>
-        public class Enumerator : IEnumerator<T>
+        public sealed class Enumerator : IEnumerator<T>
         {
             private readonly LLQueue<T> _queue;
             private SinglyLinkedNode<T> _node;

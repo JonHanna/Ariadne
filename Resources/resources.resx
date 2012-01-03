@@ -32,7 +32,7 @@ Licence is distributed on an “AS IS” basis, without warranties or conditions
     <value>The array is not large enough to contain the values that would be copied to it.</value>
   </data>
   <data name="SyncRoot_Not_Supported" xml:space="preserve">
-    <value>SyncRoot property is not supported, and unnecesary with this class.</value>
+    <value>SyncRoot property is not supported, and unnecessary with this class.</value>
   </data>
   <data name="Cant_Cast_Null_To_Value_Type" xml:space="preserve">
     <value>Null (nothing) values cannot be cast to {0}.</value>
