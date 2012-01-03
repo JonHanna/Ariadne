@@ -13,10 +13,10 @@ using System.Resources;
 using System.Runtime.InteropServices;
 using System.Security;
 
-[assembly: AssemblyTitle("HackCraft LockFree Collections")]
-[assembly: AssemblyDescription("Lock-free thread safe collection classes.")]
-[assembly: AssemblyProduct("HackCraft LockFree Collections Library")]
-[assembly: AssemblyCopyright("© 2011 Jon Hanna. Released under the European Union Public Licence v1.1")]
+[assembly: AssemblyTitle("Ariadne Multi-Threaded Development Library")]
+[assembly: AssemblyDescription("Lock-free thread safe collection classes, and other classes useful in multi-threaded programming.")]
+[assembly: AssemblyProduct("Ariadne Multi-Threaded Development Library")]
+[assembly: AssemblyCopyright("© 2011-2012 Jon Hanna. Released under the European Union Public Licence v1.1")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
