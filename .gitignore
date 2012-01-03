@@ -10,3 +10,6 @@
 /NUnitTests/obj
 /NUnitTests/test-results
 *.Settings
+/Ariadne.shfbproj_Jon
+/Help
+/Ariadne.shfbproj
