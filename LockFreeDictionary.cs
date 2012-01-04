@@ -538,6 +538,11 @@ namespace Ariadne
             }
             //we have a record with a matching key.
 
+            if(valCmp is MatchEmptyOnly)
+            {
+                replaced = curPair;
+                return false;
+            }
             if(curPair is TombstoneKV)
             {
                 if(!valCmp.MatchTombstone)//short-cut on tombstone
@@ -583,16 +588,13 @@ namespace Ariadne
                 KV prevPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, curPair);
                 if(prevPair == curPair)
                 {
-                    if(!(valCmp is MatchEmptyOnly))
+                    if(pair is TombstoneKV)
                     {
-                        if(pair is TombstoneKV)
-                        {
-                        	if(!(prevPair is TombstoneKV))
-                                table.Size.Decrement();
-                        }
-                        else if(prevPair is TombstoneKV)
-                            table.Size.Increment();
+                    	if(!(prevPair is TombstoneKV))
+                            table.Size.Decrement();
                     }
+                    else if(prevPair is TombstoneKV)
+                        table.Size.Increment();
                     replaced = prevPair;
                     return true;
                 }
@@ -602,8 +604,7 @@ namespace Ariadne
                 if(prevPrime != null)
                 {
                     CopySlotsAndCheck(table, prevPrime, idx);
-                    if(!(valCmp is MatchEmptyOnly))
-                        HelpCopy(table, prevPrime, false);
+                    HelpCopy(table, prevPrime, false);
                     table = table.Next;
                     goto restart;
                 }
