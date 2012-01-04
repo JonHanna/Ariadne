@@ -20,7 +20,7 @@ namespace Ariadne
 {
     /// <summary>A dictionary which is thread-safe for all operations, without locking.</summary>
     /// <remarks>The documentation of <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> states
-    /// that null keys may or may not be allowed by a conformant implentation. In this case, they are (for reference types).</remarks>
+    /// that null keys may or may not be allowed by a conformant implentation. In this case, they are.</remarks>
     /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
     /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     [Serializable]
@@ -171,12 +171,11 @@ namespace Ariadne
 					return false;
 				return _ecmp.Equals(livePair.Value, cmpPair.Value);
 			}
-			private static IEqualityComparer<TValue> DefIEQ = EqualityComparer<TValue>.Default;
-			public static KVEqualityComparer Default = new KVEqualityComparer(DefIEQ);
+			public static KVEqualityComparer Default = new KVEqualityComparer(DefaultValCmp);
 			public static KVEqualityComparer Create(IEqualityComparer<TValue> ieq)
 			{
 			    // avoid multiple allocations for the most common case.
-				if(ieq.Equals(DefIEQ))
+				if(ieq.Equals(DefaultValCmp))
 					return Default;
 				return new KVEqualityComparer(ieq);
 			}
@@ -231,6 +230,7 @@ namespace Ariadne
         private readonly int _initialCapacity;
         private readonly IEqualityComparer<TKey> _cmp;
         private const int DefaultCapacity = 1;
+        private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
         /// <summary>Constructs a new LockFreeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
@@ -486,7 +486,7 @@ namespace Ariadne
             //we have a record with a matching key.
             if(!typeof(TValue).IsValueType && ReferenceEquals(pair.Value, curPair.Value))
                 return pair;//short-cut on quickly-discovered no change.
-            //(If the type of TValue is a value or pointer type, then the call to reference equals can only ever return false
+            //(If the type of TValue is a value type, then the call to reference equals can only ever return false
             //(after an expensive box), and is pretty much meaningless. Hopefully the jitter would have done a nice job of either
             //removing the IsValueType checks and leaving the ReferenceEquals call or or removing the entire thing).
             
@@ -708,7 +708,6 @@ namespace Ariadne
         		return _table.Capacity;
         	}
         }
-        private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
         /// <summary>Creates an <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> that is
         /// a copy of the current contents.</summary>
         /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
@@ -854,7 +853,7 @@ namespace Ariadne
         /// <returns>True if the key and value are found, false otherwise.</returns>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            return Contains(item, EqualityComparer<TValue>.Default);
+            return Contains(item, DefaultValCmp);
         }
         /// <summary>Copies the contents of the dictionary to an array.</summary>
         /// <param name="array">The array to copy to.</param>
