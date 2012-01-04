@@ -132,63 +132,107 @@ namespace Ariadne
         	public TombstoneKV(TKey key)
         		:base(key, default(TValue)){}
         }
-        // used to see if a value should be considered equal to one that is
-        // in the dictionary for operations that only replace matching value
-        // such as Remove(key, cmpValue, out removed).
-        // To keep the mechanism consistent, we use such comparisons for all
-        // cases, but change the comparer used.
-        interface IKVEqualityComparer
+        private abstract class IValueMatcher
         {
-        	bool Equals(KV livePair, KV cmpPair);
+            public abstract bool MatchEmpty{get;}
+            public abstract bool MatchTombstone{get;}
+            public abstract bool MatchValue(TValue current);
+            public bool MatchKV(KV current)
+            {
+                if(current is TombstoneKV)
+                    return MatchTombstone;
+                return MatchValue(current.Value);
+            }
         }
-        // Returns true for every comparison. Used for wild-card case where
-        // we don’t care about the existing value (e.g. dict[key] = newValue
-        // or dict.Remove(key).
-        private sealed class MatchesAll : IKVEqualityComparer
+        private sealed class MatchAll : IValueMatcher
         {
-        	private MatchesAll(){}
-			public bool Equals(KV livePair, KV cmpPair)
-			{
-				return true;
-			}
-			public static readonly MatchesAll Instance = new MatchesAll();
+            private MatchAll(){}
+            public override bool MatchEmpty
+            {
+                get { return true; }
+            }
+            public override bool MatchTombstone
+            {
+                get { return true; }
+            }
+            public override bool MatchValue(TValue current)
+            {
+                return true;
+            }
+            public static readonly MatchAll Instance = new MatchAll();
         }
-        // "Normal" comparer. Matches dead and empty records to each
-        // other, and otherwise passes through to IEqualityComparer<T>’s
-        // implementation.
-        private sealed class KVEqualityComparer : IKVEqualityComparer
+        private sealed class MatchEquality : IValueMatcher
         {
-        	private readonly IEqualityComparer<TValue> _ecmp;
-        	private KVEqualityComparer(IEqualityComparer<TValue> ecmp)
-        	{
-        		_ecmp = ecmp;
-        	}
-			public bool Equals(KV livePair, KV cmpPair)
-			{
-				if(livePair == null || livePair is TombstoneKV)
-					return cmpPair == null || cmpPair is TombstoneKV;
-				if(cmpPair == null || cmpPair is TombstoneKV)
-					return false;
-				return _ecmp.Equals(livePair.Value, cmpPair.Value);
-			}
-			public static KVEqualityComparer Default = new KVEqualityComparer(DefaultValCmp);
-			public static KVEqualityComparer Create(IEqualityComparer<TValue> ieq)
-			{
-			    // avoid multiple allocations for the most common case.
-				if(ieq.Equals(DefaultValCmp))
-					return Default;
-				return new KVEqualityComparer(ieq);
-			}
+            private readonly IEqualityComparer<TValue> _ecmp;
+            private readonly TValue _cmpVal;
+            public MatchEquality(IEqualityComparer<TValue> ecmp, TValue cmpVal)
+            {
+                _ecmp = ecmp;
+                _cmpVal = cmpVal;
+            }
+            public override bool MatchEmpty
+            {
+                get { return false; }
+            }
+            public override bool MatchTombstone
+            {
+                get { return false; }
+            }
+            public override bool MatchValue(TValue current)
+            {
+                return _ecmp.Equals(current, _cmpVal);
+            }
         }
-        // only true if the current record has not been written to.
-        private sealed class NullPairEqualityComparer : IKVEqualityComparer
+        private sealed class MatchEmptyOnly : IValueMatcher
         {
-        	private NullPairEqualityComparer(){}
-			public bool Equals(KV livePair, KV cmpPair)
-			{
-				return livePair == null;
-			}
-			public static NullPairEqualityComparer Instance = new NullPairEqualityComparer();
+            private MatchEmptyOnly(){}
+            public override bool MatchEmpty
+            {
+                get { return true; }
+            }
+            public override bool MatchTombstone
+            {
+                get { return false; }
+            }
+            public override bool MatchValue(TValue current)
+            {
+                return false;
+            }
+            public static readonly MatchEmptyOnly Instance = new MatchEmptyOnly();
+        }
+        private sealed class MatchDead : IValueMatcher
+        {
+            private MatchDead(){}
+            public override bool MatchEmpty
+            {
+                get { return true; }
+            }
+            public override bool MatchTombstone
+            {
+                get { return true; }
+            }
+            public override bool MatchValue(TValue current)
+            {
+                return false;
+            }
+            public static readonly MatchDead Instance = new MatchDead();
+        }
+        private sealed class MatchLive : IValueMatcher
+        {
+            private MatchLive(){}
+            public override bool MatchEmpty
+            {
+                get { return false; }
+            }
+            public override bool MatchTombstone
+            {
+                get { return false; }
+            }
+            public override bool MatchValue(TValue current)
+            {
+                return true;
+            }
+            public static readonly MatchLive Instance = new MatchLive();
         }
         // Because this is a value-type, scanning through an array of these types should play
         // nicely with CPU caches. Examinging KV requires an extra indirection into memory that
@@ -414,14 +458,19 @@ namespace Ariadne
         // try to put a value into the dictionary, as long as the current value
         // matches oldPair based on the dictionary’s key-comparison rules
         // and the value-comparison rule passed through.
-        private KV PutIfMatch(KV pair, KV oldPair, IKVEqualityComparer valCmp)
+        private bool PutIfMatch(KV pair, IValueMatcher valCmp, out KV replaced)
         {
-            return PutIfMatch(_table, pair, Hash(pair.Key), oldPair, valCmp);
+            return PutIfMatch(_table, pair, Hash(pair.Key), valCmp, out replaced);
+        }
+        private bool PutIfMatch(KV pair, IValueMatcher valCmp)
+        {
+            KV dontCare;
+            return PutIfMatch(pair, valCmp, out dontCare);
         }
         // try to put a value into a table. If there is a resize in progress
         // we mark the relevant slot in this table if necessary before writing
         // to the next table.
-        private KV PutIfMatch(Table table, KV pair, int hash, KV oldPair, IKVEqualityComparer valCmp)
+        private bool PutIfMatch(Table table, KV pair, int hash, IValueMatcher valCmp, out KV replaced)
         {
             //Restart with next table by goto-ing to this label. Just as flame-bait for people quoting
             //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
@@ -439,8 +488,11 @@ namespace Ariadne
                 int curHash = records[idx].Hash;
                 if(curHash == 0)//nothing written here
                 {
-                    if(pair is TombstoneKV)
-                        return null;//don’t change anything.
+                    if(pair is TombstoneKV || !valCmp.MatchEmpty)
+                    {
+                        replaced = null;//don’t change anything.
+                        return false;
+                    }
                     if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
                         curHash = hash;
                     //now fallthrough to the next check, which we will pass if the above worked
@@ -453,14 +505,15 @@ namespace Ariadne
                     //while retrieving the current
                     //if we want to write to empty records
                     //let’s see if we can just write because there’s nothing there...
-                    if(oldPair == KV.DeadKey || oldPair == null)
+                    if(valCmp.MatchEmpty)
                     {
                         if((curPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, null)) == null)
                         {
                             table.Slots.Increment();
-                            if(oldPair != null && !(pair is TombstoneKV))
+                            if(!(valCmp is MatchEmptyOnly))//MatchEmptyOnly only used on resize, others never used on resize.
                                 table.Size.Increment();
-                            return null;
+                            replaced = null;
+                            return true;
                         }
                     }
                     else
@@ -484,11 +537,26 @@ namespace Ariadne
                 idx = (idx + 1) & mask;
             }
             //we have a record with a matching key.
-            if(!typeof(TValue).IsValueType && ReferenceEquals(pair.Value, curPair.Value))
-                return pair;//short-cut on quickly-discovered no change.
-            //(If the type of TValue is a value type, then the call to reference equals can only ever return false
-            //(after an expensive box), and is pretty much meaningless. Hopefully the jitter would have done a nice job of either
-            //removing the IsValueType checks and leaving the ReferenceEquals call or or removing the entire thing).
+
+            if(curPair is TombstoneKV)
+            {
+                if(!valCmp.MatchTombstone)//short-cut on tombstone
+                {
+                    replaced = curPair;
+                    return false;
+                }
+            }
+            else
+            {
+                //(If the type of TValue is a value type, then the call to reference equals can only ever return false
+                //(after an expensive box), and is pretty much meaningless. Hopefully the jitter would have done a nice job of either
+                //removing the IsValueType checks and leaving the ReferenceEquals call or or removing the entire thing).
+                if(!typeof(TValue).IsValueType && ReferenceEquals(pair.Value, curPair.Value))//short-cut on no change
+                {
+                    replaced = pair;
+                    return valCmp.MatchValue(curPair.Value);
+                }
+            }
             
             //If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
             //current record is copied over - so that any reader won’t end up finding the previous value and not realise it
@@ -506,13 +574,16 @@ namespace Ariadne
             {
                 //if we don’t match the conditions in which we want to overwrite a value
                 //then we just return the current value, and change nothing.
-            	if(!valCmp.Equals(curPair, oldPair))
-                    return curPair;
+                if(!valCmp.MatchKV(curPair))
+                {
+                    replaced = curPair;
+                    return false;
+                }
                 
                 KV prevPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, curPair);
                 if(prevPair == curPair)
                 {
-                    if(oldPair != null)
+                    if(!(valCmp is MatchEmptyOnly))
                     {
                         if(pair is TombstoneKV)
                         {
@@ -522,7 +593,8 @@ namespace Ariadne
                         else if(prevPair is TombstoneKV)
                             table.Size.Increment();
                     }
-                    return prevPair;
+                    replaced = prevPair;
+                    return true;
                 }
                 
                 //we lost the race, another thread set the pair.
@@ -530,7 +602,7 @@ namespace Ariadne
                 if(prevPrime != null)
                 {
                     CopySlotsAndCheck(table, prevPrime, idx);
-                    if(oldPair != null)
+                    if(!(valCmp is MatchEmptyOnly))
                         HelpCopy(table, prevPrime, false);
                     table = table.Next;
                     goto restart;
@@ -635,7 +707,8 @@ namespace Ariadne
 
             KV newRecord = oldKV.StripPrime();
             
-            bool copied = PutIfMatch(table.Next, newRecord, records[idx].Hash, null, NullPairEqualityComparer.Instance) == null;
+            KV whoCares;
+            bool copied = PutIfMatch(table.Next, newRecord, records[idx].Hash, MatchEmptyOnly.Instance, out whoCares);
             
             while((oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, KV.DeadKey, kv)) != kv)
                 kv = oldKV;
@@ -734,7 +807,7 @@ namespace Ariadne
         {
         	LockFreeDictionary<TKey, TValue> snapshot = new LockFreeDictionary<TKey, TValue>(Count, _cmp);
         	foreach(KV kv in EnumerateKVs())
-        		snapshot.PutIfMatch(kv, KV.DeadKey, MatchesAll.Instance);
+        		snapshot.PutIfMatch(kv, MatchAll.Instance);
         	return snapshot;
         }
         /// <summary>Gets or sets the value for a particular key.</summary>
@@ -750,7 +823,7 @@ namespace Ariadne
             }
             set
             {
-            	PutIfMatch(new KV(key, value), KV.DeadKey, MatchesAll.Instance);
+                PutIfMatch(new KV(key, value), MatchAll.Instance);
             }
         }
         /// <summary>Returns the collection of keys in the system.</summary>
@@ -801,8 +874,7 @@ namespace Ariadne
         /// <exception cref="System.ArgumentException">An item with the same key has already been added.</exception>
         public void Add(TKey key, TValue value)
         {
-            KV ret = PutIfMatch(new KV(key, value), KV.DeadKey, KVEqualityComparer.Default);
-            if(ret != null && !(ret is TombstoneKV))
+            if(!PutIfMatch(new KV(key, value), MatchDead.Instance))
                 throw new ArgumentException(Strings.Dict_Same_Key, "key");
         }
         /// <summary>Attempts to remove an item from the collection, identified by its key.</summary>
@@ -812,8 +884,7 @@ namespace Ariadne
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key)
         {
-        	KV ret = PutIfMatch(new TombstoneKV(key), KV.DeadKey, MatchesAll.Instance);
-        	return ret != null && !(ret is TombstoneKV);
+            return PutIfMatch(new TombstoneKV(key), MatchLive.Instance);
         }
         /// <summary>Attempts to retrieve the value associated with a key.</summary>
         /// <param name="key">The key searched for.</param>
@@ -885,14 +956,14 @@ namespace Ariadne
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(KeyValuePair<TKey, TValue> item, IEqualityComparer<TValue> valueComparer, out KeyValuePair<TKey, TValue> removed)
         {
-        	KV rem = PutIfMatch(new TombstoneKV(item.Key), item, KVEqualityComparer.Create(valueComparer));
-        	if(rem == null || rem is TombstoneKV || !valueComparer.Equals(rem.Value, item.Value))
-        	{
-        		removed = default(KeyValuePair<TKey, TValue>);
-        		return false;
-        	}
-        	removed = rem;
-        	return true;
+            KV rem;
+            if(PutIfMatch(new TombstoneKV(item.Key), new MatchEquality(valueComparer, item.Value), out rem))
+            {
+                removed = rem;
+                return true;
+            }
+            removed = default(KeyValuePair<TKey, TValue>);
+            return false;
         }
         /// <summary>Removes an item from the collection.</summary>
         /// <param name="item">The item to remove</param>
@@ -916,14 +987,14 @@ namespace Ariadne
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key, TValue cmpValue, IEqualityComparer<TValue> valueComparer, out TValue removed)
         {
-        	KV rem = PutIfMatch(new TombstoneKV(key), new KV(key, cmpValue), KVEqualityComparer.Create(valueComparer));
-        	if(rem == null || rem is TombstoneKV || !valueComparer.Equals(cmpValue, rem.Value))
-        	{
-        		removed = default(TValue);
-        		return false;
-        	}
-        	removed = rem.Value;
-        	return true;
+            KV rem;
+            if(PutIfMatch(new TombstoneKV(key), new MatchEquality(valueComparer, cmpValue), out rem))
+            {
+                removed = rem.Value;
+                return true;
+            }
+            removed = default(TValue);
+            return false;
         }
         /// <summary>Removes an item from the collection.</summary>
         /// <param name="key">The key to remove.</param>
