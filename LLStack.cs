@@ -18,10 +18,10 @@ using System.Threading;
 
 namespace Ariadne
 {
-    //This stack is mostly for competion or for use in other classes in the library, considering that
+    //This stack is mostly for completion or for use in other classes in the library, considering that
     //the 4.0 FCL already has a lock-free stack.
     
-    /// <summary>A lock-free type-safe stack. This class is included mainly for competion, to allow for
+    /// <summary>A lock-free type-safe stack. This class is included mainly for completion, to allow for
     /// adoption to framework versions prior to the introduction of <see cref="ConcurrentStack&lt;T>"/>
     /// and for use as the basis of other algorithms in this library. It does however also offer
     /// some other functionality.</summary>

@@ -18,14 +18,14 @@ using System.Threading;
 
 namespace Ariadne
 {
-    //This queue is mostly for competion or for use in other classes in the library, considering that
+    //This queue is mostly for completion or for use in other classes in the library, considering that
     //the 4.0 FCL already has a lock-free queue.
     //The Mono implementation is very close to this, while the MS implementation is more complicated
     //but should offer make better use of CPU caches in cases where the same thread does multiple
     //enqueues or multiple dequeues in quick succession.
 
 #pragma warning disable 420 // volatile semantics not lost as only by-ref calls are interlocked
-    /// <summary>A lock-free type-safe queue. This class is included mainly for competion, to allow for
+    /// <summary>A lock-free type-safe queue. This class is included mainly for completion, to allow for
     /// adoption to framework versions prior to the introduction of <see cref="ConcurrentQueue&lt;T>"/>
     /// and for use as the basis of other algorithms in this library. It does however also offer
     /// some other functionality</summary>
