@@ -8,6 +8,11 @@ all of which are thread-safe for multiple simultaneous readers and writers witho
 Collections of purely experimental interest are acceptable, but the aim is that the
 majority should be of practical use.
 
+Homepage:
+
+Please visit <http://hackcraft.github.com/Ariadne/> for this project’ homepage, including
+documentation and binaries.
+
 Aims:
 
 Support for the common .NET/Mono conventions; implementing applicable interfaces, using
