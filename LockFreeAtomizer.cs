@@ -11,7 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Ariadne
+namespace Ariadne.Collections
 {
     /// <summary>Allows for one copy of each distinct value of a reference type to be stored,
     /// reducing memory use and often speeding equality comparisons. It can be the basis of
@@ -23,6 +23,7 @@ namespace Ariadne
     /// methods, which exist with exactly this sort of functionality in mind - considering
     /// the lack of such functionality in <see cref="HashSet&lt;T>"/> to be a lack.</summary>
     /// <typeparam name="T">The type of the values stored (must be a reference type).</typeparam>
+    /// <threadsafety static="true" instance="true"/>
     [Serializable]
     public sealed class LockFreeAtomizer<T> : ICollection<T>, ICloneable where T:class
     {

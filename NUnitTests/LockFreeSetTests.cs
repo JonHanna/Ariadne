@@ -15,6 +15,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 using NUnit.Framework;
 
+using Ariadne.Collections;
+
 namespace Ariadne.NUnitTests
 {
     [TestFixture]
