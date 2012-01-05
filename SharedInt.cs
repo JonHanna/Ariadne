@@ -13,6 +13,7 @@ using System.Threading;
 namespace Ariadne
 {
 	/// <summary>A simple means to share an atomically-maintained count between objects.</summary>
+	/// <threadsafety static="true" instance="true"/>
 	public sealed class SharedInt
 	{
 	    private int _value;

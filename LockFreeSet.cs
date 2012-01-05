@@ -20,10 +20,11 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
-namespace Ariadne
+namespace Ariadne.Collections
 {
     /// <summary>A hash-based set which is thread-safe for all operations, without locking.</summary>
     /// <typeparam name="T">The type of the values stored.</typeparam>
+    /// <threadsafety static="true" instance="true"/>
     [Serializable]
     public sealed class LockFreeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
     {
@@ -520,6 +521,9 @@ namespace Ariadne
             return new AddedEnumeration(this, items.GetEnumerator());
         }
         /// <summary>An enumeration that adds to the set as it is enumerated, returning only those items added.</summary>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public sealed class AddedEnumeration : IEnumerable<T>, IEnumerator<T>
         {
             private LockFreeSet<T> _set;
@@ -952,6 +956,9 @@ namespace Ariadne
         }
         /// <summary>Enumerates a <see cref="LockFreeSet&lt;T>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public sealed class RemovingEnumeration : IEnumerator<T>, IEnumerable<T>
         {
             private readonly LockFreeSet<T> _set;
@@ -1136,6 +1143,8 @@ namespace Ariadne
         /// <summary>Enumerates a LockFreeSet&lt;T>.</summary>
         /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
         /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
         public struct Enumerator : IEnumerator<T>
         {
             private BoxEnumerator _src;

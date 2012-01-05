@@ -16,7 +16,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
-namespace Ariadne
+namespace Ariadne.Collections
 {
     //This queue is mostly for competion or for use in other classes in the library, considering that
     //the 4.0 FCL already has a lock-free queue.
@@ -30,6 +30,7 @@ namespace Ariadne
     /// and for use as the basis of other algorithms in this library. It does however also offer
     /// some other functionality</summary>
     /// <typeparam name="T">The type of the values stored.</typeparam>
+    /// <threadsafety static="true" instance="true"/>
     [Serializable]
     public sealed class LLQueue<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
     {
@@ -151,6 +152,9 @@ namespace Ariadne
         }
         /// <summary>An enumeration &amp; enumerator of items that were removed from the queue as an atomic operation.</summary>
         /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public sealed class AtDequeuEnumerator : IEnumerable<T>, IEnumerator<T>
         {
             private SinglyLinkedNode<T> _node;
@@ -172,7 +176,7 @@ namespace Ariadne
                         head = oldHead;
                 }
             }
-            /// <summary>Returns the enumeration itself, as it is also it’s own enumerator.</summary>
+            /// <summary>Returns the enumeration itself, as it is also its own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public AtDequeuEnumerator GetEnumerator()
             {
@@ -215,6 +219,9 @@ namespace Ariadne
         }
         /// <summary>An enumeration &amp; enumerator of items that are removed from the queue as the enumeration is processed</summary>
         /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public sealed class DequeuEnumerator : IEnumerable<T>, IEnumerator<T>
         {
             private readonly LLQueue<T> _queue;
@@ -251,7 +258,7 @@ namespace Ariadne
             {
                 //nop
             }
-            /// <summary>Returns the enumeration itself, as it is also it’s own enumerator.</summary>
+            /// <summary>Returns the enumeration itself, as it is also its own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public DequeuEnumerator GetEnumerator()
             {
@@ -271,6 +278,9 @@ namespace Ariadne
         /// until it reaches what is then the end. It may therefore on the one hand return items that
         /// have already been dequeued, and on the other never reach an end should new items be added
         /// frequently enough.</remarks>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public sealed class Enumerator : IEnumerator<T>
         {
             private readonly LLQueue<T> _queue;

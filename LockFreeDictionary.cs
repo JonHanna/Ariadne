@@ -16,7 +16,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
-namespace Ariadne
+namespace Ariadne.Collections
 {
     /// <summary>A dictionary which is thread-safe for all operations, without locking.</summary>
     /// <remarks>The documentation of <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> states
@@ -686,7 +686,7 @@ namespace Ariadne
                 
                 if(producer != null)
                 {
-                    bool factoryMode = curPair == null;
+                    bool factoryMode = curPair == null || curPair is TombstoneKV;
                     pair.Value = producer(pair.Key, factoryMode ? default(TValue) : curPair.Value, factoryMode);
                 }
                 
@@ -1050,6 +1050,14 @@ namespace Ariadne
             TValue dontCare;
             return TryAdd(key, factory, out dontCare);
         }
+        /// <summary>Updates the value for a key if it exists and if the current value matches one given.</summary>
+        /// <param name="key">The key to update.</param>
+        /// <param name="value">The new value to set for the key.</param>
+        /// <param name="compare">The old value that must be present for the key.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> used in comparing <paramref name="compare"/> with the current value.</param>
+        /// <param name="previous">The previous value if there was one for the key, irrespective of whether the method succeeds or not, or the default
+        /// value for <c>TValue</c> if there was no such key present.</param>
+        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare, IEqualityComparer<TValue> comparer, out TValue previous)
         {
             if(comparer == null)
@@ -1063,20 +1071,49 @@ namespace Ariadne
             previous = old == null ? default(TValue) : old.Value;
             return false;
         }
+        /// <summary>Updates the value for a key if it exists and if the current value matches one given.</summary>
+        /// <param name="key">The key to update.</param>
+        /// <param name="value">The new value to set for the key.</param>
+        /// <param name="compare">The old value that must be present for the key.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> used in comparing <paramref name="compare"/> with the current value.</param>
+        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare, IEqualityComparer<TValue> comparer)
         {
             TValue dontCare;
             return Update(key, value, compare, comparer, out dontCare);
         }
+        /// <summary>Updates the value for a key if it exists and if the current value matches one given.</summary>
+        /// <param name="key">The key to update.</param>
+        /// <param name="value">The new value to set for the key.</param>
+        /// <param name="compare">The old value that must be present for the key.</param>
+        /// <param name="previous">The previous value if there was one for the key, irrespective of whether the method succeeds or not, or the default
+        /// value for <c>TValue</c> if there was no such key present.</param>
+        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare, out TValue previous)
         {
             return Update(key, value, compare, DefaultValCmp, out previous);
         }
+        /// <summary>Updates the value for a key if it exists and if the current value matches one given.</summary>
+        /// <param name="key">The key to update.</param>
+        /// <param name="value">The new value to set for the key.</param>
+        /// <param name="compare">The old value that must be present for the key.</param>
+        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare)
         {
             TValue dontCare;
             return Update(key, value, compare, out dontCare);
         }
+        /// <summary>Updates the value for a key if it exists and if the current value matches one given.</summary>
+        /// <param name="key">The key to update.</param>
+        /// <param name="value">The new value to set for the key.</param>
+        /// <param name="predicate">A <see cref="Func&lt;T, TResult>"/> that returns true for values that should be replaced, false for those that
+        /// should remain.</param>
+        /// <param name="previous">The previous value if there was one for the key, irrespective of whether the method succeeds or not, or the default
+        /// value for <c>TValue</c> if there was no such key present.</param>
+        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="predicate"/> returned false.</returns>
+        /// <remarks>While the update will be atomic when (and if) it happens, it is possible for another thread to update or delete the value
+        /// in the meantime. Therefore predicate may be called more than once, until either the operation succeeds, another thread
+        /// deletes the value, or the predicate returns false.</remarks>
         public bool Update(TKey key, TValue value, Func<TValue, bool> predicate, out TValue previous)
         {
             if(predicate == null)
@@ -1090,11 +1127,27 @@ namespace Ariadne
             previous = old == null ? default(TValue) : old.Value;
             return false;
         }
+        /// <summary>Updates the value for a key if it exists and if the current value matches one given.</summary>
+        /// <param name="key">The key to update.</param>
+        /// <param name="value">The new value to set for the key.</param>
+        /// <param name="predicate">A <see cref="Func&lt;T, TResult>"/> that returns true for values that should be replaced, false for those that
+        /// should remain.</param>
+        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="predicate"/> returned false.</returns>
+        /// <remarks>While the update will be atomic when (and if) it happens, it is possible for another thread to update or delete the value
+        /// in the meantime. Therefore predicate may be called more than once, until either the operation succeeds, another thread
+        /// deletes the value, or the predicate returns false.</remarks>
         public bool Update(TKey key, TValue value, Func<TValue, bool> predicate)
         {
             TValue dontCare;
             return Update(key, value, predicate, out dontCare);
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="value">The value to add.</param>
+        /// <param name="compare">The value to compare with the current value, if present.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use to compare <paramref name="compare"/> with the current value.</param>
+        /// <param name="previous">The previous value, if there was one, or the default value for <c>TValue</c> otherwise.</param>
+        /// <returns>True if the value was set (added or updated), false otherwise.</returns>
         public bool AddOrUpdate(TKey key, TValue value, TValue compare, IEqualityComparer<TValue> comparer, out TValue previous)
         {
             KV old;
@@ -1102,20 +1155,48 @@ namespace Ariadne
             previous = old == null ? default(TValue) : old.Value;
             return ret;
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="value">The value to add.</param>
+        /// <param name="compare">The value to compare with the current value, if present.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use to compare <paramref name="compare"/> with the current value.</param>
+        /// <returns>True if the value was set (added or updated), false otherwise.</returns>
         public bool AddOrUpdate(TKey key, TValue value, TValue compare, IEqualityComparer<TValue> comparer)
         {
             TValue dontCare;
             return AddOrUpdate(key, value, compare, comparer, out dontCare);
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="value">The value to add.</param>
+        /// <param name="compare">The value to compare with the current value, if present.</param>
+        /// <param name="previous">The previous value, if there was one, or the default value for <c>TValue</c> otherwise.</param>
+        /// <returns>True if the value was set (added or updated), false otherwise.</returns>
         public bool AddOrUpdate(TKey key, TValue value, TValue compare, out TValue previous)
         {
             return AddOrUpdate(key, value, compare, DefaultValCmp, out previous);
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="value">The value to add.</param>
+        /// <param name="compare">The value to compare with the current value, if present.</param>
+        /// <returns>True if the value was set (added or updated), false otherwise.</returns>
         public bool AddOrUpdate(TKey key, TValue value, TValue compare)
         {
             TValue dontCare;
             return AddOrUpdate(key, value, compare, out dontCare);
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="addValue">The value to add, if none is present.</param>
+        /// <param name="updater">A <see cref="Func&lt;T1, T2, TResult>"/> that will produce a value from the key and current value
+        /// to update the current value.</param>
+        /// <param name="previous">The previous value, if there was one, or the default value for <c>TValue</c> otherwise.</param>
+        /// <returns>The new value.</returns>
+        /// <remarks>While the addition or update will be atomic when it happens, and <paramref name="updater"/> will only be
+        /// called if there is a value present, it will not block other threads from changing or removing the value while it
+        /// is running. It is therefore possible for it to be called multiple times, or for <paramref name="addValue"/> to
+        /// be used after it was called.</remarks>
         public TValue AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater, out TValue previous)
         {
             KV pair = new KV(key, addValue);
@@ -1124,11 +1205,35 @@ namespace Ariadne
             previous = old == null ? default(TValue) : old.Value;
             return pair.Value;
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="addValue">The value to add, if none is present.</param>
+        /// <param name="updater">A <see cref="Func&lt;T1, T2, TResult>"/> that will produce a value from the key and current value
+        /// to update the current value.</param>
+        /// <returns>The new value.</returns>
+        /// <remarks>While the addition or update will be atomic when it happens, and <paramref name="updater"/> will only be
+        /// called if there is a value present, it will not block other threads from changing or removing the value while it
+        /// is running. It is therefore possible for it to be called multiple times, or for <paramref name="addValue"/> to
+        /// be used after it was called.</remarks>
         public TValue AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater)
         {
             TValue dontCare;
             return AddOrUpdate(key, addValue, updater, out dontCare);
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="factory">A <see cref="Func&lt;T, TResult>"/> that will produce a value to add to the dictionary.</param>
+        /// <param name="updater">A <see cref="Func&lt;T1, T2, TResult>"/> that will produce a value from the key and current value
+        /// to update the current value.</param>
+        /// <param name="previous">The previous value, if there was one, or the default value for <c>TValue</c> otherwise.</param>
+        /// <returns>The new value.</returns>
+        /// <remarks>While the addition or update will be atomic when it happens, <paramref name="factory"/> will be called only
+        /// once and <paramref name="updater"/> will only be
+        /// called if there is a value present, <paramref name="factory"/> and <paramref name="updater"/>
+        /// will not block other threads from changing or removing the value while they are running
+        /// is running. It is therefore possible for <paramref name="updater"/> to be called multiple times,
+        /// for both <paramref name="factory"/> and <paramref name="updater"/> to be called, or for the result
+        /// of <paramref name="factory"/> to be used after <paramref name="updater"/> was called.</remarks>
         public TValue AddOrUpdate(TKey key, Func<TKey, TValue> factory, Func<TKey, TValue, TValue> updater, out TValue previous)
         {
             KV pair = new KV(key, default(TValue));
@@ -1137,11 +1242,29 @@ namespace Ariadne
             previous = old == null ? default(TValue) : old.Value;
             return pair.Value;
         }
+        /// <summary>Adds a value for a key, or updates it if the current value matches one given.</summary>
+        /// <param name="key">The key to add or change the value for.</param>
+        /// <param name="factory">A <see cref="Func&lt;T, TResult>"/> that will produce a value to add to the dictionary.</param>
+        /// <param name="updater">A <see cref="Func&lt;T1, T2, TResult>"/> that will produce a value from the key and current value
+        /// to update the current value.</param>
+        /// <returns>The new value.</returns>
+        /// <remarks>While the addition or update will be atomic when it happens, <paramref name="factory"/> will be called only
+        /// once and <paramref name="updater"/> will only be
+        /// called if there is a value present, <paramref name="factory"/> and <paramref name="updater"/>
+        /// will not block other threads from changing or removing the value while they are running
+        /// is running. It is therefore possible for <paramref name="updater"/> to be called multiple times,
+        /// for both <paramref name="factory"/> and <paramref name="updater"/> to be called, or for the result
+        /// of <paramref name="factory"/> to be used after <paramref name="updater"/> was called.</remarks>
         public TValue AddOrUpdate(TKey key, Func<TKey, TValue> factory, Func<TKey, TValue, TValue> updater)
         {
             TValue dontCare;
             return AddOrUpdate(key, factory, updater, out dontCare);
         }
+        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <param name="key">The key to examine or add.</param>
+        /// <param name="value">The value to add for the key if it wasn't present.</param>
+        /// <param name="result">The value added or found.</param>
+        /// <returns>True if the value was added, false if the key was already present.</returns>
         public bool GetOrAdd(TKey key, TValue value, out TValue result)
         {
             KV res;
@@ -1153,16 +1276,39 @@ namespace Ariadne
             result = res.Value;
             return false;
         }
+        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <param name="key">The key to examine or add.</param>
+        /// <param name="value">The value to add for the key if it wasn't present.</param>
+        /// <returns>The value added or found.</returns>
         public TValue GetOrAdd(TKey key, TValue value)
         {
             TValue ret;
             GetOrAdd(key, value, out ret);
             return ret;
         }
+        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <param name="key">The key to examine or add.</param>
+        /// <param name="factory">A <see cref="Func&lt;T, TResult>"/> that produces a value when passed a key, to
+        /// create a value if needed.</param>
+        /// <param name="value">The value added or found.</param>
+        /// <returns>True if the value was added, false if the key was already present.</returns>
+        /// <remarks><paramref name="factory"/> will only be called if the key is absent, and will only be called once,
+        /// however it does not block other threads from adding to the dictionary while it is running, so while the update
+        /// will be atomic if it happens, it is possible
+        /// for <paramref name="factory"/> to be called, but for the method to return an existing value.</remarks>
         public bool GetOrAdd(TKey key, Func<TKey, TValue> factory, out TValue value)
         {
             return !TryGetValue(key, out value) && GetOrAdd(key, factory(key), out value);
         }
+        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <param name="key">The key to examine or add.</param>
+        /// <param name="factory">A <see cref="Func&lt;T, TResult>"/> that produces a value when passed a key, to
+        /// create a value if needed.</param>
+        /// <returns>The value added or found.</returns>
+        /// <remarks><paramref name="factory"/> will only be called if the key is absent, and will only be called once,
+        /// however it does not block other threads from adding to the dictionary while it is running, so while the update
+        /// will be atomic if it happens, it is possible
+        /// for <paramref name="factory"/> to be called, but for the method to return an existing value.</remarks>
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> factory)
         {
             TValue ret;
@@ -1178,6 +1324,12 @@ namespace Ariadne
         {
             return PutIfMatch(new TombstoneKV(key), MatchLive.Instance);
         }
+        /// <summary>Attempts to remove an item from the collection, identified by its key.</summary>
+        /// <param name="key">The key to remove.</param>
+        /// <param name="value">The value that was removed, or the default value of <c>TValue</c> if the method failed.</param>
+        /// <returns>True if the item was removed, false if it wasn’t found.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key, out TValue value)
         {
             KV ret;
@@ -1333,6 +1485,7 @@ namespace Ariadne
         /// and removing them from the dictionary.</summary>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public sealed class RemovingEnumeration : IEnumerator<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
         {
             private readonly LockFreeDictionary<TKey, TValue> _dict;
@@ -1519,6 +1672,7 @@ namespace Ariadne
         /// <summary>Enumerates a LockFreeDictionary&lt;TKey, TValue>.</summary>
         /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
         /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
+        /// <tocexclude/>
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
         {
             private KVEnumerator _src;
@@ -1586,6 +1740,7 @@ namespace Ariadne
         /// <summary>A collection of the values in a LockFreeDictionary.</summary>
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
+        /// <tocexclude/>
 	    public struct ValueCollection : ICollection<TValue>, ICollection
 	    {
 	    	private readonly LockFreeDictionary<TKey, TValue> _dict;
@@ -1727,6 +1882,7 @@ namespace Ariadne
         /// <summary>A collection of the keys in a LockFreeDictionary.</summary>
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
+        /// <tocexclude/>
 	    public struct KeyCollection : ICollection<TKey>, ICollection
 	    {
 	    	private readonly LockFreeDictionary<TKey, TValue> _dict;

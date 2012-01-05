@@ -18,6 +18,8 @@ using System.Threading;
 
 using NUnit.Framework;
 
+using Ariadne.Collections;
+
 namespace Ariadne.NUnitTests
 {
     [TestFixture]
@@ -525,6 +527,275 @@ namespace Ariadne.NUnitTests
 	            ms.Seek(0, SeekOrigin.Begin);
 	            Assert.IsTrue(EqualDicts(dict, (LockFreeDictionary<string, string>)new BinaryFormatter().Deserialize(ms)));
     	    }
+    	}
+    	[Test]
+    	public void TryAdd()
+    	{
+    	    var dict = new LockFreeDictionary<int, int>();
+    	    dict[0] = 0;
+    	    Assert.IsTrue(dict.TryAdd(1, 2));
+    	    Assert.IsFalse(dict.TryAdd(1, 9));
+    	    Assert.IsTrue(dict.TryAdd(new KeyValuePair<int, int>(2, 4)));
+    	    Assert.IsFalse(dict.TryAdd(new KeyValuePair<int, int>(2, 9)));
+    	    Assert.IsFalse(dict.TryAdd(2, 20));
+    	    Assert.IsTrue(dict.TryAdd(3, x => x * 2));
+    	    Assert.IsFalse(dict.TryAdd(3, x => x * 4));
+    	    int monitor = 99;
+    	    Assert.IsTrue(dict.TryAdd(4, x => {
+    	                                  return monitor = 8;
+    	                              }));
+    	    Assert.AreEqual(8, monitor);
+    	    Assert.IsFalse(dict.TryAdd(4, x => {
+    	                                   return monitor = 9;
+    	                               }));
+    	    Assert.AreEqual(8, monitor);
+    	    Assert.IsTrue(dict.TryAdd(5, 10, out monitor));
+    	    Assert.AreEqual(0, monitor);
+    	    Assert.IsFalse(dict.TryAdd(5, 9, out monitor));
+    	    Assert.AreEqual(10, monitor);
+    	    Assert.IsTrue(dict.TryAdd(6, x => 12, out monitor));
+    	    Assert.AreEqual(0, monitor);
+    	    Assert.IsFalse(dict.TryAdd(6, x => 9, out monitor));
+    	    Assert.AreEqual(12, monitor);
+    	    foreach(var kvp in dict)
+    	        Assert.AreEqual(kvp.Value, kvp.Key * 2);
+    	}
+    	[Test]
+    	[ExpectedException(typeof(ArgumentNullException))]
+    	public void TryAddNullFactory()
+    	{
+    	    var dict = new LockFreeDictionary<int, int>();
+    	    dict.TryAdd(1, null);
+    	}
+    	[Test]
+    	public void Update()
+    	{
+    	    var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 100).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
+    	    int val;
+    	    Assert.IsFalse(dict.Update(10, 10, 1, EqualityComparer<int>.Default, out val));
+    	    Assert.AreNotEqual(10, dict[10]);
+    	    Assert.AreEqual(val, 20);
+    	    Assert.IsTrue(dict.Update(10, 10, 20, EqualityComparer<int>.Default, out val));
+    	    Assert.AreEqual(val, 20);
+    	    Assert.AreEqual(10, dict[10]);
+    	    Assert.IsFalse(dict.Update(-1, 10, 10, EqualityComparer<int>.Default, out val));
+    	    Assert.AreEqual(0, val);
+    	    dict[10] = 20;
+    	    Assert.IsFalse(dict.Update(10, 10, 1, EqualityComparer<int>.Default));
+    	    Assert.AreNotEqual(10, dict[10]);
+    	    Assert.IsTrue(dict.Update(10, 10, 20, EqualityComparer<int>.Default));
+    	    Assert.AreEqual(10, dict[10]);
+    	    Assert.IsFalse(dict.Update(-1, 10, 10, EqualityComparer<int>.Default));
+    	    dict[10] = 20;
+    	    Assert.IsFalse(dict.Update(10, 10, 1,  out val));
+    	    Assert.AreNotEqual(10, dict[10]);
+    	    Assert.AreEqual(val, 20);
+    	    Assert.IsTrue(dict.Update(10, 10, 20, out val));
+    	    Assert.AreEqual(val, 20);
+    	    Assert.AreEqual(10, dict[10]);
+    	    Assert.IsFalse(dict.Update(-1, 10, 10, out val));
+    	    Assert.AreEqual(0, val);
+    	    dict[10] = 20;
+    	    Assert.IsFalse(dict.Update(10, 10, 1));
+    	    Assert.AreNotEqual(10, dict[10]);
+    	    Assert.IsTrue(dict.Update(10, 10, 20));
+    	    Assert.AreEqual(10, dict[10]);
+    	    Assert.IsFalse(dict.Update(-1, 10, 10));
+    	    dict[10] = 20;
+    	    Assert.IsFalse(dict.Update(10, 10, x => x == 1, out val));
+    	    Assert.AreNotEqual(10, dict[10]);
+    	    Assert.AreEqual(val, 20);
+    	    Assert.IsTrue(dict.Update(10, 10, x => x == 20, out val));
+    	    Assert.AreEqual(val, 20);
+    	    Assert.AreEqual(10, dict[10]);
+    	    Assert.IsFalse(dict.Update(-1, 10, x => true, out val));
+    	    Assert.AreEqual(0, val);
+    	    dict[10] = 20;
+    	    Assert.IsFalse(dict.Update(10, 10, x => x == 1));
+    	    Assert.AreNotEqual(10, dict[10]);
+    	    Assert.IsTrue(dict.Update(10, 10, x => x == 20));
+    	    Assert.AreEqual(10, dict[10]);
+    	    Assert.IsFalse(dict.Update(-1, 10, x => true));
+    	    dict[10] = 20;
+    	}
+    	[Test]
+    	[ExpectedException(typeof(ArgumentNullException))]
+    	public void UpdateNullFactory()
+    	{
+    	    var dict = new LockFreeDictionary<int, int>();
+    	    dict.Update(1, 1, null);
+    	}
+    	[Test]
+    	public void GetOrAdd()
+    	{
+    	    var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 100).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
+    	    int val;
+    	    Assert.IsTrue(dict.GetOrAdd(200, 400, out val));
+    	    Assert.AreEqual(400, val);
+    	    Assert.AreEqual(400, dict[200]);
+    	    Assert.IsFalse(dict.GetOrAdd(200, 300, out val));
+    	    Assert.AreEqual(400, val);
+    	    Assert.AreEqual(400, dict[200]);
+    	    Assert.AreEqual(400, dict.GetOrAdd(200, 10));
+    	    Assert.AreEqual(400, dict[200]);
+    	    Assert.AreEqual(600, dict.GetOrAdd(300, 600));
+    	    Assert.AreEqual(600, dict[300]);
+    	    bool called = false;
+    	    Assert.IsFalse(dict.GetOrAdd(200, x => {
+    	                                     called = true;
+    	                                     return 50;
+    	                                 }, out val));
+    	    Assert.AreEqual(400, val);
+    	    Assert.AreEqual(400, dict[200]);
+    	    Assert.IsFalse(called);
+    	    Assert.IsTrue(dict.GetOrAdd(400, x => {
+    	                                     called = true;
+    	                                     return 800;
+    	                                 }, out val));
+    	    Assert.AreEqual(800, val);
+    	    Assert.AreEqual(800, dict[400]);
+    	    Assert.IsTrue(called);
+    	    called = false;
+    	    Assert.AreEqual(400, dict.GetOrAdd(200, x => {
+    	                                           called = true;
+    	                                           return 50;
+    	                                       }));
+    	    Assert.AreEqual(400, dict[200]);
+    	    Assert.IsFalse(called);
+    	    Assert.AreEqual(-2, dict.GetOrAdd(-1, x => {
+    	                                          called = true;
+    	                                          return -2;
+    	                                      }));
+    	    Assert.AreEqual(-2, dict[-1]);
+    	    Assert.IsTrue(called);
+    	}
+    	[Test]
+    	public void AddOrUpdate()
+    	{
+    	    var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 10).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
+    	    int val;
+    	    Assert.IsTrue(dict.AddOrUpdate(10, 18, 99, EqualityComparer<int>.Default, out val));
+    	    Assert.AreEqual(0, val);
+    	    Assert.AreEqual(18, dict[10]);
+    	    Assert.IsFalse(dict.AddOrUpdate(10, 20, 99, EqualityComparer<int>.Default, out val));
+    	    Assert.AreEqual(18, val);
+    	    Assert.AreEqual(18, dict[10]);
+    	    Assert.IsTrue(dict.AddOrUpdate(10, 20, 18, EqualityComparer<int>.Default, out val));
+    	    Assert.AreEqual(18, val);
+    	    Assert.AreEqual(20, dict[10]);
+
+    	    Assert.IsTrue(dict.AddOrUpdate(100, 180, 99, EqualityComparer<int>.Default));
+    	    Assert.AreEqual(180, dict[100]);
+    	    Assert.IsFalse(dict.AddOrUpdate(100, 200, 99, EqualityComparer<int>.Default));
+    	    Assert.AreEqual(180, dict[100]);
+    	    Assert.IsTrue(dict.AddOrUpdate(100, 200, 180, EqualityComparer<int>.Default));
+    	    Assert.AreEqual(200, dict[100]);
+    	    
+    	    dict.Remove(10);
+    	    dict.Remove(100);
+    	    
+    	    Assert.IsTrue(dict.AddOrUpdate(10, 18, 99, out val));
+    	    Assert.AreEqual(0, val);
+    	    Assert.AreEqual(18, dict[10]);
+    	    Assert.IsFalse(dict.AddOrUpdate(10, 20, 99, out val));
+    	    Assert.AreEqual(18, val);
+    	    Assert.AreEqual(18, dict[10]);
+    	    Assert.IsTrue(dict.AddOrUpdate(10, 20, 18, out val));
+    	    Assert.AreEqual(18, val);
+    	    Assert.AreEqual(20, dict[10]);
+
+    	    Assert.IsTrue(dict.AddOrUpdate(100, 180, 99));
+    	    Assert.AreEqual(180, dict[100]);
+    	    Assert.IsFalse(dict.AddOrUpdate(100, 200, 99));
+    	    Assert.AreEqual(180, dict[100]);
+    	    Assert.IsTrue(dict.AddOrUpdate(100, 200, 180));
+    	    Assert.AreEqual(200, dict[100]);
+    	    
+    	    bool calledUpdater = false;
+    	    
+    	    Assert.AreEqual(18, dict.AddOrUpdate(20, 18, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }, out val));
+    	    Assert.IsFalse(calledUpdater);
+    	    Assert.AreEqual(0, val);
+    	    Assert.AreEqual(18, dict[20]);
+    	    Assert.AreEqual(20, dict.AddOrUpdate(20, 18, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }, out val));
+    	    Assert.IsTrue(calledUpdater);
+    	    Assert.AreEqual(18, val);
+    	    Assert.AreEqual(20, dict[20]);
+    	    
+    	    calledUpdater = false;
+    	    dict.Remove(20);
+    	    Assert.AreEqual(18, dict.AddOrUpdate(20, 18, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }));
+    	    Assert.IsFalse(calledUpdater);
+    	    Assert.AreEqual(18, dict[20]);
+    	    Assert.AreEqual(20, dict.AddOrUpdate(20, 18, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }));
+    	    Assert.IsTrue(calledUpdater);
+    	    Assert.AreEqual(20, dict[20]);
+    	    
+    	    calledUpdater = false;
+    	    bool calledFactory = false;
+    	    dict.Remove(20);
+    	    
+    	    Assert.AreEqual(18, dict.AddOrUpdate(20, k => {
+    	                                             calledFactory = true;
+    	                                             return 18;
+    	                                         }, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }, out val));
+    	    Assert.IsTrue(calledFactory);
+    	    Assert.IsFalse(calledUpdater);
+    	    Assert.AreEqual(18, dict[20]);
+    	    Assert.AreEqual(0, val);
+    	    calledFactory = false;
+    	    Assert.AreEqual(20, dict.AddOrUpdate(20, k => {
+    	                                             calledFactory = true;
+    	                                             return 18;
+    	                                         }, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }, out val));
+    	    Assert.IsFalse(calledFactory);
+    	    Assert.IsTrue(calledUpdater);
+    	    Assert.AreEqual(20, dict[20]);
+    	    Assert.AreEqual(18, val);
+
+
+    	    dict.Remove(20);
+    	    calledUpdater = false;
+    	    
+    	    Assert.AreEqual(18, dict.AddOrUpdate(20, k => {
+    	                                             calledFactory = true;
+    	                                             return 18;
+    	                                         }, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }));
+    	    Assert.IsTrue(calledFactory);
+    	    Assert.IsFalse(calledUpdater);
+    	    Assert.AreEqual(18, dict[20]);
+    	    calledFactory = false;
+    	    Assert.AreEqual(20, dict.AddOrUpdate(20, k => {
+    	                                             calledFactory = true;
+    	                                             return 18;
+    	                                         }, (k, v) => {
+    	                                             calledUpdater = true;
+    	                                             return 20;
+    	                                         }));
+    	    Assert.IsFalse(calledFactory);
+    	    Assert.IsTrue(calledUpdater);
+    	    Assert.AreEqual(20, dict[20]);
     	}
     }
     public abstract class MultiThreadTests
