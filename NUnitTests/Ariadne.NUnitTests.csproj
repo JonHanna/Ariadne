@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="LockFreeDictionaryTests.cs" />
     <Compile Include="LockFreeSetTests.cs" />
+    <Compile Include="QueueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ariadne.csproj">
