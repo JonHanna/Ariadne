@@ -49,6 +49,8 @@ namespace Ariadne.Collections
         public LLQueue(IEnumerable<T> collection)
             :this()
         {
+            if(collection == null)
+                throw new ArgumentNullException("collection");
             foreach(T item in collection)
                 Enqueue(item);
         }
