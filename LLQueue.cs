@@ -7,6 +7,9 @@
 // Unless required by applicable law or agreed to in writing, software distributed under the
 // Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
 
+// A compiled binary is available from <http://hackcraft.github.com/Ariadne/> which if
+// unmodified, may be used without restriction.
+
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
