@@ -57,6 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pool.cs" />
     <Compile Include="SharedInt.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="InternalHelpers.cs" />

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
-    <RootNamespace>HackCraft.LockFree.NUnitTests</RootNamespace>
+    <RootNamespace>Ariadne.NUnitTests</RootNamespace>
     <AssemblyName>Ariadne.NUnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="LockFreeDictionaryTests.cs" />
     <Compile Include="LockFreeSetTests.cs" />
+    <Compile Include="Pool.cs" />
     <Compile Include="QueueTests.cs" />
   </ItemGroup>
   <ItemGroup>

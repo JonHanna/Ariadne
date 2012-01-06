@@ -8,7 +8,9 @@
 // Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
 
 // A compiled binary is available from <http://hackcraft.github.com/Ariadne/> which if
-// unmodified, may be used without restriction.
+// unmodified, may be used without restriction. (This dual-licensing is to provide a clear
+// answer to the question of whether using the library in an application counts as creating
+// a derivative work).
 
 using System;
 using System.Collections;
