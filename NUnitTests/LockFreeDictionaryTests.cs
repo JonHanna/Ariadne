@@ -907,7 +907,7 @@ namespace Ariadne.NUnitTests
 			for(int i = 0; i != _threads.Length; ++i)
 			{
 				_threads[i] = new Thread(WriteSome);
-				_params[i] = Tuple.Create(dict, (SourceDataLen / 16 * i) % SourceDataLen, SourceDataLen / 16);
+				_params[i] = Tuple.Create(dict, (SourceDataLen / _threads.Length * i) % SourceDataLen, SourceDataLen / _threads.Length);
 			}
 			StartThreads();
 			EndThreads();
@@ -920,6 +920,7 @@ namespace Ariadne.NUnitTests
 			unchecked
 			{
 				var dict = new LockFreeDictionary<int, int>();
+				int gap = Math.Min(10, _threads.Length);
 				for(int i = 0; i != _threads.Length; ++i)
 				{
 					_threads[i] = new Thread((object obj) => {
@@ -927,10 +928,10 @@ namespace Ariadne.NUnitTests
 					                         	while(x < 200000)
 					                         	{
 					                         		dict[x] = x * x;
-					                         		x += 10;
+					                         		x += gap;
 					                         	}
 					                         });
-					_params[i] = i % 10;
+				    _params[i] = i % gap;
 					
 				}
 				StartThreads();
@@ -954,6 +955,14 @@ namespace Ariadne.NUnitTests
 		protected override void SetupThreads()
 		{
 			_threads = new Thread[CoreCount * 16];
+		}
+	}
+	[TestFixture]
+	public class OnePerCore : MultiThreadTests
+	{
+		protected override void SetupThreads()
+		{
+			_threads = new Thread[CoreCount];
 		}
 	}
 	[TestFixture]
@@ -996,6 +1005,24 @@ namespace Ariadne.NUnitTests
 					Process.GetCurrentProcess().ProcessorAffinity = (IntPtr)newAff;
 			}
 			_threads = new Thread[8 * CoreCount];
+		}
+	}
+	[TestFixture]
+	public class NoHyperThreadingOnePerCore : MultiThreadTests
+	{
+		protected override void SetupThreads()
+		{
+			uint curAff = (uint)_affinity;
+			uint newAff = curAff & 0xAAAAAAAA;
+			if(newAff != 0)
+				Process.GetCurrentProcess().ProcessorAffinity = (IntPtr)newAff;
+			else
+			{
+				newAff = curAff & 0x55555555;
+				if(newAff != 0)
+					Process.GetCurrentProcess().ProcessorAffinity = (IntPtr)newAff;
+			}
+			_threads = new Thread[CoreCount / 2];
 		}
 	}
 }
