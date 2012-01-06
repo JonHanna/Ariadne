@@ -88,6 +88,14 @@
   <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
   <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
   <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool(Of T) class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool(Of T).Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool(Of T).Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt; class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt;.Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
   <HelpKINode Title="Ariadne.SharedInt class" Url="html/AllMembers_T_Ariadne_SharedInt.htm" />
   <HelpKINode Title="Ariadne.SharedInt class" Url="html/T_Ariadne_SharedInt.htm" />
   <HelpKINode Title="AtomicDequeueAll method" Url="html/M_Ariadne_Collections_LLQueue_1_AtomicDequeueAll.htm" />
@@ -126,6 +134,7 @@
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Count.htm" />
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Count.htm" />
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_Pool_1_Count.htm" />
   <HelpKINode Title="CountUntil method" Url="html/M_Ariadne_Collections_LLQueue_1_CountUntil.htm" />
   <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LLQueue_1_AtDequeuEnumerator_Current.htm" />
   <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LLQueue_1_DequeuEnumerator_Current.htm" />
@@ -144,13 +153,16 @@
   <HelpKINode Title="DequeueAll method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeueAll.htm" />
   <HelpKINode Title="DequeueToList method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeueToList.htm" />
   <HelpKINode Title="Dispose method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Dispose.htm" />
+  <HelpKINode Title="Dispose method" Url="html/M_Ariadne_Collections_Pool_1_Handle_Dispose.htm" />
   <HelpKINode Title="Enqueue method" Url="html/M_Ariadne_Collections_LLQueue_1_Enqueue.htm" />
   <HelpKINode Title="EnqueueRange method" Url="html/M_Ariadne_Collections_LLQueue_1_EnqueueRange.htm" />
   <HelpKINode Title="ExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ExceptWith.htm" />
   <HelpKINode Title="Exchange method" Url="html/M_Ariadne_SharedInt_Exchange.htm" />
+  <HelpKINode Title="Fill method" Url="html/M_Ariadne_Collections_Pool_1_Fill.htm" />
   <HelpKINode Title="FilterAdd method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FilterAdd.htm" />
   <HelpKINode Title="Find method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Find.htm" />
   <HelpKINode Title="FindOrStore method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FindOrStore.htm" />
+  <HelpKINode Title="Get method" Url="html/Overload_Ariadne_Collections_Pool_1_Get.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLQueue_1_AtDequeuEnumerator_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeuEnumerator_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLQueue_1_GetEnumerator.htm" />
@@ -165,6 +177,7 @@
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="GetHandle method" Url="html/Overload_Ariadne_Collections_Pool_1_GetHandle.htm" />
   <HelpKINode Title="GetOrAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd.htm" />
   <HelpKINode Title="Increment method" Url="html/M_Ariadne_SharedInt_Increment.htm" />
   <HelpKINode Title="IntersectWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IntersectWith.htm" />
@@ -814,7 +827,60 @@
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_MoveNext.htm" />
+  <HelpKINode Title="Object property" Url="html/P_Ariadne_Collections_Pool_1_Handle_Object.htm" />
   <HelpKINode Title="Overlaps method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Overlaps.htm" />
+  <HelpKINode Title="Pool(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Pool(Of T) class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Pool(Of T) class">
+    <HelpKINode Title="about Pool(Of T) class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Pool(Of T).Count property" Url="html/P_Ariadne_Collections_Pool_1_Count.htm" />
+  <HelpKINode Title="Pool(Of T).Fill method" Url="html/M_Ariadne_Collections_Pool_1_Fill.htm" />
+  <HelpKINode Title="Pool(Of T).Get method" Url="html/Overload_Ariadne_Collections_Pool_1_Get.htm" />
+  <HelpKINode Title="Pool(Of T).GetHandle method" Url="html/Overload_Ariadne_Collections_Pool_1_GetHandle.htm" />
+  <HelpKINode Title="Pool(Of T).Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool(Of T).Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool(Of T).Handle class">
+    <HelpKINode Title="about Pool(Of T).Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1_Handle.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Pool(Of T).Handle.Dispose method" Url="html/M_Ariadne_Collections_Pool_1_Handle_Dispose.htm" />
+  <HelpKINode Title="Pool(Of T).Handle.Object property" Url="html/P_Ariadne_Collections_Pool_1_Handle_Object.htm" />
+  <HelpKINode Title="Pool(Of T).Pool constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
+  <HelpKINode Title="Pool(Of T).Store method" Url="html/M_Ariadne_Collections_Pool_1_Store.htm" />
+  <HelpKINode Title="Pool(Of T).TryGet method" Url="html/M_Ariadne_Collections_Pool_1_TryGet.htm" />
+  <HelpKINode Title="Pool&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Pool&lt;T&gt; class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Pool&lt;T&gt; class">
+    <HelpKINode Title="about Pool&lt;T&gt; class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Pool&lt;T&gt;.Count property" Url="html/P_Ariadne_Collections_Pool_1_Count.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Fill method" Url="html/M_Ariadne_Collections_Pool_1_Fill.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Get method" Url="html/Overload_Ariadne_Collections_Pool_1_Get.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.GetHandle method" Url="html/Overload_Ariadne_Collections_Pool_1_GetHandle.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle class">
+    <HelpKINode Title="about Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1_Handle.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Pool&lt;T&gt;.Handle.Dispose method" Url="html/M_Ariadne_Collections_Pool_1_Handle_Dispose.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle.Object property" Url="html/P_Ariadne_Collections_Pool_1_Handle_Object.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Pool constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Store method" Url="html/M_Ariadne_Collections_Pool_1_Store.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.TryGet method" Url="html/M_Ariadne_Collections_Pool_1_TryGet.htm" />
   <HelpKINode Title="PopAll method" Url="html/M_Ariadne_Collections_LLStack_1_PopAll.htm" />
   <HelpKINode Title="PopToList method" Url="html/M_Ariadne_Collections_LLStack_1_PopToList.htm" />
   <HelpKINode Title="Push method" Url="html/M_Ariadne_Collections_LLStack_1_Push.htm" />
@@ -852,6 +918,7 @@
   <HelpKINode Title="SharedInt.SharedInt constructor" Url="html/Overload_Ariadne_SharedInt__ctor.htm" />
   <HelpKINode Title="SharedInt.Subtract method" Url="html/M_Ariadne_SharedInt_Subtract.htm" />
   <HelpKINode Title="SharedInt.Value property" Url="html/P_Ariadne_SharedInt_Value.htm" />
+  <HelpKINode Title="Store method" Url="html/M_Ariadne_Collections_Pool_1_Store.htm" />
   <HelpKINode Title="Subtract method" Url="html/M_Ariadne_SharedInt_Subtract.htm" />
   <HelpKINode Title="SymmetricExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_SymmetricExceptWith.htm" />
   <HelpKINode Title="ToArray method" Url="html/M_Ariadne_Collections_LLQueue_1_ToArray.htm" />
@@ -866,6 +933,7 @@
   <HelpKINode Title="Transfer method" Url="html/M_Ariadne_Collections_LLStack_1_Transfer.htm" />
   <HelpKINode Title="TryAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_TryAdd.htm" />
   <HelpKINode Title="TryDequeue method" Url="html/M_Ariadne_Collections_LLQueue_1_TryDequeue.htm" />
+  <HelpKINode Title="TryGet method" Url="html/M_Ariadne_Collections_Pool_1_TryGet.htm" />
   <HelpKINode Title="TryGetValue method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryGetValue.htm" />
   <HelpKINode Title="TryPeek method" Url="html/M_Ariadne_Collections_LLQueue_1_TryPeek.htm" />
   <HelpKINode Title="TryPeek method" Url="html/M_Ariadne_Collections_LLStack_1_TryPeek.htm" />

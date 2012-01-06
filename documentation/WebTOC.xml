@@ -1,41 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <HelpTOC>
 
-  <HelpTOCNode Id="516d2ff2-7e06-4957-88a5-1a8862d0a3de" Title="Ariadne Namespace" Url="html/N_Ariadne.htm">
-    <HelpTOCNode Id="67d7fca3-2175-4227-bd30-87ba4734163b" Title="SharedInt Class" Url="html/T_Ariadne_SharedInt.htm">
+  <HelpTOCNode Id="5260a57a-cd1e-4139-95a1-5f2101cdeefe" Title="Ariadne Namespace" Url="html/N_Ariadne.htm">
+    <HelpTOCNode Id="a6f894f9-808a-4887-b810-a0a8db955654" Title="SharedInt Class" Url="html/T_Ariadne_SharedInt.htm">
       <HelpTOCNode Title="SharedInt Members" Url="html/AllMembers_T_Ariadne_SharedInt.htm" />
-      <HelpTOCNode Id="db9c9638-6d18-429f-8c82-05f998558f6f" Title="SharedInt Constructor " Url="html/Overload_Ariadne_SharedInt__ctor.htm">
+      <HelpTOCNode Id="f7d4c468-1b34-4588-b3f5-add8510b7d7f" Title="SharedInt Constructor " Url="html/Overload_Ariadne_SharedInt__ctor.htm">
         <HelpTOCNode Title="SharedInt Constructor " Url="html/M_Ariadne_SharedInt__ctor.htm" />
         <HelpTOCNode Title="SharedInt Constructor (Int32)" Url="html/M_Ariadne_SharedInt__ctor_1.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="1721ee1c-b0d2-4799-afb3-5d174c3b8fda" Title="SharedInt Methods" Url="html/Methods_T_Ariadne_SharedInt.htm">
+      <HelpTOCNode Id="425d33dd-3234-4489-bee5-4b8638caf9b3" Title="SharedInt Methods" Url="html/Methods_T_Ariadne_SharedInt.htm">
         <HelpTOCNode Title="Add Method " Url="html/M_Ariadne_SharedInt_Add.htm" />
         <HelpTOCNode Title="Decrement Method " Url="html/M_Ariadne_SharedInt_Decrement.htm" />
         <HelpTOCNode Title="Exchange Method " Url="html/M_Ariadne_SharedInt_Exchange.htm" />
         <HelpTOCNode Title="Increment Method " Url="html/M_Ariadne_SharedInt_Increment.htm" />
         <HelpTOCNode Title="Subtract Method " Url="html/M_Ariadne_SharedInt_Subtract.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="00b284ec-822e-4adc-8901-28e2a7bf8a1d" Title="SharedInt Type Conversions" Url="html/Operators_T_Ariadne_SharedInt.htm">
+      <HelpTOCNode Id="2013b8e2-efeb-42a5-bd6b-5028905d8edb" Title="SharedInt Type Conversions" Url="html/Operators_T_Ariadne_SharedInt.htm">
         <HelpTOCNode Title="Implicit Conversion (SharedInt to Int32)" Url="html/M_Ariadne_SharedInt_op_Implicit.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="b9281a7d-3df0-45c6-ad8c-36d7f1487c91" Title="SharedInt Properties" Url="html/Properties_T_Ariadne_SharedInt.htm">
+      <HelpTOCNode Id="c403636a-d332-410b-a490-6f35ea7ac327" Title="SharedInt Properties" Url="html/Properties_T_Ariadne_SharedInt.htm">
         <HelpTOCNode Title="Value Property " Url="html/P_Ariadne_SharedInt_Value.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
   </HelpTOCNode>
-  <HelpTOCNode Id="0deb4d9b-ceed-499a-b260-30583388532b" Title="Ariadne.Collections Namespace" Url="html/N_Ariadne_Collections.htm">
-    <HelpTOCNode Id="e1c88860-afbc-4d51-aad6-148fc1fec4f4" Title="LLQueue(T) Class" Url="html/T_Ariadne_Collections_LLQueue_1.htm">
+  <HelpTOCNode Id="dfb8358a-aef0-4ea3-a5d9-8f3df27b531c" Title="Ariadne.Collections Namespace" Url="html/N_Ariadne_Collections.htm">
+    <HelpTOCNode Id="26924357-688f-46f2-a8cc-d885e0636625" Title="LLQueue(T) Class" Url="html/T_Ariadne_Collections_LLQueue_1.htm">
       <HelpTOCNode Title="LLQueue(T) Members" Url="html/AllMembers_T_Ariadne_Collections_LLQueue_1.htm" />
-      <HelpTOCNode Id="f425b9f8-6e9a-4c64-bb48-084dba7825b8" Title="LLQueue(T) Constructor " Url="html/Overload_Ariadne_Collections_LLQueue_1__ctor.htm">
+      <HelpTOCNode Id="3d314540-901f-4521-a017-ca7452a8c76c" Title="LLQueue(T) Constructor " Url="html/Overload_Ariadne_Collections_LLQueue_1__ctor.htm">
         <HelpTOCNode Title="LLQueue(T) Constructor " Url="html/M_Ariadne_Collections_LLQueue_1__ctor.htm" />
         <HelpTOCNode Title="LLQueue(T) Constructor (IEnumerable(T))" Url="html/M_Ariadne_Collections_LLQueue_1__ctor_1.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="a4213c07-e27f-4c8d-a3b7-8b747b824bb5" Title="LLQueue(T) Methods" Url="html/Methods_T_Ariadne_Collections_LLQueue_1.htm">
+      <HelpTOCNode Id="badf58b1-bc52-4710-b149-329f7e9bb653" Title="LLQueue(T) Methods" Url="html/Methods_T_Ariadne_Collections_LLQueue_1.htm">
         <HelpTOCNode Title="AtomicDequeueAll Method " Url="html/M_Ariadne_Collections_LLQueue_1_AtomicDequeueAll.htm" />
         <HelpTOCNode Title="Clear Method " Url="html/M_Ariadne_Collections_LLQueue_1_Clear.htm" />
         <HelpTOCNode Title="ClearLastItem Method " Url="html/M_Ariadne_Collections_LLQueue_1_ClearLastItem.htm" />
         <HelpTOCNode Title="Clone Method " Url="html/M_Ariadne_Collections_LLQueue_1_Clone.htm" />
-        <HelpTOCNode Id="5f764b66-74ed-40bf-9d28-19297e31c17b" Title="Contains Method " Url="html/Overload_Ariadne_Collections_LLQueue_1_Contains.htm">
+        <HelpTOCNode Id="17a606c0-8370-409d-8494-9ee48bd198b6" Title="Contains Method " Url="html/Overload_Ariadne_Collections_LLQueue_1_Contains.htm">
           <HelpTOCNode Title="Contains Method (T)" Url="html/M_Ariadne_Collections_LLQueue_1_Contains.htm" />
           <HelpTOCNode Title="Contains Method (T, IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LLQueue_1_Contains_1.htm" />
         </HelpTOCNode>
@@ -52,22 +52,22 @@
         <HelpTOCNode Title="TryDequeue Method " Url="html/M_Ariadne_Collections_LLQueue_1_TryDequeue.htm" />
         <HelpTOCNode Title="TryPeek Method " Url="html/M_Ariadne_Collections_LLQueue_1_TryPeek.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="e3b98639-056c-4233-a16c-ae904e975266" Title="LLQueue(T) Properties" Url="html/Properties_T_Ariadne_Collections_LLQueue_1.htm">
+      <HelpTOCNode Id="29e67a40-b6d9-40fb-8c8b-efbbcd912e6d" Title="LLQueue(T) Properties" Url="html/Properties_T_Ariadne_Collections_LLQueue_1.htm">
         <HelpTOCNode Title="Count Property " Url="html/P_Ariadne_Collections_LLQueue_1_Count.htm" />
         <HelpTOCNode Title="IsEmpty Property " Url="html/P_Ariadne_Collections_LLQueue_1_IsEmpty.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="c55cba5c-6545-4cfe-874e-f3354dbc906a" Title="LLStack(T) Class" Url="html/T_Ariadne_Collections_LLStack_1.htm">
+    <HelpTOCNode Id="ced4a223-7248-4a61-9081-d0072766e75d" Title="LLStack(T) Class" Url="html/T_Ariadne_Collections_LLStack_1.htm">
       <HelpTOCNode Title="LLStack(T) Members" Url="html/AllMembers_T_Ariadne_Collections_LLStack_1.htm" />
-      <HelpTOCNode Id="0142bee7-fc81-482d-b4c4-1b305e91dcfa" Title="LLStack(T) Constructor " Url="html/Overload_Ariadne_Collections_LLStack_1__ctor.htm">
+      <HelpTOCNode Id="930cb7cd-801b-4b8f-b940-9d1502fc6d7c" Title="LLStack(T) Constructor " Url="html/Overload_Ariadne_Collections_LLStack_1__ctor.htm">
         <HelpTOCNode Title="LLStack(T) Constructor " Url="html/M_Ariadne_Collections_LLStack_1__ctor.htm" />
         <HelpTOCNode Title="LLStack(T) Constructor (IEnumerable(T))" Url="html/M_Ariadne_Collections_LLStack_1__ctor_1.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="ba4588de-549b-4f8b-bd9c-4843f14a220d" Title="LLStack(T) Methods" Url="html/Methods_T_Ariadne_Collections_LLStack_1.htm">
+      <HelpTOCNode Id="0e9bf70f-7dbc-4211-ba69-6e2455697215" Title="LLStack(T) Methods" Url="html/Methods_T_Ariadne_Collections_LLStack_1.htm">
         <HelpTOCNode Title="AtomicPopAll Method " Url="html/M_Ariadne_Collections_LLStack_1_AtomicPopAll.htm" />
         <HelpTOCNode Title="Clear Method " Url="html/M_Ariadne_Collections_LLStack_1_Clear.htm" />
         <HelpTOCNode Title="Clone Method " Url="html/M_Ariadne_Collections_LLStack_1_Clone.htm" />
-        <HelpTOCNode Id="8882b2e3-fb25-45c1-8487-801b7c3c2b67" Title="Contains Method " Url="html/Overload_Ariadne_Collections_LLStack_1_Contains.htm">
+        <HelpTOCNode Id="f1b09a8b-5328-4a14-abdf-e3cb801d9071" Title="Contains Method " Url="html/Overload_Ariadne_Collections_LLStack_1_Contains.htm">
           <HelpTOCNode Title="Contains Method (T)" Url="html/M_Ariadne_Collections_LLStack_1_Contains.htm" />
           <HelpTOCNode Title="Contains Method (T, IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LLStack_1_Contains_1.htm" />
         </HelpTOCNode>
@@ -83,14 +83,14 @@
         <HelpTOCNode Title="TryPeek Method " Url="html/M_Ariadne_Collections_LLStack_1_TryPeek.htm" />
         <HelpTOCNode Title="TryPop Method " Url="html/M_Ariadne_Collections_LLStack_1_TryPop.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="7f3e03c1-ef24-4c8e-9074-472b4400772f" Title="LLStack(T) Properties" Url="html/Properties_T_Ariadne_Collections_LLStack_1.htm">
+      <HelpTOCNode Id="e9374376-f00f-407f-97a3-9d1485d0f138" Title="LLStack(T) Properties" Url="html/Properties_T_Ariadne_Collections_LLStack_1.htm">
         <HelpTOCNode Title="Count Property " Url="html/P_Ariadne_Collections_LLStack_1_Count.htm" />
         <HelpTOCNode Title="IsEmpty Property " Url="html/P_Ariadne_Collections_LLStack_1_IsEmpty.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="10edf3d7-5291-4655-a743-9f2d8d43f1a2" Title="LockFreeAtomizer(T) Class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm">
+    <HelpTOCNode Id="e04af1e8-ad85-429c-8da2-db580b71a4a6" Title="LockFreeAtomizer(T) Class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm">
       <HelpTOCNode Title="LockFreeAtomizer(T) Members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-      <HelpTOCNode Id="651d6564-4ea7-4ac6-8800-687cc1461195" Title="LockFreeAtomizer(T) Constructor " Url="html/Overload_Ariadne_Collections_LockFreeAtomizer_1__ctor.htm">
+      <HelpTOCNode Id="71ae1057-1bae-4632-8aaf-36d5eaa6e410" Title="LockFreeAtomizer(T) Constructor " Url="html/Overload_Ariadne_Collections_LockFreeAtomizer_1__ctor.htm">
         <HelpTOCNode Title="LockFreeAtomizer(T) Constructor " Url="html/M_Ariadne_Collections_LockFreeAtomizer_1__ctor.htm" />
         <HelpTOCNode Title="LockFreeAtomizer(T) Constructor (IEnumerable(T))" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1__ctor_1.htm" />
         <HelpTOCNode Title="LockFreeAtomizer(T) Constructor (IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1__ctor_3.htm" />
@@ -98,7 +98,7 @@
         <HelpTOCNode Title="LockFreeAtomizer(T) Constructor (IEnumerable(T), IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1__ctor_2.htm" />
         <HelpTOCNode Title="LockFreeAtomizer(T) Constructor (Int32, IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1__ctor_5.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="6eafe661-053e-4cd3-b258-301f9f59a748" Title="LockFreeAtomizer(T) Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeAtomizer_1.htm">
+      <HelpTOCNode Id="a450582e-a37e-483d-85ab-3f5f26d30309" Title="LockFreeAtomizer(T) Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeAtomizer_1.htm">
         <HelpTOCNode Title="Atomize Method " Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Atomize.htm" />
         <HelpTOCNode Title="Clear Method " Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clear.htm" />
         <HelpTOCNode Title="Clone Method " Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clone.htm" />
@@ -106,13 +106,13 @@
         <HelpTOCNode Title="IsAtomized Method " Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_IsAtomized.htm" />
         <HelpTOCNode Title="Remove Method " Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Remove.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="b21bcb15-9fbc-4a0a-8068-3243d17d76be" Title="LockFreeAtomizer(T) Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeAtomizer_1.htm">
+      <HelpTOCNode Id="e5116c49-df4a-4681-9f00-483948da774a" Title="LockFreeAtomizer(T) Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeAtomizer_1.htm">
         <HelpTOCNode Title="Count Property " Url="html/P_Ariadne_Collections_LockFreeAtomizer_1_Count.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="24afa5a6-6726-4808-b589-1490768975a9" Title="LockFreeDictionary(TKey, TValue) Class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm">
+    <HelpTOCNode Id="97c2be0a-d98c-44a7-9a23-3b4f9a132fbc" Title="LockFreeDictionary(TKey, TValue) Class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm">
       <HelpTOCNode Title="LockFreeDictionary(TKey, TValue) Members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-      <HelpTOCNode Id="625aa72b-49bd-4340-96d9-13028d60ed10" Title="LockFreeDictionary(TKey, TValue) Constructor " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2__ctor.htm">
+      <HelpTOCNode Id="226933fb-a4dd-49d0-a645-fe3a002fbd67" Title="LockFreeDictionary(TKey, TValue) Constructor " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2__ctor.htm">
         <HelpTOCNode Title="LockFreeDictionary(TKey, TValue) Constructor " Url="html/M_Ariadne_Collections_LockFreeDictionary_2__ctor.htm" />
         <HelpTOCNode Title="LockFreeDictionary(TKey, TValue) Constructor (IEnumerable(KeyValuePair(TKey, TValue)))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2__ctor_1.htm" />
         <HelpTOCNode Title="LockFreeDictionary(TKey, TValue) Constructor (IEqualityComparer(TKey))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2__ctor_3.htm" />
@@ -120,12 +120,12 @@
         <HelpTOCNode Title="LockFreeDictionary(TKey, TValue) Constructor (IEnumerable(KeyValuePair(TKey, TValue)), IEqualityComparer(TKey))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2__ctor_2.htm" />
         <HelpTOCNode Title="LockFreeDictionary(TKey, TValue) Constructor (Int32, IEqualityComparer(TKey))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2__ctor_5.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="2d552c99-8154-4e9a-8847-b2ef28817512" Title="LockFreeDictionary(TKey, TValue) Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2.htm">
-        <HelpTOCNode Id="163035e7-2a1f-4849-8ab4-ffb00068d8ae" Title="Add Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Add.htm">
+      <HelpTOCNode Id="aa2967a1-0743-4985-b2c5-02508f8a6693" Title="LockFreeDictionary(TKey, TValue) Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2.htm">
+        <HelpTOCNode Id="178182a1-b3eb-43ce-ad13-d07ae09702ec" Title="Add Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Add.htm">
           <HelpTOCNode Title="Add Method (KeyValuePair(TKey, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Add.htm" />
           <HelpTOCNode Title="Add Method (TKey, TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Add_1.htm" />
         </HelpTOCNode>
-        <HelpTOCNode Id="2f7b1ca7-448c-48e5-9834-e19a643c283f" Title="AddOrUpdate Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate.htm">
+        <HelpTOCNode Id="0ca5c789-ef28-430e-b8a0-e692f85dc0e1" Title="AddOrUpdate Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate.htm">
           <HelpTOCNode Title="AddOrUpdate Method (TKey, Func(TKey, TValue), Func(TKey, TValue, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate.htm" />
           <HelpTOCNode Title="AddOrUpdate Method (TKey, TValue, Func(TKey, TValue, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate_2.htm" />
           <HelpTOCNode Title="AddOrUpdate Method (TKey, TValue, TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate_4.htm" />
@@ -137,20 +137,20 @@
         </HelpTOCNode>
         <HelpTOCNode Title="Clear Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clear.htm" />
         <HelpTOCNode Title="Clone Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clone.htm" />
-        <HelpTOCNode Id="ce414ce5-9841-45b5-a081-ac56e0ad85a6" Title="Contains Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Contains.htm">
+        <HelpTOCNode Id="b431145a-8b74-4245-b11e-6b2f316af32a" Title="Contains Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Contains.htm">
           <HelpTOCNode Title="Contains Method (KeyValuePair(TKey, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Contains.htm" />
           <HelpTOCNode Title="Contains Method (KeyValuePair(TKey, TValue), IEqualityComparer(TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Contains_1.htm" />
         </HelpTOCNode>
         <HelpTOCNode Title="ContainsKey Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ContainsKey.htm" />
         <HelpTOCNode Title="CopyTo Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_CopyTo.htm" />
         <HelpTOCNode Title="GetEnumerator Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetEnumerator.htm" />
-        <HelpTOCNode Id="7768a381-8a49-4a2b-adfd-68bc9b342cf2" Title="GetOrAdd Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd.htm">
+        <HelpTOCNode Id="ce7eb9ff-1207-44dc-b655-325089eddc23" Title="GetOrAdd Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd.htm">
           <HelpTOCNode Title="GetOrAdd Method (TKey, Func(TKey, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd.htm" />
           <HelpTOCNode Title="GetOrAdd Method (TKey, TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd_2.htm" />
           <HelpTOCNode Title="GetOrAdd Method (TKey, Func(TKey, TValue), TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd_1.htm" />
           <HelpTOCNode Title="GetOrAdd Method (TKey, TValue, TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd_3.htm" />
         </HelpTOCNode>
-        <HelpTOCNode Id="01f4cb18-38f6-43a6-9b34-24364511f505" Title="Remove Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Remove.htm">
+        <HelpTOCNode Id="55cfa4aa-b890-47f0-9b1b-cc6871a797cc" Title="Remove Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Remove.htm">
           <HelpTOCNode Title="Remove Method (KeyValuePair(TKey, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Remove.htm" />
           <HelpTOCNode Title="Remove Method (Func(TKey, TValue, Boolean))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Remove_3.htm" />
           <HelpTOCNode Title="Remove Method (TKey)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Remove_4.htm" />
@@ -162,7 +162,7 @@
         </HelpTOCNode>
         <HelpTOCNode Title="RemoveWhere Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemoveWhere.htm" />
         <HelpTOCNode Title="ToDictionary Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ToDictionary.htm" />
-        <HelpTOCNode Id="ad86bc7b-2e57-4730-93c8-419fb1e66f25" Title="TryAdd Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_TryAdd.htm">
+        <HelpTOCNode Id="8f34bf3c-d757-43bd-9768-3c443f725229" Title="TryAdd Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_TryAdd.htm">
           <HelpTOCNode Title="TryAdd Method (KeyValuePair(TKey, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryAdd.htm" />
           <HelpTOCNode Title="TryAdd Method (TKey, Func(TKey, TValue))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryAdd_1.htm" />
           <HelpTOCNode Title="TryAdd Method (TKey, TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryAdd_3.htm" />
@@ -170,7 +170,7 @@
           <HelpTOCNode Title="TryAdd Method (TKey, TValue, TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryAdd_4.htm" />
         </HelpTOCNode>
         <HelpTOCNode Title="TryGetValue Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryGetValue.htm" />
-        <HelpTOCNode Id="c14919fd-7cfc-4ed0-865b-83de30740889" Title="Update Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Update.htm">
+        <HelpTOCNode Id="3ebf9f36-90ef-4ae2-80cb-6a5526390b24" Title="Update Method " Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Update.htm">
           <HelpTOCNode Title="Update Method (TKey, TValue, Func(TValue, Boolean))" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Update.htm" />
           <HelpTOCNode Title="Update Method (TKey, TValue, TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Update_2.htm" />
           <HelpTOCNode Title="Update Method (TKey, TValue, Func(TValue, Boolean), TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Update_1.htm" />
@@ -179,7 +179,7 @@
           <HelpTOCNode Title="Update Method (TKey, TValue, TValue, IEqualityComparer(TValue), TValue)" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Update_4.htm" />
         </HelpTOCNode>
       </HelpTOCNode>
-      <HelpTOCNode Id="aa0ba79b-d207-4c22-af31-1390f8e73bee" Title="LockFreeDictionary(TKey, TValue) Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2.htm">
+      <HelpTOCNode Id="700c56fd-8132-4431-8981-a45de5f70576" Title="LockFreeDictionary(TKey, TValue) Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2.htm">
         <HelpTOCNode Title="Capacity Property " Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Capacity.htm" />
         <HelpTOCNode Title="Count Property " Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Count.htm" />
         <HelpTOCNode Title="Item Property " Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Item.htm" />
@@ -187,29 +187,29 @@
         <HelpTOCNode Title="Values Property " Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Values.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="389b0768-09b9-4e50-8a48-ab90a5b0ca83" Title="LockFreeDictionary(TKey, TValue).KeyCollection.Enumerator Structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm">
+    <HelpTOCNode Id="3a4064f7-f690-451d-ba70-e8fa149e332c" Title="LockFreeDictionary(TKey, TValue).KeyCollection.Enumerator Structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm">
       <HelpTOCNode Title="LockFreeDictionary(TKey, TValue).KeyCollection.Enumerator Members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-      <HelpTOCNode Id="4c5e0897-48a6-4f5c-9ff7-0ed9fee19db0" Title="LockFreeDictionary(TKey, TValue).KeyCollection.Enumerator Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm">
+      <HelpTOCNode Id="a9d2a3ce-c6b2-4049-b4e8-662f52b53124" Title="LockFreeDictionary(TKey, TValue).KeyCollection.Enumerator Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm">
         <HelpTOCNode Title="MoveNext Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_MoveNext.htm" />
         <HelpTOCNode Title="Reset Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Reset.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="86cd225d-d7de-4605-b819-020f37c8eb26" Title="LockFreeDictionary(TKey, TValue).KeyCollection.Enumerator Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm">
+      <HelpTOCNode Id="55ba68bf-1aef-4dc7-9e94-c6af55bdd9be" Title="LockFreeDictionary(TKey, TValue).KeyCollection.Enumerator Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm">
         <HelpTOCNode Title="Current Property " Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Current.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="2e0f8737-aa81-48dc-b30d-8988cf2f9315" Title="LockFreeDictionary(TKey, TValue).ValueCollection.Enumerator Structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm">
+    <HelpTOCNode Id="51216e9f-39f8-42d5-a362-e166075dfdcd" Title="LockFreeDictionary(TKey, TValue).ValueCollection.Enumerator Structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm">
       <HelpTOCNode Title="LockFreeDictionary(TKey, TValue).ValueCollection.Enumerator Members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-      <HelpTOCNode Id="f996a18a-00c1-4f7d-a9cb-ff6a6aae7586" Title="LockFreeDictionary(TKey, TValue).ValueCollection.Enumerator Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm">
+      <HelpTOCNode Id="0534d52f-cc32-4e51-8370-8b64e3531314" Title="LockFreeDictionary(TKey, TValue).ValueCollection.Enumerator Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm">
         <HelpTOCNode Title="MoveNext Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_MoveNext.htm" />
         <HelpTOCNode Title="Reset Method " Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Reset.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="1484cf2a-440a-4bf2-8611-961dbd83f173" Title="LockFreeDictionary(TKey, TValue).ValueCollection.Enumerator Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm">
+      <HelpTOCNode Id="3e7b5aa2-870d-42fd-ab59-82ee35075a50" Title="LockFreeDictionary(TKey, TValue).ValueCollection.Enumerator Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm">
         <HelpTOCNode Title="Current Property " Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Current.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="77ab2374-2160-4400-8df9-c77bf00ee390" Title="LockFreeSet(T) Class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm">
+    <HelpTOCNode Id="89f8290e-a095-4178-8660-6e41b67aab7e" Title="LockFreeSet(T) Class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm">
       <HelpTOCNode Title="LockFreeSet(T) Members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1.htm" />
-      <HelpTOCNode Id="2ee35206-56b6-4991-ace8-06534f3429af" Title="LockFreeSet(T) Constructor " Url="html/Overload_Ariadne_Collections_LockFreeSet_1__ctor.htm">
+      <HelpTOCNode Id="0118bc29-5a28-4bd9-b1a0-378f52293def" Title="LockFreeSet(T) Constructor " Url="html/Overload_Ariadne_Collections_LockFreeSet_1__ctor.htm">
         <HelpTOCNode Title="LockFreeSet(T) Constructor " Url="html/M_Ariadne_Collections_LockFreeSet_1__ctor.htm" />
         <HelpTOCNode Title="LockFreeSet(T) Constructor (IEnumerable(T))" Url="html/M_Ariadne_Collections_LockFreeSet_1__ctor_1.htm" />
         <HelpTOCNode Title="LockFreeSet(T) Constructor (IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LockFreeSet_1__ctor_3.htm" />
@@ -217,13 +217,13 @@
         <HelpTOCNode Title="LockFreeSet(T) Constructor (IEnumerable(T), IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LockFreeSet_1__ctor_2.htm" />
         <HelpTOCNode Title="LockFreeSet(T) Constructor (Int32, IEqualityComparer(T))" Url="html/M_Ariadne_Collections_LockFreeSet_1__ctor_5.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="ec1ad5de-e224-4691-be02-63dda808ae3c" Title="LockFreeSet(T) Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1.htm">
+      <HelpTOCNode Id="68d1b6a7-fe13-4745-a72a-516df0d3272b" Title="LockFreeSet(T) Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1.htm">
         <HelpTOCNode Title="Add Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_Add.htm" />
         <HelpTOCNode Title="AddRange Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_AddRange.htm" />
         <HelpTOCNode Title="Clear Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_Clear.htm" />
         <HelpTOCNode Title="Clone Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_Clone.htm" />
         <HelpTOCNode Title="Contains Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_Contains.htm" />
-        <HelpTOCNode Id="5f4bdc2b-71bf-44b1-bc9d-7f42416377ad" Title="CopyTo Method " Url="html/Overload_Ariadne_Collections_LockFreeSet_1_CopyTo.htm">
+        <HelpTOCNode Id="3c076d4f-72cc-4464-af9d-c068bad321ed" Title="CopyTo Method " Url="html/Overload_Ariadne_Collections_LockFreeSet_1_CopyTo.htm">
           <HelpTOCNode Title="CopyTo Method (T[])" Url="html/M_Ariadne_Collections_LockFreeSet_1_CopyTo.htm" />
           <HelpTOCNode Title="CopyTo Method (T[], Int32)" Url="html/M_Ariadne_Collections_LockFreeSet_1_CopyTo_1.htm" />
         </HelpTOCNode>
@@ -238,7 +238,7 @@
         <HelpTOCNode Title="IsSubsetOf Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSubsetOf.htm" />
         <HelpTOCNode Title="IsSupersetOf Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSupersetOf.htm" />
         <HelpTOCNode Title="Overlaps Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_Overlaps.htm" />
-        <HelpTOCNode Id="89b34267-ca22-4b1c-93a5-d8e9d5fb7972" Title="Remove Method " Url="html/Overload_Ariadne_Collections_LockFreeSet_1_Remove.htm">
+        <HelpTOCNode Id="cc7b1c1d-ab64-437c-95e8-4dfb3c155a83" Title="Remove Method " Url="html/Overload_Ariadne_Collections_LockFreeSet_1_Remove.htm">
           <HelpTOCNode Title="Remove Method (Func(T, Boolean))" Url="html/M_Ariadne_Collections_LockFreeSet_1_Remove.htm" />
           <HelpTOCNode Title="Remove Method (T)" Url="html/M_Ariadne_Collections_LockFreeSet_1_Remove_1.htm" />
           <HelpTOCNode Title="Remove Method (T, T)" Url="html/M_Ariadne_Collections_LockFreeSet_1_Remove_2.htm" />
@@ -252,19 +252,50 @@
         <HelpTOCNode Title="TryTake Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_TryTake.htm" />
         <HelpTOCNode Title="UnionWith Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_UnionWith.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="a48222a3-b615-479c-b6cc-0b1b6a469ca7" Title="LockFreeSet(T) Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1.htm">
+      <HelpTOCNode Id="84062133-6445-4212-a03a-04d3333f4aac" Title="LockFreeSet(T) Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1.htm">
         <HelpTOCNode Title="Capacity Property " Url="html/P_Ariadne_Collections_LockFreeSet_1_Capacity.htm" />
         <HelpTOCNode Title="Count Property " Url="html/P_Ariadne_Collections_LockFreeSet_1_Count.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="24a795f3-b737-4282-9923-8efb10fd178d" Title="LockFreeSet(T).Enumerator Structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm">
+    <HelpTOCNode Id="c78c5794-070a-4295-b970-2076e4c81c31" Title="LockFreeSet(T).Enumerator Structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm">
       <HelpTOCNode Title="LockFreeSet(T).Enumerator Members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-      <HelpTOCNode Id="c2f67255-b8f3-4d00-9d32-163a30d20722" Title="LockFreeSet(T).Enumerator Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm">
+      <HelpTOCNode Id="7410c045-1386-487e-ab58-c8f99785762f" Title="LockFreeSet(T).Enumerator Methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm">
         <HelpTOCNode Title="MoveNext Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_MoveNext.htm" />
         <HelpTOCNode Title="Reset Method " Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_Reset.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="cc796653-eb56-4b2f-a55d-604bcc6636e4" Title="LockFreeSet(T).Enumerator Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm">
+      <HelpTOCNode Id="e1521660-fcc7-48d6-9412-254233ad8784" Title="LockFreeSet(T).Enumerator Properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm">
         <HelpTOCNode Title="Current Property " Url="html/P_Ariadne_Collections_LockFreeSet_1_Enumerator_Current.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="a3c08187-af8d-48c4-9bab-4e35d27a84ce" Title="Pool(T) Class" Url="html/T_Ariadne_Collections_Pool_1.htm">
+      <HelpTOCNode Title="Pool(T) Members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
+      <HelpTOCNode Id="beef3d52-e95d-4a5a-80e9-8328a24b7609" Title="Pool(T) Constructor " Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm">
+        <HelpTOCNode Title="Pool(T) Constructor " Url="html/M_Ariadne_Collections_Pool_1__ctor.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (IProducerConsumerCollection(T))" Url="html/M_Ariadne_Collections_Pool_1__ctor_1.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (Func(T))" Url="html/M_Ariadne_Collections_Pool_1__ctor_6.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (Int32)" Url="html/M_Ariadne_Collections_Pool_1__ctor_9.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (IProducerConsumerCollection(T), Func(T))" Url="html/M_Ariadne_Collections_Pool_1__ctor_2.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (IProducerConsumerCollection(T), Int32)" Url="html/M_Ariadne_Collections_Pool_1__ctor_5.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (Func(T), Int32)" Url="html/M_Ariadne_Collections_Pool_1__ctor_7.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (IProducerConsumerCollection(T), Func(T), Int32)" Url="html/M_Ariadne_Collections_Pool_1__ctor_3.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (Func(T), Int32, Int32)" Url="html/M_Ariadne_Collections_Pool_1__ctor_8.htm" />
+        <HelpTOCNode Title="Pool(T) Constructor (IProducerConsumerCollection(T), Func(T), Int32, Int32)" Url="html/M_Ariadne_Collections_Pool_1__ctor_4.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="c442a127-3ae8-48e8-9528-23227ef4bbb6" Title="Pool(T) Methods" Url="html/Methods_T_Ariadne_Collections_Pool_1.htm">
+        <HelpTOCNode Title="Fill Method " Url="html/M_Ariadne_Collections_Pool_1_Fill.htm" />
+        <HelpTOCNode Id="14baaf93-0d10-42a2-b359-2dd848e75f6c" Title="Get Method " Url="html/Overload_Ariadne_Collections_Pool_1_Get.htm">
+          <HelpTOCNode Title="Get Method " Url="html/M_Ariadne_Collections_Pool_1_Get.htm" />
+          <HelpTOCNode Title="Get Method (Func(T))" Url="html/M_Ariadne_Collections_Pool_1_Get_1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Id="f055429a-2493-47aa-b46d-7a22b7aba854" Title="GetHandle Method " Url="html/Overload_Ariadne_Collections_Pool_1_GetHandle.htm">
+          <HelpTOCNode Title="GetHandle Method " Url="html/M_Ariadne_Collections_Pool_1_GetHandle.htm" />
+          <HelpTOCNode Title="GetHandle Method (Func(T))" Url="html/M_Ariadne_Collections_Pool_1_GetHandle_1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="Store Method " Url="html/M_Ariadne_Collections_Pool_1_Store.htm" />
+        <HelpTOCNode Title="TryGet Method " Url="html/M_Ariadne_Collections_Pool_1_TryGet.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="1c121eb8-1d02-47e0-adf8-0e98a28cf658" Title="Pool(T) Properties" Url="html/Properties_T_Ariadne_Collections_Pool_1.htm">
+        <HelpTOCNode Title="Count Property " Url="html/P_Ariadne_Collections_Pool_1_Count.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
   </HelpTOCNode>
