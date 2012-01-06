@@ -398,5 +398,35 @@ namespace Ariadne.NUnitTests.QueueTests
             threads[0].Join();
             Assert.IsTrue(queue.IsEmpty);
         }
+        [Test]
+        public void RacingClears()
+        {
+            int cores = CoreCount();
+            if(cores < 2)
+                cores = 2;
+            var threads = new Thread[cores];
+            var queue = new LLQueue<int>();
+            int done = 0;
+            threads[0] = new Thread(() =>
+                                        {
+                                            for(int x = 0; x != 1000000; ++x)
+                                                queue.Enqueue(x);
+                                            Interlocked.Increment(ref done);
+                                        });
+            for(int i = 1; i != cores; ++i)
+            {
+                threads[i] = new Thread(() =>
+                                        {
+                                            while(done == 0)
+                                                for(int x = 0; x != 1000; ++x)
+                                                    queue.Clear();
+                                        });
+            }
+            for(int i = 0; i < cores; ++i)
+                threads[i].Start();
+            for(int i = 0; i < cores; ++i)
+                threads[i].Join();
+            Assert.IsTrue(queue.IsEmpty);
+        }
     }
 }
