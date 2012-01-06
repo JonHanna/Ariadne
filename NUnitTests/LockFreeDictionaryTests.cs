@@ -799,6 +799,48 @@ namespace Ariadne.NUnitTests
         	    Assert.IsTrue(calledUpdater);
         	    Assert.AreEqual(20, dict[20]);
         	}
+        	private class FinaliserCounted : IEquatable<FinaliserCounted>
+        	{
+        	    public static int FinalCount;
+        	    public readonly int Value;
+        	    public FinaliserCounted(int value)
+        	    {
+        	        Value = value;
+        	    }
+                public bool Equals(FinaliserCounted other)
+                {
+                    return other != null && other.Value == Value;
+                }
+                public override bool Equals(object obj)
+                {
+                    return Equals(obj as FinaliserCounted);
+                }
+                public override int GetHashCode()
+                {
+                    return Value;
+                }
+                ~FinaliserCounted()
+                {
+                    Interlocked.Increment(ref FinalCount);
+                }
+        	}
+        	[Test]
+        	public void Reduce()
+        	{
+        	    var dict = new LockFreeDictionary<FinaliserCounted, int>();
+        	    for(int i = 0; i != 5000; ++ i)
+        	        dict[new FinaliserCounted(i)] = i;
+        	    for(int i = 0; i != 5000; i += 10)
+        	        dict[new FinaliserCounted(i)] = i;
+        	    GC.Collect();
+        	    GC.WaitForPendingFinalizers();
+        	    Assert.AreEqual(500, FinaliserCounted.FinalCount);
+        	    dict.Remove((fc, i) => i % 10 != 0);
+        	    dict.Reduce();
+        	    GC.Collect();
+        	    GC.WaitForPendingFinalizers();
+        	    Assert.AreEqual(5000, FinaliserCounted.FinalCount);
+        	}
         }
         namespace MultiThreaded
         {
