@@ -34,7 +34,7 @@ namespace Ariadne.Collections
     /// <typeparam name="T">The type of the objects in the pool.</typeparam>
     /// <threadsafety static="true" instance="true">The class is intended for cases where it would be thread-safe for
     /// all calls to instance methods, but this thread-safety comes from the underlying <see cref="IProducerConsumerCollection&lt;T>"/>
-    /// implementation, and will not be thread safe if it's implementations of <see cref="IProducerConsumerCollection&lt;T>.TryTake"/>
+    /// implementation, and will not be thread safe if its implementations of <see cref="IProducerConsumerCollection&lt;T>.TryTake"/>
     /// and <see cref="IProducerConsumerCollection&lt;T>.TryAdd"/> are not thread-safe.</threadsafety>
     public class Pool<T>
     {
@@ -44,7 +44,7 @@ namespace Ariadne.Collections
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="store">The <see cref="IProducerConsumerCollection&lt;T>"/> to use as a backing store to the pool.</param>
         /// <param name="factory">The default factory to create new items as needed. It can be null, but in this case
-        /// the overload of <see cref="Get()"/> that doesn't take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
+        /// the overload of <see cref="Get()"/> that doesn’t take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
         /// <param name="max">A maximum size for the pool. If <see cref="int.MaxValue"/> is passed, the
         /// maximum is ignored.</param>
         /// <param name="prefill">The pool will be prefilled with this many calls to <paramref name="factory"/> as per calling <see cref="Fill"/></param>
@@ -70,7 +70,7 @@ namespace Ariadne.Collections
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="store">The <see cref="IProducerConsumerCollection&lt;T>"/> to use as a backing store to the pool.</param>
         /// <param name="factory">The default factory to create new items as needed. It can be null, but in this case
-        /// the overload of <see cref="Get()"/> that doesn't take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
+        /// the overload of <see cref="Get()"/> that doesn’t take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
         /// <param name="max">A maximum size for the pool. If <see cref="int.MaxValue"/> is passed, the
         /// maximum is ignored.</param>
         /// <exception cref="ArgumentNullException"><paramref name="store"/> was null.</exception>
@@ -80,7 +80,7 @@ namespace Ariadne.Collections
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="store">The <see cref="IProducerConsumerCollection&lt;T>"/> to use as a backing store to the pool.</param>
         /// <param name="factory">The default factory to create new items as needed. It can be null, but in this case
-        /// the overload of <see cref="Get()"/> that doesn't take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
+        /// the overload of <see cref="Get()"/> that doesn’t take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="store"/> was null.</exception>
         public Pool(IProducerConsumerCollection<T> store, Func<T> factory)
             :this(store, factory, int.MaxValue){}
@@ -98,7 +98,7 @@ namespace Ariadne.Collections
             :this(store, null, int.MaxValue){}
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="factory">The default factory to create new items as needed. It can be null, but in this case
-        /// the overload of <see cref="Get()"/> that doesn't take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
+        /// the overload of <see cref="Get()"/> that doesn’t take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
         /// <param name="max">A maximum size for the pool. If <see cref="int.MaxValue"/> is passed, the
         /// maximum is ignored.</param>
         /// <param name="prefill">The pool will be prefilled with this many calls to <paramref name="factory"/> as per calling <see cref="Fill"/></param>
@@ -108,7 +108,7 @@ namespace Ariadne.Collections
             :this(new LLQueue<T>(), factory, max, prefill){}
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="factory">The default factory to create new items as needed. It can be null, but in this case
-        /// the overload of <see cref="Get()"/> that doesn't take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
+        /// the overload of <see cref="Get()"/> that doesn’t take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
         /// <param name="max">A maximum size for the pool. If <see cref="int.MaxValue"/> is passed, the
         /// maximum is ignored.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="max"/> was less than one.</exception>
@@ -116,7 +116,7 @@ namespace Ariadne.Collections
             :this(factory, max, 0){}
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="factory">The default factory to create new items as needed. It can be null, but in this case
-        /// the overload of <see cref="Get()"/> that doesn't take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
+        /// the overload of <see cref="Get()"/> that doesn’t take a factory as a parameter will throw <see cref="InvalidOperationException"/>.</param>
         public Pool(Func<T> factory)
             :this(factory, int.MaxValue){}
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
@@ -177,7 +177,7 @@ namespace Ariadne.Collections
         /// <summary>Stores an object in the pool.</summary>
         /// <param name="item">The object to store.</param>
         /// <returns>True if the object was stored, false if the maximum size of the pool is not
-        /// set to <see cref="int.MaxValue"/> and the pool's size is already of maximum size.</returns>
+        /// set to <see cref="int.MaxValue"/> and the pool’s size is already of maximum size.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
         /// <remarks>
         /// <para>The size of the pool is tested by calling the underlying store’s

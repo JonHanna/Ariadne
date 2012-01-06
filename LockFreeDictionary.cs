@@ -780,7 +780,7 @@ namespace Ariadne.Collections
             //1. Thread is aborted or otherwise rudely interrupted after putting the prime in the table
             //but before over-writing it with the dead record.
             //2. This exception is caught, and the thread is put back into service.
-            //3. The thread uses it’s thread-local prime in another operation, hence mutating the value
+            //3. The thread uses its thread-local prime in another operation, hence mutating the value
             //written in step 1 above (perhaps in a different table in a different dictionary).
             //Besides which, such thread-local implementation could profile as giving a tiny improvement in tests
             //and then hammer memory usage in real world use!
@@ -1062,7 +1062,7 @@ namespace Ariadne.Collections
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> used in comparing <paramref name="compare"/> with the current value.</param>
         /// <param name="previous">The previous value if there was one for the key, irrespective of whether the method succeeds or not, or the default
         /// value for <c>TValue</c> if there was no such key present.</param>
-        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
+        /// <returns>True if the key was updated, false if it wasn’t present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare, IEqualityComparer<TValue> comparer, out TValue previous)
         {
             if(comparer == null)
@@ -1081,7 +1081,7 @@ namespace Ariadne.Collections
         /// <param name="value">The new value to set for the key.</param>
         /// <param name="compare">The old value that must be present for the key.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> used in comparing <paramref name="compare"/> with the current value.</param>
-        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
+        /// <returns>True if the key was updated, false if it wasn’t present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare, IEqualityComparer<TValue> comparer)
         {
             TValue dontCare;
@@ -1093,7 +1093,7 @@ namespace Ariadne.Collections
         /// <param name="compare">The old value that must be present for the key.</param>
         /// <param name="previous">The previous value if there was one for the key, irrespective of whether the method succeeds or not, or the default
         /// value for <c>TValue</c> if there was no such key present.</param>
-        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
+        /// <returns>True if the key was updated, false if it wasn’t present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare, out TValue previous)
         {
             return Update(key, value, compare, DefaultValCmp, out previous);
@@ -1102,7 +1102,7 @@ namespace Ariadne.Collections
         /// <param name="key">The key to update.</param>
         /// <param name="value">The new value to set for the key.</param>
         /// <param name="compare">The old value that must be present for the key.</param>
-        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="compare"/> did not match the current value.</returns>
+        /// <returns>True if the key was updated, false if it wasn’t present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare)
         {
             TValue dontCare;
@@ -1115,7 +1115,7 @@ namespace Ariadne.Collections
         /// should remain.</param>
         /// <param name="previous">The previous value if there was one for the key, irrespective of whether the method succeeds or not, or the default
         /// value for <c>TValue</c> if there was no such key present.</param>
-        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="predicate"/> returned false.</returns>
+        /// <returns>True if the key was updated, false if it wasn’t present or if <paramref name="predicate"/> returned false.</returns>
         /// <remarks>While the update will be atomic when (and if) it happens, it is possible for another thread to update or delete the value
         /// in the meantime. Therefore predicate may be called more than once, until either the operation succeeds, another thread
         /// deletes the value, or the predicate returns false.</remarks>
@@ -1137,7 +1137,7 @@ namespace Ariadne.Collections
         /// <param name="value">The new value to set for the key.</param>
         /// <param name="predicate">A <see cref="Func&lt;T, TResult>"/> that returns true for values that should be replaced, false for those that
         /// should remain.</param>
-        /// <returns>True if the key was updated, false if it wasn't present or if <paramref name="predicate"/> returned false.</returns>
+        /// <returns>True if the key was updated, false if it wasn’t present or if <paramref name="predicate"/> returned false.</returns>
         /// <remarks>While the update will be atomic when (and if) it happens, it is possible for another thread to update or delete the value
         /// in the meantime. Therefore predicate may be called more than once, until either the operation succeeds, another thread
         /// deletes the value, or the predicate returns false.</remarks>
@@ -1265,9 +1265,9 @@ namespace Ariadne.Collections
             TValue dontCare;
             return AddOrUpdate(key, factory, updater, out dontCare);
         }
-        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <summary>Gets the value for a key, or adds one if it isn’t present.</summary>
         /// <param name="key">The key to examine or add.</param>
-        /// <param name="value">The value to add for the key if it wasn't present.</param>
+        /// <param name="value">The value to add for the key if it wasn’t present.</param>
         /// <param name="result">The value added or found.</param>
         /// <returns>True if the value was added, false if the key was already present.</returns>
         public bool GetOrAdd(TKey key, TValue value, out TValue result)
@@ -1281,9 +1281,9 @@ namespace Ariadne.Collections
             result = res.Value;
             return false;
         }
-        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <summary>Gets the value for a key, or adds one if it isn’t present.</summary>
         /// <param name="key">The key to examine or add.</param>
-        /// <param name="value">The value to add for the key if it wasn't present.</param>
+        /// <param name="value">The value to add for the key if it wasn’t present.</param>
         /// <returns>The value added or found.</returns>
         public TValue GetOrAdd(TKey key, TValue value)
         {
@@ -1291,7 +1291,7 @@ namespace Ariadne.Collections
             GetOrAdd(key, value, out ret);
             return ret;
         }
-        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <summary>Gets the value for a key, or adds one if it isn’t present.</summary>
         /// <param name="key">The key to examine or add.</param>
         /// <param name="factory">A <see cref="Func&lt;T, TResult>"/> that produces a value when passed a key, to
         /// create a value if needed.</param>
@@ -1305,7 +1305,7 @@ namespace Ariadne.Collections
         {
             return !TryGetValue(key, out value) && GetOrAdd(key, factory(key), out value);
         }
-        /// <summary>Gets the value for a key, or adds one if it isn't present.</summary>
+        /// <summary>Gets the value for a key, or adds one if it isn’t present.</summary>
         /// <param name="key">The key to examine or add.</param>
         /// <param name="factory">A <see cref="Func&lt;T, TResult>"/> that produces a value when passed a key, to
         /// create a value if needed.</param>
