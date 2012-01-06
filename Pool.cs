@@ -224,6 +224,7 @@ namespace Ariadne.Collections
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself. It is designed
         /// to allow a single thread a means to ensure it will always return an object to the pool, and as
         /// such should only be disposed by a single thread.</threadsafety>
+        /// <tocexclude/>
         public class Handle : IDisposable
         {
             private readonly Pool<T> _pool;
@@ -254,6 +255,24 @@ namespace Ariadne.Collections
                 }
             }
         }
+        /// <overloads>
+        /// <summary>Returns a <see cref="Handle"/> that will obtain an object from the
+        /// pool or created by a factory, and return it to the pool upon disposal.</summary>
+        /// <returns>A <see cref="Handle"/> with an object from the pool.</returns>
+        /// <example>
+        /// <code>
+        /// using(var poolHandle = pool.GetHandle())
+        /// {
+        ///    var obj = poolHandle.Object;
+        ///     /*
+        ///      *
+        ///      * use obj here.
+        ///      * 
+        ///      */
+        /// } // obj returned to the pool here.
+        /// </code>
+        /// </example>
+        /// </overloads>
         /// <summary>Returns a <see cref="Handle"/> that will obtain an object from the
         /// pool or create it with the pool’s default factory, and return it to the pool upon disposal.</summary>
         /// <returns>A <see cref="Handle"/> with an object from the pool.</returns>
