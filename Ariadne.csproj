@@ -56,20 +56,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\LLQueue.cs" />
+    <Compile Include="Collections\LLStack.cs" />
+    <Compile Include="Collections\LockFreeDictionary.cs" />
+    <Compile Include="Collections\LockFreeSet.cs" />
+    <Compile Include="LockFreeAtomizer.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="SharedInt.cs" />
     <Compile Include="AssemblyInfo.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
     <Compile Include="InternalHelpers.cs" />
-    <Compile Include="LockFreeAtomizer.cs" />
-    <Compile Include="LockFreeDictionary.cs" />
-    <Compile Include="LockFreeSet.cs" />
-    <Compile Include="LLQueue.cs" />
-    <Compile Include="LLStack.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="doc" />
+    <Folder Include="Collections" />
     <Folder Include="Resources" />
   </ItemGroup>
   <ItemGroup>
