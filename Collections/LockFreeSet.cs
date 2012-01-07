@@ -144,12 +144,20 @@ namespace Ariadne.Collections
         {
         	if(collection == null)
         		throw new ArgumentNullException("collection", Strings.Set_Null_Source_Collection);
-        	ICollection<T> colKVP = collection as ICollection<T>;
-        	if(colKVP != null)
-        		return colKVP.Count;
-        	ICollection col = collection as ICollection;
-        	if(col != null)
-        		return col.Count;
+        	try
+        	{
+            	ICollection<T> colT = collection as ICollection<T>;
+            	if(colT != null)
+            		return Math.Min(colT.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
+            	ICollection col = collection as ICollection;
+            	if(col != null)
+            	    return Math.Min(col.Count, 1024);
+        	}
+        	catch
+        	{
+        	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
+        	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
+        	}
         	return DefaultCapacity;
         }
         /// <summary>Creates a new lock-free set.</summary>
