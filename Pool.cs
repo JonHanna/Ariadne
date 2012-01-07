@@ -15,9 +15,9 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Threading;
+using Ariadne.Collections;
 
-namespace Ariadne.Collections
+namespace Ariadne
 {
     /// <summary>A thread-safe pool of objects.</summary>
     /// <remarks>

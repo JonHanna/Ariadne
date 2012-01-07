@@ -13,10 +13,10 @@
 // a derivative work).
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Ariadne.Collections;
 
-namespace Ariadne.Collections
+namespace Ariadne
 {
     /// <summary>Allows for one copy of each distinct value of a reference type to be stored,
     /// reducing memory use and often speeding equality comparisons. It can be the basis of
@@ -30,7 +30,7 @@ namespace Ariadne.Collections
     /// <typeparam name="T">The type of the values stored (must be a reference type).</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
-    public sealed class LockFreeAtomizer<T> : ICollection<T>, ICloneable where T:class
+    public sealed class LockFreeAtomizer<T> : ICloneable where T:class
     {
         private readonly LockFreeSet<T> _store;
         private LockFreeAtomizer(LockFreeSet<T> store)
@@ -40,7 +40,7 @@ namespace Ariadne.Collections
         /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
         /// <param name="capacity">The initial capacity of the atomizer.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use when comparing items
-        /// added to the collection.</param>
+        /// added to the store.</param>
         public LockFreeAtomizer(int capacity, IEqualityComparer<T> comparer)
         {
             _store = new LockFreeSet<T>(capacity, comparer);
@@ -51,7 +51,7 @@ namespace Ariadne.Collections
             :this(capacity, EqualityComparer<T>.Default){}
         /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use when comparing items
-        /// added to the collection.</param>
+        /// added to the store.</param>
         public LockFreeAtomizer(IEqualityComparer<T> comparer)
         {
             _store = new LockFreeSet<T>(comparer);
@@ -79,14 +79,14 @@ namespace Ariadne.Collections
         {
             return _store.FindOrStore(item);
         }
-        /// <summary>Returns an equivalent item if it exists in the collection, or null if none is present.</summary>
+        /// <summary>Returns an equivalent item if it exists in the store, or null if none is present.</summary>
         /// <param name="item">The item to search for.</param>
-        /// <returns>An equivalent item if it exists in the collection, or null if none is present.</returns>
+        /// <returns>An equivalent item if it exists in the store, or null if none is present.</returns>
         public T IsAtomized(T item)
         {
             return _store.Find(item);
         }
-        /// <summary>Removes an item from the collection.</summary>
+        /// <summary>Removes an item from the store.</summary>
         /// <param name="item">The item to remove.</param>
         /// <returns>True if an item was removed, false if no equivalent item was found.</returns>
         public bool Remove(T item)
@@ -99,49 +99,19 @@ namespace Ariadne.Collections
         {
             return new LockFreeAtomizer<T>(_store.Clone());
         }
-        /// <summary>The number of items in the collection.</summary>
+        /// <summary>The number of items in the store.</summary>
         public int Count
         {
             get { return _store.Count; }
         }
-        /// <summary>Removes all items from the collection.</summary>
+        /// <summary>Removes all items from the store.</summary>
         public void Clear()
         {
             _store.Clear();
         }
-        /// <summary>Returns an object that will enumerate through the collection.</summary>
-        /// <returns>An <see cref="LockFreeSet&lt;T>.Enumerator"/> that enumerates through the collection.</returns>
-        public LockFreeSet<T>.Enumerator GetEnumerator()
-        {
-            return _store.GetEnumerator();
-        }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
         object ICloneable.Clone()
         {
             return Clone();
-        }
-        bool ICollection<T>.IsReadOnly
-        {
-            get { return false; }
-        }
-        void ICollection<T>.Add(T item)
-        {
-            Atomize(item);
-        }
-        bool ICollection<T>.Contains(T item)
-        {
-            return _store.Contains(item);
-        }
-        void ICollection<T>.CopyTo(T[] array, int arrayIndex)
-        {
-            _store.CopyTo(array, arrayIndex);
         }
     }
 }
