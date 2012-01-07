@@ -62,6 +62,7 @@
     <Compile Include="Collections\LockFreeSet.cs" />
     <Compile Include="LockFreeAtomizer.cs" />
     <Compile Include="Pool.cs" />
+    <Compile Include="ReferenceEqualityComparer.cs" />
     <Compile Include="SharedInt.cs" />
     <Compile Include="AssemblyInfo.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
