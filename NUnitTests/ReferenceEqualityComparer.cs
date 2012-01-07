@@ -41,6 +41,7 @@ namespace Ariadne.NUnitTests
             Assert.AreEqual(eq.GetHashCode(x), x.GetBaseHashCode());
             Assert.AreEqual(eq.GetHashCode(y), y.GetBaseHashCode());
             Assert.IsFalse(eq.Equals(x, y));
+            Assert.AreEqual(0, eq.GetHashCode(null));
         }
     }
 }
