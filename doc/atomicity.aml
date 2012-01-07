@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="056c6416-833c-4efc-9395-c96984af232f" revisionNumber="1">
+    <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <summary>
+            <para>
+                A discussion of the different guarantees and degrees of atomicity offered by different methods in
+                <application>Ariadne</application>’s classes.
+            </para>
+        </summary>
+        <introduction>
+            <para>
+                When defining collections intended for multi-threaded use, it is important to note just what guarantees are offered by
+                the collection.
+            </para>
+        </introduction>
+        <section>
+            <content>
+                <para>
+                    With single-threaded use, we can (almost) always depend upon operations taking place in the order in which they
+                    were performed. Hence, the first item dequeued from a queue will be the first enqueued to it, the first popped from
+                    a stack the last pushed to it, and if two values are written to the same key in a dictionary, the second will be
+                    the value that is later seen when querying the dictionary.
+                </para>
+                <para>
+                    With multi-threaded use, it becomes less clear which operation can be considered to have happened first, if indeed
+                    either can; operations can be concurrently operating on separate cores, or a context-switch can mean that even if
+                    two operations will take the same length of time, the second started may complete before he first.
+                </para>
+                <para>
+                    It can be worth considering the case of a properly-aligned, shared 32-bit integer that is being written-to and
+                    read-from by several threads:
+                </para>
+                <list class="ordered">
+                    <listItem>
+                        <para>
+                            Without locking, the atomicity .NET offers with 32-bit values means that these reads and writes will all
+                            succeed fully, but may be performed on the basis of stale information. For this reason operations like
+                            <codeInline>x++</codeInline> can produce inconsistent results – it reads in a value, increments it, and
+                            then writes to a value that has since been changed by another thread. Further, there may be periods where
+                            different cores are seeing different values for the same memory location. There remain times when the
+                            degree of thread-safety provided by the atomicity of reads and writes suffices.
+                        </para>
+                    </listItem>
+                    <listItem>
+                        <para>
+                            With the methods offered by the <codeEntityReference>T:System.Threading.Interlocked</codeEntityReference>
+                            class, operations can depend reliably upon the current value, or else are guaranteed to either succeed or
+                            fail atomically, and report upon this success or failure.
+                        </para>
+                    </listItem>
+                    <listItem>
+                        <para>
+                            With locking, synchronisation occurs according to the policy by which the developer uses the locks.
+                        </para>
+                    </listItem>
+                </list>
+                <para>
+                    Lock-free collections offer the first or the first two degrees of thread-safety to more complicated
+                    data-structures.
+                </para>
+                <para>
+                    The first is not offered by many data-structures by default. Multiple threads acting upon the same collection can
+                    put that collection into an inconsistent state, resulting in incorrect results (e.g.
+                    <codeEntityReference autoUpgrade="true">M:System.Collections.Generic.IDictionary`2.ContainsKey(`0)</codeEntityReference>
+                    may return <codeInline>false</codeInline> for a key that was added to a dictionary and not subsequently removed) or
+                    surprising errors (e.g. an <codeEntityReference>T:System.IndexOutOfRangeException</codeEntityReference> or a
+                    <codeEntityReference>T:System.NullReferenceException</codeEntityReference> could happen when a subsequent call hits
+                    upon a case that violates the class’ assumptions about its internal state).
+                </para>
+                <para>
+                    The minimal guarantee of any thread-safe collection is that this will not happen.
+                </para>
+                <para>
+                    As per writing to a 32-bit integer, if there are two or more simultaneous writes, then each thread will see the
+                    value as having been written, and then an non-determinable thread will have the “final say”. For example:
+                </para>
+                <list class="ordered">
+                    <listItem>
+                        <para>
+                            If two threads enqueue values to a thread-safe queue, or push to a thread-safe then both will succeed but
+                            the order in the collection is non-deterministic.
+                        </para>
+                    </listItem>
+                    <listItem>
+                        <para>
+                            If two threads set the value for two different keys in a thread-safe dictionary, both succeed.
+                        </para>
+                    </listItem>
+                    <listItem>
+                        <para>
+                            If two threads set the value for the same key, then both succeed, but the final value associated with the
+                            key is non-determinable.
+                        </para>
+                    </listItem>
+                </list>
+                <para>
+                   Meanwhile, if an operation can be observed as beginning after another ended, the result is the same as if the two
+                   were sequentially ordered on the same thread.
+                </para>
+                <para>
+                   A further guarantee with most operations (and with parts of the remaining operations, as described below) is that
+                   all will either succeed or fail (should an operation either throw an exception or return a value indicating the
+                   operation was rejected) as atomically and other threads will either see the state before or after the operation,
+                   never observing a half-way state. In particular, should a thread be suspended or even aborted part-way through an
+                   operation, then its operation will be observed as either not begun or completely fulfilled by any other threads.
+                </para>
+                <para>
+                   Many operations offer the second type of guarantee, of being able to reliably depend upon a current state. For
+                   example, the <codeEntityReference autoUpgrade="true">M:Ariadne.Collections.LockFreeDictionary`2.Update(`0,`1,`1)</codeEntityReference>
+                   overrides of the class behave similarly to
+                   <codeEntityReference autoUpgrade="true" qualifyHint="true">M:System.Threading.Interlocked.CompareExchange``1(``0@,``0,``0)</codeEntityReference>
+                   in changing the current value assigned to a key if and only if it matches a comparand. Some overloads also reliably
+                   return the previous value.
+                </para>
+                <para>
+                   (The third sort of synchronisation guarantee can be provided for any collection since it depends on external
+                   locking, and while still useful in some cases, doesn’t require any support from the collection itself).
+                </para>
+                <para>
+                   Some methods or properties are not atomic. These are composed of multiple operations which are in themselves atomic
+                   and which guarantee not to corrupt state as a whole. These are either:
+                </para>
+                <list class="ordered">
+                   <listItem>
+                       <para>
+                           Operations which report on the state of the collection as a whole. For example, some collections have an
+                           O(n) <codeEntityReference qualifyHint="false">P:System.Collections.Generic.ICollection`1.Count</codeEntityReference>
+                           property which walk the collections (generally where obtaining the count is deemed of little practical value but
+                           supplied along-side an <codeInline>IsEmpty</codeInline> property for completeness and for compatibility with the
+                           <codeEntityReference qualifyHint="false">T:System.Collections.Generic.ICollection`1</codeEntityReference>
+                           inteface). Some of the set operations are also not atomic (e.g.
+                           <codeEntityReference qualifyHint="false">M:System.Collections.Generic.ISet`1.IsSubsetOf(System.Collections.Generic.IEnumerable{`0})</codeEntityReference>).
+                       </para>
+                   </listItem>
+                   <listItem>
+                       <para>
+                           Operations which perform multiple operations provided as a convenience or because greater performance can be offered by providing
+                           a method which has access to internal state. For example the
+                           <codeEntityReference qualifyHint="false">M:Ariadne.Collections.LockFreeDictionary`2.Remove(System.Func{`0,`1,System.Boolean})</codeEntityReference>
+                           overload that takes a predicate parameter is equivalent to calling the predicate for each item in the dictionary
+                           and then removing the key if the predicate still holds.
+                       </para>
+                   </listItem>
+                   <listItem>
+                       <para>
+                           Enumeration methods, as the state of the collection may obviously change while user code is processing the
+                           enumeration.
+                       </para>
+                   </listItem>
+                   <listItem>
+                       <para>
+                           In some cases, even when an atomic operation is possible, a non-atomic form may be more desirable. For
+                           example, it is possible to dequeue all items in a queue or pop all items in a stack as an atomic operation.
+                           In the case of a single consumer, this is preferable as it can then process the items removed more
+                           efficiently since it need no longer contend even lock-lessly with other threads. In some cases with multiple
+                           consumers, however, it may be preferable to have those multiple consumers contend with greater fairness
+                           resulting. For this reason the
+                           <codeEntityReference autoUpgrade="true">M:Ariadne.Collections.LLQueue`1.DequeueAll</codeEntityReference>
+                           and <codeEntityReference autoUpgrade="true">M:Ariadne.Collections.LLStack`1.PopAll</codeEntityReference>
+                           methods have atomic equivalents;
+                           <codeEntityReference autoUpgrade="true">M:Ariadne.Collections.LLQueue`1.AtomicDequeueAll</codeEntityReference>
+                           and <codeEntityReference autoUpgrade="true">M:Ariadne.Collections.LLStack`1.AtomicPopAll</codeEntityReference>
+                           respectively.
+                       </para>
+                   </listItem>
+                </list>
+            </content>
+        </section>
+    </developerConceptualDocument>
+</topic>

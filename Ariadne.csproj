@@ -26,7 +26,6 @@
     <FileAlignment>4096</FileAlignment>
     <WarningLevel>4</WarningLevel>
     <StartAction>Project</StartAction>
-    <DelaySign>False</DelaySign>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
@@ -59,7 +58,9 @@
   <ItemGroup>
     <Compile Include="Pool.cs" />
     <Compile Include="SharedInt.cs" />
-    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="AssemblyInfo.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="InternalHelpers.cs" />
     <Compile Include="LockFreeAtomizer.cs" />
     <Compile Include="LockFreeDictionary.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="LLStack.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="doc" />
     <Folder Include="Resources" />
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +78,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="doc\Ariadne.content" />
+    <None Include="doc\atomicity.aml" />
     <None Include="EUPL-1.1.txt" />
     <None Include="README.txt" />
   </ItemGroup>
