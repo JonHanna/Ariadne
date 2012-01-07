@@ -46,7 +46,7 @@ namespace Ariadne
         /// <returns>The hash-code.</returns>
         public int GetHashCode(T obj)
         {
-            return ObjectHashCodeCalculater.GetRootHashCode(obj);
+            return obj == null ? 0 : ObjectHashCodeCalculater.GetRootHashCode(obj);
         }
     }
 }
