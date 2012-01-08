@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Ariadne
+namespace Ariadne.Collections
 {
     /// <summary>An implementation of <see cref="IEqualityComparer"/> which
     /// compares for object identity (reference equality), ignoring any overrides

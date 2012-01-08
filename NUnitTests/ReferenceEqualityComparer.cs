@@ -1,4 +1,5 @@
 ﻿using System;
+using Ariadne.Collections;
 using NUnit.Framework;
 
 namespace Ariadne.NUnitTests
