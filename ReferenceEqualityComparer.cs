@@ -28,7 +28,7 @@ namespace Ariadne
         {
             // Note: If moved to .NET 2.0 prior to SP 1, requires ReflectionPermission with ReflectionPermissionFlag.ReflectionEmit
             DynamicMethod dynM = new DynamicMethod(string.Empty, typeof(int), new Type[]{typeof(object)}, typeof(object));
-            ILGenerator ilGen = dynM.GetILGenerator(8);
+            ILGenerator ilGen = dynM.GetILGenerator(7);
             ilGen.Emit(OpCodes.Ldarg_0);
             ilGen.Emit(OpCodes.Call, typeof(object).GetMethod("GetHashCode"));
             ilGen.Emit(OpCodes.Ret);
