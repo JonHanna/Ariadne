@@ -787,9 +787,9 @@ namespace Ariadne.Collections
 
             Record[] records = table.Records;
             //if unwritten-to we should be able to just mark it as dead.
-            if(records[idx].Hash == 0 && Interlocked.CompareExchange(ref records[idx].KeyValue, KV.DeadKey, null) == null)
+            KV kv = Interlocked.CompareExchange(ref records[idx].KeyValue, KV.DeadKey, null);
+            if(kv  == null)
                 return true;
-            KV kv = records[idx].KeyValue;
             KV oldKV = kv;
             while(!(kv is PrimeKV))
             {

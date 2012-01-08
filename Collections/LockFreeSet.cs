@@ -411,9 +411,9 @@ namespace Ariadne.Collections
         {
             Record[] records = table.Records;
             //if unwritten-to we should be able to just mark it as dead.
-            if(records[idx].Hash == 0 && Interlocked.CompareExchange(ref records[idx].Box, Box.DeadItem, null) == null)
+            Box box = Interlocked.CompareExchange(ref records[idx].Box, Box.DeadItem, null);
+            if(box == null)
                 return true;
-            Box box = records[idx].Box;
             Box oldBox = box;
             while(!(box is PrimeBox))
             {
