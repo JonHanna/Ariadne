@@ -837,6 +837,7 @@ namespace Ariadne.NUnitTests
         	    int finCount = FinaliserCounted.FinalCount;
         	    Assert.AreNotEqual(0, finCount);
         	    dict.Remove((fc, i) => i % 10 != 0);
+        	    finCount = FinaliserCounted.FinalCount;
         	    dict.Reduce();
         	    GC.Collect();
         	    GC.WaitForPendingFinalizers();
