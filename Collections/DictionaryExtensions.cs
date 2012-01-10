@@ -23,20 +23,20 @@ namespace Ariadne.Collections
     /// appropriately typed <see cref="LockFreeDictionary&lt;TKey, TValue>"/>s.</summary>
     public static class DictionaryExtensions
     {
-        private static bool Increment<T>(LockFreeDictionary<T, int> dict, LockFreeDictionary<T, int>.Table table, T key, int hash, out int result)
+        private static bool Increment<TKey>(LockFreeDictionary<TKey, int> dict, LockFreeDictionary<TKey, int>.Table table, TKey key, int hash, out int result)
         {
             for(;;)
             {
                 int idx = hash & table.Mask;
                 int reprobeCount = 0;
                 int maxProbe = table.ReprobeLimit;
-                LockFreeDictionary<T, int>.Record[] records = table.Records;
+                LockFreeDictionary<TKey, int>.Record[] records = table.Records;
                 for(;;)
                 {
                     int curHash = records[idx].Hash;
                     if(curHash == 0)
                     {
-                        LockFreeDictionary<T, int>.Table next = table.Next;
+                        LockFreeDictionary<TKey, int>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -47,17 +47,17 @@ namespace Ariadne.Collections
                     }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        LockFreeDictionary<T, int>.KV pair = records[idx].KeyValue;
+                        LockFreeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            LockFreeDictionary<T, int>.PrimeKV prime = pair as LockFreeDictionary<T, int>.PrimeKV;
+                            LockFreeDictionary<TKey, int>.PrimeKV prime = pair as LockFreeDictionary<TKey, int>.PrimeKV;
                             if(prime != null)
                             {
                                 dict.CopySlotsAndCheck(table, prime, idx);
                                 table = table.Next;
                                 break;
                             }
-                            else if(pair is LockFreeDictionary<T, int>.TombstoneKV)
+                            else if(pair is LockFreeDictionary<TKey, int>.TombstoneKV)
                             {
                                 result = 0;
                                 return false;
@@ -71,7 +71,7 @@ namespace Ariadne.Collections
                     }
                     if(++reprobeCount >= maxProbe)
                     {
-                        LockFreeDictionary<T, int>.Table next = table.Next;
+                        LockFreeDictionary<TKey, int>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -85,46 +85,48 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>Atomically increments the <see cref="int"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="int"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
         /// <param name="result">The result of incrementing the value.</param>
         /// <returns>True if the value was found and incremented, false if the key was not found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static bool Increment<T>(this LockFreeDictionary<T, int> dict, T key, out int result)
+        public static bool Increment<TKey>(this LockFreeDictionary<TKey, int> dict, TKey key, out int result)
         {
             if(dict == null)
                 throw new ArgumentNullException("dict");
             return Increment(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically increments the <see cref="int"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="int"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
         /// <returns>The result of incrementing the value.</returns>
         /// <exception cref="KeyNotFoundException">The key was not found in the dictionary.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static int Increment<T>(this LockFreeDictionary<T, int> dict, T key)
+        public static int Increment<TKey>(this LockFreeDictionary<TKey, int> dict, TKey key)
         {
             int ret;
             if(!dict.Increment(key, out ret))
                 throw new KeyNotFoundException();
             return ret;
         }
-        private static bool Increment<T>(LockFreeDictionary<T, long> dict, LockFreeDictionary<T, long>.Table table, T key, int hash, out long result)
+        private static bool Increment<TKey>(LockFreeDictionary<TKey, long> dict, LockFreeDictionary<TKey, long>.Table table, TKey key, int hash, out long result)
         {
             for(;;)
             {
                 int idx = hash & table.Mask;
                 int reprobeCount = 0;
                 int maxProbe = table.ReprobeLimit;
-                LockFreeDictionary<T, long>.Record[] records = table.Records;
+                LockFreeDictionary<TKey, long>.Record[] records = table.Records;
                 for(;;)
                 {
                     int curHash = records[idx].Hash;
                     if(curHash == 0)
                     {
-                        LockFreeDictionary<T, long>.Table next = table.Next;
+                        LockFreeDictionary<TKey, long>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -135,17 +137,17 @@ namespace Ariadne.Collections
                     }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        LockFreeDictionary<T, long>.KV pair = records[idx].KeyValue;
+                        LockFreeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            LockFreeDictionary<T, long>.PrimeKV prime = pair as LockFreeDictionary<T, long>.PrimeKV;
+                            LockFreeDictionary<TKey, long>.PrimeKV prime = pair as LockFreeDictionary<TKey, long>.PrimeKV;
                             if(prime != null)
                             {
                                 dict.CopySlotsAndCheck(table, prime, idx);
                                 table = table.Next;
                                 break;
                             }
-                            else if(pair is LockFreeDictionary<T, long>.TombstoneKV)
+                            else if(pair is LockFreeDictionary<TKey, long>.TombstoneKV)
                             {
                                 result = 0;
                                 return false;
@@ -159,7 +161,7 @@ namespace Ariadne.Collections
                     }
                     if(++reprobeCount >= maxProbe)
                     {
-                        LockFreeDictionary<T, long>.Table next = table.Next;
+                        LockFreeDictionary<TKey, long>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -173,46 +175,48 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>Atomically increments the <see cref="long"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="long"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
         /// <param name="result">The result of incrementing the value.</param>
         /// <returns>True if the value was found and incremented, false if the key was not found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static bool Increment<T>(this LockFreeDictionary<T, long> dict, T key, out long result)
+        public static bool Increment<TKey>(this LockFreeDictionary<TKey, long> dict, TKey key, out long result)
         {
             if(dict == null)
                 throw new ArgumentNullException("dict");
             return Increment(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically increments the <see cref="long"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="long"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
         /// <returns>The result of incrementing the value.</returns>
         /// <exception cref="KeyNotFoundException">The key was not found in the dictionary.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static long Increment<T>(this LockFreeDictionary<T, long> dict, T key)
+        public static long Increment<TKey>(this LockFreeDictionary<TKey, long> dict, TKey key)
         {
             long ret;
             if(!dict.Increment(key, out ret))
                 throw new KeyNotFoundException();
             return ret;
         }
-        private static bool Decrement<T>(LockFreeDictionary<T, int> dict, LockFreeDictionary<T, int>.Table table, T key, int hash, out int result)
+        private static bool Decrement<TKey>(LockFreeDictionary<TKey, int> dict, LockFreeDictionary<TKey, int>.Table table, TKey key, int hash, out int result)
         {
             for(;;)
             {
                 int idx = hash & table.Mask;
                 int reprobeCount = 0;
                 int maxProbe = table.ReprobeLimit;
-                LockFreeDictionary<T, int>.Record[] records = table.Records;
+                LockFreeDictionary<TKey, int>.Record[] records = table.Records;
                 for(;;)
                 {
                     int curHash = records[idx].Hash;
                     if(curHash == 0)
                     {
-                        LockFreeDictionary<T, int>.Table next = table.Next;
+                        LockFreeDictionary<TKey, int>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -223,17 +227,17 @@ namespace Ariadne.Collections
                     }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        LockFreeDictionary<T, int>.KV pair = records[idx].KeyValue;
+                        LockFreeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            LockFreeDictionary<T, int>.PrimeKV prime = pair as LockFreeDictionary<T, int>.PrimeKV;
+                            LockFreeDictionary<TKey, int>.PrimeKV prime = pair as LockFreeDictionary<TKey, int>.PrimeKV;
                             if(prime != null)
                             {
                                 dict.CopySlotsAndCheck(table, prime, idx);
                                 table = table.Next;
                                 break;
                             }
-                            else if(pair is LockFreeDictionary<T, int>.TombstoneKV)
+                            else if(pair is LockFreeDictionary<TKey, int>.TombstoneKV)
                             {
                                 result = 0;
                                 return false;
@@ -247,7 +251,7 @@ namespace Ariadne.Collections
                     }
                     if(++reprobeCount >= maxProbe)
                     {
-                        LockFreeDictionary<T, int>.Table next = table.Next;
+                        LockFreeDictionary<TKey, int>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -261,46 +265,48 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>Atomically decrements the <see cref="int"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="int"/>.</param>
         /// <param name="key">The key that identifies the value to decrement.</param>
         /// <param name="result">The result of decrementing the value.</param>
         /// <returns>True if the value was found and decremented, false if the key was not found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static bool Decrement<T>(this LockFreeDictionary<T, int> dict, T key, out int result)
+        public static bool Decrement<TKey>(this LockFreeDictionary<TKey, int> dict, TKey key, out int result)
         {
             if(dict == null)
                 throw new ArgumentNullException("dict");
             return Decrement(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically decrements the <see cref="int"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="int"/>.</param>
         /// <param name="key">The key that identifies the value to decrement.</param>
         /// <returns>The result of decrementing the value.</returns>
         /// <exception cref="KeyNotFoundException">The key was not found in the dictionary.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static int Decrement<T>(this LockFreeDictionary<T, int> dict, T key)
+        public static int Decrement<TKey>(this LockFreeDictionary<TKey, int> dict, TKey key)
         {
             int ret;
             if(!dict.Decrement(key, out ret))
                 throw new KeyNotFoundException();
             return ret;
         }
-        private static bool Decrement<T>(LockFreeDictionary<T, long> dict, LockFreeDictionary<T, long>.Table table, T key, int hash, out long result)
+        private static bool Decrement<TKey>(LockFreeDictionary<TKey, long> dict, LockFreeDictionary<TKey, long>.Table table, TKey key, int hash, out long result)
         {
             for(;;)
             {
                 int idx = hash & table.Mask;
                 int reprobeCount = 0;
                 int maxProbe = table.ReprobeLimit;
-                LockFreeDictionary<T, long>.Record[] records = table.Records;
+                LockFreeDictionary<TKey, long>.Record[] records = table.Records;
                 for(;;)
                 {
                     int curHash = records[idx].Hash;
                     if(curHash == 0)
                     {
-                        LockFreeDictionary<T, long>.Table next = table.Next;
+                        LockFreeDictionary<TKey, long>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -311,17 +317,17 @@ namespace Ariadne.Collections
                     }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        LockFreeDictionary<T, long>.KV pair = records[idx].KeyValue;
+                        LockFreeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            LockFreeDictionary<T, long>.PrimeKV prime = pair as LockFreeDictionary<T, long>.PrimeKV;
+                            LockFreeDictionary<TKey, long>.PrimeKV prime = pair as LockFreeDictionary<TKey, long>.PrimeKV;
                             if(prime != null)
                             {
                                 dict.CopySlotsAndCheck(table, prime, idx);
                                 table = table.Next;
                                 break;
                             }
-                            else if(pair is LockFreeDictionary<T, long>.TombstoneKV)
+                            else if(pair is LockFreeDictionary<TKey, long>.TombstoneKV)
                             {
                                 result = 0;
                                 return false;
@@ -335,7 +341,7 @@ namespace Ariadne.Collections
                     }
                     if(++reprobeCount >= maxProbe)
                     {
-                        LockFreeDictionary<T, long>.Table next = table.Next;
+                        LockFreeDictionary<TKey, long>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -349,46 +355,48 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>Atomically decrements the <see cref="long"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="long"/>.</param>
         /// <param name="key">The key that identifies the value to decrement.</param>
         /// <param name="result">The result of decrementing the value.</param>
         /// <returns>True if the value was found and decremented, false if the key was not found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static bool Decrement<T>(this LockFreeDictionary<T, long> dict, T key, out long result)
+        public static bool Decrement<TKey>(this LockFreeDictionary<TKey, long> dict, TKey key, out long result)
         {
             if(dict == null)
                 throw new ArgumentNullException("dict");
             return Decrement(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically decrements the <see cref="long"/> value identified by the key, by one.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="long"/>.</param>
         /// <param name="key">The key that identifies the value to decrement.</param>
         /// <returns>The result of decrementing the value.</returns>
         /// <exception cref="KeyNotFoundException">The key was not found in the dictionary.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static long Decrement<T>(this LockFreeDictionary<T, long> dict, T key)
+        public static long Decrement<TKey>(this LockFreeDictionary<TKey, long> dict, TKey key)
         {
             long ret;
             if(!dict.Decrement(key, out ret))
                 throw new KeyNotFoundException();
             return ret;
         }
-        private static bool Plus<T>(LockFreeDictionary<T, long> dict, LockFreeDictionary<T, long>.Table table, T key, int hash, long addend, out long result)
+        private static bool Plus<TKey>(LockFreeDictionary<TKey, long> dict, LockFreeDictionary<TKey, long>.Table table, TKey key, int hash, long addend, out long result)
         {
             for(;;)
             {
                 int idx = hash & table.Mask;
                 int reprobeCount = 0;
                 int maxProbe = table.ReprobeLimit;
-                LockFreeDictionary<T, long>.Record[] records = table.Records;
+                LockFreeDictionary<TKey, long>.Record[] records = table.Records;
                 for(;;)
                 {
                     int curHash = records[idx].Hash;
                     if(curHash == 0)
                     {
-                        LockFreeDictionary<T, long>.Table next = table.Next;
+                        LockFreeDictionary<TKey, long>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -399,17 +407,17 @@ namespace Ariadne.Collections
                     }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        LockFreeDictionary<T, long>.KV pair = records[idx].KeyValue;
+                        LockFreeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            LockFreeDictionary<T, long>.PrimeKV prime = pair as LockFreeDictionary<T, long>.PrimeKV;
+                            LockFreeDictionary<TKey, long>.PrimeKV prime = pair as LockFreeDictionary<TKey, long>.PrimeKV;
                             if(prime != null)
                             {
                                 dict.CopySlotsAndCheck(table, prime, idx);
                                 table = table.Next;
                                 break;
                             }
-                            else if(pair is LockFreeDictionary<T, long>.TombstoneKV)
+                            else if(pair is LockFreeDictionary<TKey, long>.TombstoneKV)
                             {
                                 result = 0;
                                 return false;
@@ -423,7 +431,7 @@ namespace Ariadne.Collections
                     }
                     if(++reprobeCount >= maxProbe)
                     {
-                        LockFreeDictionary<T, long>.Table next = table.Next;
+                        LockFreeDictionary<TKey, long>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -438,6 +446,7 @@ namespace Ariadne.Collections
         }
         /// <summary>Atomically adds the supplied <see cref="long"/> value to the value identified by the key, returning
         /// the result.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="long"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
@@ -445,7 +454,7 @@ namespace Ariadne.Collections
         /// <param name="result">The result of adding the values.</param>
         /// <returns>True if the value was found and the addition performed, false if the key was not found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static bool Plus<T>(this LockFreeDictionary<T, long> dict, T key, long addend, out long result)
+        public static bool Plus<TKey>(this LockFreeDictionary<TKey, long> dict, TKey key, long addend, out long result)
         {
             if(dict == null)
                 throw new ArgumentNullException("dict");
@@ -453,6 +462,7 @@ namespace Ariadne.Collections
         }
         /// <summary>Atomically adds the supplied <see cref="long"/> value to the value identified by the key, returning
         /// the result.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="long"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
@@ -460,27 +470,27 @@ namespace Ariadne.Collections
         /// <returns>The result of adding the values.</returns>
         /// <exception cref="KeyNotFoundException">The key was not found in the dictionary.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static long Plus<T>(this LockFreeDictionary<T, long> dict, T key, long addend)
+        public static long Plus<TKey>(this LockFreeDictionary<TKey, long> dict, TKey key, long addend)
         {
             long ret;
             if(!dict.Plus(key, addend, out ret))
                 throw new KeyNotFoundException();
             return ret;
         }
-        private static bool Plus<T>(LockFreeDictionary<T, int> dict, LockFreeDictionary<T, int>.Table table, T key, int hash, int addend, out int result)
+        private static bool Plus<TKey>(LockFreeDictionary<TKey, int> dict, LockFreeDictionary<TKey, int>.Table table, TKey key, int hash, int addend, out int result)
         {
             for(;;)
             {
                 int idx = hash & table.Mask;
                 int reprobeCount = 0;
                 int maxProbe = table.ReprobeLimit;
-                LockFreeDictionary<T, int>.Record[] records = table.Records;
+                LockFreeDictionary<TKey, int>.Record[] records = table.Records;
                 for(;;)
                 {
                     int curHash = records[idx].Hash;
                     if(curHash == 0)
                     {
-                        LockFreeDictionary<T, int>.Table next = table.Next;
+                        LockFreeDictionary<TKey, int>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -491,17 +501,17 @@ namespace Ariadne.Collections
                     }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        LockFreeDictionary<T, int>.KV pair = records[idx].KeyValue;
+                        LockFreeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            LockFreeDictionary<T, int>.PrimeKV prime = pair as LockFreeDictionary<T, int>.PrimeKV;
+                            LockFreeDictionary<TKey, int>.PrimeKV prime = pair as LockFreeDictionary<TKey, int>.PrimeKV;
                             if(prime != null)
                             {
                                 dict.CopySlotsAndCheck(table, prime, idx);
                                 table = table.Next;
                                 break;
                             }
-                            else if(pair is LockFreeDictionary<T, int>.TombstoneKV)
+                            else if(pair is LockFreeDictionary<TKey, int>.TombstoneKV)
                             {
                                 result = 0;
                                 return false;
@@ -515,7 +525,7 @@ namespace Ariadne.Collections
                     }
                     if(++reprobeCount >= maxProbe)
                     {
-                        LockFreeDictionary<T, int>.Table next = table.Next;
+                        LockFreeDictionary<TKey, int>.Table next = table.Next;
                         if(next != null)
                         {
                             table = next;
@@ -530,6 +540,7 @@ namespace Ariadne.Collections
         }
         /// <summary>Atomically adds the supplied <see cref="int"/> value to the value identified by the key, returning
         /// the result.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="int"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
@@ -537,7 +548,7 @@ namespace Ariadne.Collections
         /// <param name="result">The result of adding the values.</param>
         /// <returns>True if the value was found and the addition performed, false if the key was not found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static bool Plus<T>(this LockFreeDictionary<T, int> dict, T key, int addend, out int result)
+        public static bool Plus<TKey>(this LockFreeDictionary<TKey, int> dict, TKey key, int addend, out int result)
         {
             if(dict == null)
                 throw new ArgumentNullException("dict");
@@ -545,6 +556,7 @@ namespace Ariadne.Collections
         }
         /// <summary>Atomically adds the supplied <see cref="int"/> value to the value identified by the key, returning
         /// the result.</summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
         /// <param name="dict">The <see cref="LockFreeDictionary&lt;TKey, TValue>"/> to operate on.
         /// TValue must be <see cref="int"/>.</param>
         /// <param name="key">The key that identifies the value to increment.</param>
@@ -552,7 +564,7 @@ namespace Ariadne.Collections
         /// <returns>The result of adding the values.</returns>
         /// <exception cref="KeyNotFoundException">The key was not found in the dictionary.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
-        public static int Plus<T>(this LockFreeDictionary<T, int> dict, T key, int addend)
+        public static int Plus<TKey>(this LockFreeDictionary<TKey, int> dict, TKey key, int addend)
         {
             int ret;
             if(!dict.Plus(key, addend, out ret))
