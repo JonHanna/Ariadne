@@ -25,9 +25,9 @@ namespace Ariadne
         //On most chips that .NET or Mono run on at the moment, this would be 64 - 4 = 60.
         //On Itanium, it would be 128 - 4 = 124. Other sizes are both possible and quite likely
         //to appear in the future. We could P-Invoke and find the precise size to use (and use
-        //an array of ints with gaps decided on that basis), but that wouldn't be portable, so we
-        //just assume that 64 is the cache-line size and while we don't improve as much as we
-        //can on Itanium, we'll at least improve things.
+        //an array of ints with gaps decided on that basis), but that wouldn’t be portable, so we
+        //just assume that 64 is the cache-line size and while we don’t improve as much as we
+        //can on Itanium, we’ll at least improve things.
         [FieldOffset(60)]
         public int Num;
     }
@@ -55,8 +55,8 @@ namespace Ariadne
         /// <summary>Creates a new <see cref="Counter"/> with an initial value of zero.</summary>
         public Counter()
         {
-            //We won't go above 32 so that the total array size (including overhead) fits in a 4KiB page.
-            //We won't go below 16 so we've a good spread.
+            //We won’t go above 32 so that the total array size (including overhead) fits in a 4KiB page.
+            //We won’t go below 16 so we’ve a good spread.
             int size = EstimateCoreCount() <= 4 ? 16 : 32;
             mask = size - 1;
             counters = new OffsetInt[size];
@@ -89,7 +89,7 @@ namespace Ariadne
 	    /// <summary>Atomically increments the <see cref="Counter"/> by one.</summary>
         public void Increment()
         {
-            //We avoid different cores hitting the same counter, but don't completely prohibit it, so we
+            //We avoid different cores hitting the same counter, but don’t completely prohibit it, so we
             //still need Interlocked.
             Interlocked.Increment(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);
         }
