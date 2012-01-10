@@ -80,11 +80,11 @@ namespace Ariadne
             }
         }
         /// <summary>Returns the value of the <see cref="Counter"/>.</summary>
-        /// <param name="c">The <see cref="Counter"/> to cast.</param>
+        /// <param name="counter">The <see cref="Counter"/> to cast.</param>
         /// <returns>An integer of the same value as the <see cref="Counter"/>.</returns>
-	    public static implicit operator int(Counter c)
+	    public static implicit operator int(Counter counter)
 	    {
-	        return c.Value;
+	        return counter.Value;
 	    }
 	    /// <summary>Atomically increments the <see cref="Counter"/> by one.</summary>
         public void Increment()
