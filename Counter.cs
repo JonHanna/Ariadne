@@ -31,7 +31,11 @@ namespace Ariadne
         [FieldOffset(60)]
         public int Num;
     }
-    //about 20% slower on single-thread, much faster on multi-thread than Interlocked.Increment.
+    /// <summary>A counter designed for highly concurrent use.</summary>
+    /// <remarks>This counter tends to be appreciably slower than using <see cref="Interlocked.Increment(ref int)"/>
+    /// when there is little contention. However, it is much faster in the face of contending threads, with the
+    /// comparable cost of <see cref="Interlocked.Increment(ref int)"/> increasing nearly expotentially to
+    /// the number of contending threads.</remarks>
     public class Counter
     {
         private static readonly int CoreCount = EstimateCoreCount();
@@ -48,6 +52,7 @@ namespace Ariadne
         }
         private readonly OffsetInt[] counters;
         private readonly int mask;
+        /// <summary>Creates a new <see cref="Counter"/> with an initial value of zero.</summary>
         public Counter()
         {
             //We won't go above 32 so that the total array size (including overhead) fits in a 4KiB page.
@@ -66,6 +71,14 @@ namespace Ariadne
             mask = size - 1;
             counters = new OffsetInt[size];
         }
+        /// <summary>Creates a new <see cref="Counter"/> with an initial value of <paramref name="startingValue"/>.</summary>
+        /// <param name="startingValue"></param>
+        public Counter(int startingValue)
+            :this()
+        {
+            counters[0].Num = startingValue;
+        }
+        /// <summary>The current value of the counter.</summary>
         public int Value
         {
             get
@@ -76,16 +89,21 @@ namespace Ariadne
                 return sum;
             }
         }
+        /// <summary>Returns the value of the <see cref="Counter"/>.</summary>
+        /// <param name="c">The <see cref="Counter"/> to cast.</param>
+        /// <returns>An integer of the same value as the <see cref="Counter"/>.</returns>
 	    public static implicit operator int(Counter c)
 	    {
 	        return c.Value;
 	    }
+	    /// <summary>Atomically increments the <see cref="Counter"/> by one.</summary>
         public void Increment()
         {
             //We avoid different cores hitting the same counter, but don't completely prohibit it, so we
             //still need Interlocked.
             Interlocked.Increment(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);
         }
+        /// <summary>Atomically decrements the <see cref="Counter"/> by one.</summary>
         public void Decrement()
         {
             Interlocked.Decrement(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);

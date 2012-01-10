@@ -293,12 +293,12 @@ namespace Ariadne.Collections
         // present), as we don’t need to examine it at all unless we’ve found or created a
         // matching hash.
         [StructLayout(LayoutKind.Sequential, Pack=1)]
-        private struct Record
+        internal struct Record
         {
             public int Hash;
             public KV KeyValue;
         }
-        private sealed class Table
+        internal sealed class Table
         {
             public readonly Record[] Records;
             public volatile Table Next;
@@ -322,9 +322,9 @@ namespace Ariadne.Collections
             }
         }
         
-        private Table _table;
+        internal Table _table;
         private readonly int _initialCapacity;
-        private readonly IEqualityComparer<TKey> _cmp;
+        internal readonly IEqualityComparer<TKey> _cmp;
         private const int DefaultCapacity = 1;
         private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
         /// <summary>Constructs a new LockFreeDictionary.</summary>
@@ -449,7 +449,7 @@ namespace Ariadne.Collections
                 return updater(key, value);
             };
         }
-        private int Hash(TKey key)
+        internal int Hash(TKey key)
         {
             //We must prohibit the value of zero in order to be sure that when we encounter a
             //zero, that the hash has not been written.
@@ -728,7 +728,7 @@ namespace Ariadne.Collections
             }
         }
         // Copies a record to the next table, and checks if there should be a promotion.
-        private void CopySlotsAndCheck(Table table, PrimeKV prime, int idx)
+        internal void CopySlotsAndCheck(Table table, PrimeKV prime, int idx)
         {
             if(CopySlot(table, prime, idx))
                 CopySlotAndPromote(table, 1);

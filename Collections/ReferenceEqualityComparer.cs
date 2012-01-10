@@ -29,6 +29,8 @@ namespace Ariadne.Collections
     /// <threadsafety static="true" instance="true"/>
     public class ReferenceEqualityComparer : IEqualityComparer
     {
+        /// <summary>When called, returns the identity-based hash-code for the argument,
+        /// as defined in <see cref="object"/>, ignoring any overrides.</summary>
         protected static Func<object, int> RootHashCode;
         static ReferenceEqualityComparer()
         {
@@ -45,7 +47,7 @@ namespace Ariadne.Collections
         /// <param name="x">The first item to compare.</param>
         /// <param name="y">The second item to compare.</param>
         /// <returns>True if they are the same object, false otherwise.</returns>
-        public bool Equals(object x, object y)
+        public new bool Equals(object x, object y)
         {
             return ReferenceEquals(x, y);
         }
