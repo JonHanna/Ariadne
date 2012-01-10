@@ -98,21 +98,21 @@ namespace Ariadne
         {
             Interlocked.Decrement(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);
         }
-        /// <summary>Atomically increments <see cref="c"/> by one.</summary>
-        /// <param name="c"></param>
+        /// <summary>Atomically increments <paramref name="counter"/> by one.</summary>
+        /// <param name="counter"></param>
         /// <returns>The <see cref="Counter"/> that was operated on.</returns>
-        public static Counter operator ++(Counter c)
+        public static Counter operator ++(Counter counter)
         {
-            c.Increment();
-            return c;
+            counter.Increment();
+            return counter;
         }
-        /// <summary>Atomically decrements <see cref="c"/> by one.</summary>
-        /// <param name="c"></param>
+        /// <summary>Atomically decrements <paramref name="counter"/> by one.</summary>
+        /// <param name="counter"></param>
         /// <returns>The <see cref="Counter"/> that was operated on.</returns>
-        public static Counter operator --(Counter c)
+        public static Counter operator --(Counter counter)
         {
-            c.Decrement();
-            return c;
+            counter.Decrement();
+            return counter;
         }
     }
 }
