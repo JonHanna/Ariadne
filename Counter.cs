@@ -57,7 +57,7 @@ namespace Ariadne
         {
             //We won't go above 32 so that the total array size (including overhead) fits in a 4KiB page.
             //We won't go below 16 so we've a good spread.
-            int size = EstimateCoreCount <= 4 ? 16 : 32;
+            int size = EstimateCoreCount() <= 4 ? 16 : 32;
             mask = size - 1;
             counters = new OffsetInt[size];
         }
@@ -98,11 +98,17 @@ namespace Ariadne
         {
             Interlocked.Decrement(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);
         }
+        /// <summary>Atomically increments <see cref="c"/> by one.</summary>
+        /// <param name="c"></param>
+        /// <returns>The <see cref="Counter"/> that was operated on.</returns>
         public static Counter operator ++(Counter c)
         {
             c.Increment();
             return c;
         }
+        /// <summary>Atomically decrements <see cref="c"/> by one.</summary>
+        /// <param name="c"></param>
+        /// <returns>The <see cref="Counter"/> that was operated on.</returns>
         public static Counter operator --(Counter c)
         {
             c.Decrement();
