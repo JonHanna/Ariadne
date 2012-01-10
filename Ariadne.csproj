@@ -59,8 +59,8 @@
     <Compile Include="Collections\DictionaryExtensions.cs" />
     <Compile Include="Collections\LLQueue.cs" />
     <Compile Include="Collections\LLStack.cs" />
-    <Compile Include="Collections\LockFreeDictionary.cs" />
-    <Compile Include="Collections\LockFreeSet.cs" />
+    <Compile Include="Collections\ThreadSafeDictionary.cs" />
+    <Compile Include="Collections\ThreadSafeSet.cs" />
     <Compile Include="Collections\ReferenceEqualityComparer.cs" />
     <Compile Include="Counter.cs" />
     <Compile Include="LockFreeAtomizer.cs" />

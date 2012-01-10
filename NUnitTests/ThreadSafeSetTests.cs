@@ -20,7 +20,7 @@ using Ariadne.Collections;
 namespace Ariadne.NUnitTests
 {
     [TestFixture]
-    public class LockFreeSetTests
+    public class ThreadSafeSetTests
     {
     	protected const int SourceDataLen = 131072;
     	protected static string[] SourceData = new string[SourceDataLen];
@@ -43,9 +43,9 @@ namespace Ariadne.NUnitTests
             	SourceData[idx++] = str;
             FilledStringCompareSet = hs;
         }
-        private LockFreeSet<string> FilledStringSet()
+        private ThreadSafeSet<string> FilledStringSet()
         {
-            var hs = new LockFreeSet<string>();
+            var hs = new ThreadSafeSet<string>();
     		for(int i = 0; i != SourceDataLen; ++i)
     		    hs.Add(SourceData[i]);
     		return hs;
@@ -63,8 +63,8 @@ namespace Ariadne.NUnitTests
     	[Test]
     	public void CreateFromIEnum()
     	{
-    	    var setIE = new LockFreeSet<string>(EnumerateData());
-    	    var setIL = new LockFreeSet<string>(SourceData);
+    	    var setIE = new ThreadSafeSet<string>(EnumerateData());
+    	    var setIL = new ThreadSafeSet<string>(SourceData);
     	    var hs = FilledStringSet();
     	    Assert.AreEqual(setIE.Count, SourceDataLen);
     	    Assert.AreEqual(setIL.Count, SourceDataLen);
@@ -123,7 +123,7 @@ namespace Ariadne.NUnitTests
     	[Test]
     	public void BackAgainDiff()
     	{
-    	    var hs = new LockFreeSet<string>();
+    	    var hs = new ThreadSafeSet<string>();
     	    for(int i = 0; i < SourceDataLen; i += 2)
     	        hs.Add(SourceData[i]);
     	    int count = SourceDataLen / 2;
@@ -151,18 +151,18 @@ namespace Ariadne.NUnitTests
     	[ExpectedException(typeof(ArgumentOutOfRangeException))]
     	public void NegativeCapacity()
     	{
-    		var dict = new LockFreeSet<decimal>(-1);
+    		var dict = new ThreadSafeSet<decimal>(-1);
     	}
     	[Test]
     	[ExpectedException(typeof(ArgumentOutOfRangeException))]
     	public void ExcessiveCapacity()
     	{
-    		var dict = new LockFreeSet<decimal>(((int.MaxValue >> 1) + 2));
+    		var dict = new ThreadSafeSet<decimal>(((int.MaxValue >> 1) + 2));
     	}
     	[Test]
     	public void EqualityComparer()
     	{
-    		var hs = new LockFreeSet<string>(StringComparer.InvariantCultureIgnoreCase);
+    		var hs = new ThreadSafeSet<string>(StringComparer.InvariantCultureIgnoreCase);
     		hs.Add("Weißbier");
     		Assert.IsTrue(hs.Contains("WEISSBIER"));
     		Assert.IsTrue(hs.Contains("weissbier"));
@@ -182,7 +182,7 @@ namespace Ariadne.NUnitTests
     	[Test]
     	public void ConstantReturns()
     	{
-    		var hs = new LockFreeSet<int>();
+    		var hs = new ThreadSafeSet<int>();
     		Assert.IsFalse(((ICollection<int>)hs).IsReadOnly);
     	}
     	private bool EqualSets<T>(ISet<T> x, ISet<T> y)
@@ -225,13 +225,13 @@ namespace Ariadne.NUnitTests
     	[ExpectedException(typeof(ArgumentNullException))]
     	public void NullComparer()
     	{
-    	    new LockFreeSet<int>((IEqualityComparer<int>)null);
+    	    new ThreadSafeSet<int>((IEqualityComparer<int>)null);
     	}
     	[Test]
     	[ExpectedException(typeof(ArgumentNullException))]
     	public void NullSourceCollection()
     	{
-    	    new LockFreeSet<int>((IEnumerable<int>)null);
+    	    new ThreadSafeSet<int>((IEnumerable<int>)null);
     	}
     	[Test]
     	public void CopyWithOffset()
@@ -256,14 +256,14 @@ namespace Ariadne.NUnitTests
     	[Test]
     	public void PathologicalHashAlgorithm()
     	{
-    	    var hs = new LockFreeSet<int>(Enumerable.Range(0, 1000));
+    	    var hs = new ThreadSafeSet<int>(Enumerable.Range(0, 1000));
     	    for(int i = 0; i != 1000; ++i)
     	        Assert.IsTrue(hs.Contains(i));
     	}
     	[Test]
     	public void RemoveWhere()
     	{
-    	    var hs = new LockFreeSet<int>(Enumerable.Range(0, 1000));
+    	    var hs = new ThreadSafeSet<int>(Enumerable.Range(0, 1000));
     	    foreach(int i in hs.RemoveWhere(x => x % 2 == 0))
     	        Assert.AreEqual(0, i % 2);
     	    Assert.AreEqual(500, hs.Count);
@@ -281,14 +281,14 @@ namespace Ariadne.NUnitTests
     	    //Note that the behaviour of the BinaryFormatter will fix some of the strings
     	    //used in many of these tests, as not being valid Unicode. This is desirable behaviour
     	    //in real code, but would give false negatives to this test.
-    	    var hs = new LockFreeSet<string>(Enumerable.Range(0, 10000).Select(i => i.ToString()));
+    	    var hs = new ThreadSafeSet<string>(Enumerable.Range(0, 10000).Select(i => i.ToString()));
     	    hs.Add(null);
     	    using(MemoryStream ms = new MemoryStream())
     	    {
     	        new BinaryFormatter().Serialize(ms, hs);
     	        ms.Flush();
     	        ms.Seek(0, SeekOrigin.Begin);
-    	        Assert.IsTrue(EqualSets(hs, (LockFreeSet<string>)new BinaryFormatter().Deserialize(ms)));
+    	        Assert.IsTrue(EqualSets(hs, (ThreadSafeSet<string>)new BinaryFormatter().Deserialize(ms)));
     	    }
     	}
     }

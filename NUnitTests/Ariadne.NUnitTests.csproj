@@ -51,8 +51,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LockFreeDictionaryTests.cs" />
-    <Compile Include="LockFreeSetTests.cs" />
+    <Compile Include="ThreadSafeDictionaryTests.cs" />
+    <Compile Include="ThreadSafeSetTests.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="QueueTests.cs" />
     <Compile Include="ReferenceEqualityComparer.cs" />

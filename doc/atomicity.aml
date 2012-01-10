@@ -106,7 +106,7 @@
                 </para>
                 <para>
                    Many operations offer the second type of guarantee, of being able to reliably depend upon a current state. For
-                   example, the <codeEntityReference autoUpgrade="true">M:Ariadne.Collections.LockFreeDictionary`2.Update(`0,`1,`1)</codeEntityReference>
+                   example, the <codeEntityReference autoUpgrade="true">M:Ariadne.Collections.ThreadSafeDictionary`2.Update(`0,`1,`1)</codeEntityReference>
                    overrides of the class behave similarly to
                    <codeEntityReference autoUpgrade="true" qualifyHint="true">M:System.Threading.Interlocked.CompareExchange``1(``0@,``0,``0)</codeEntityReference>
                    in changing the current value assigned to a key if and only if it matches a comparand. Some overloads also reliably
@@ -136,7 +136,7 @@
                        <para>
                            Operations which perform multiple operations provided as a convenience or because greater performance can be offered by providing
                            a method which has access to internal state. For example the
-                           <codeEntityReference qualifyHint="false">M:Ariadne.Collections.LockFreeDictionary`2.Remove(System.Func{`0,`1,System.Boolean})</codeEntityReference>
+                           <codeEntityReference qualifyHint="false">M:Ariadne.Collections.ThreadSafeDictionary`2.Remove(System.Func{`0,`1,System.Boolean})</codeEntityReference>
                            overload that takes a predicate parameter is equivalent to calling the predicate for each item in the dictionary
                            and then removing the key if the predicate still holds.
                        </para>

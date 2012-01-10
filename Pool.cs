@@ -28,7 +28,7 @@ namespace Ariadne
     /// with the thread-safety coming from the thread-safety of that object. If none is passed to the constructor,
     /// a <see cref="LLQueue&lt;T>"/> is used.</para>
     /// <para>The pool does not ensure that the same object is not put in the pool twice. A backing store can be selected
-    /// to ensure this (e.g. <see cref="LockFreeSet&lt;T>"/>) but this will not guard against the set of items both currently
+    /// to ensure this (e.g. <see cref="ThreadSafeSet&lt;T>"/>) but this will not guard against the set of items both currently
     /// pooled and currently in use, containing the same item twice.</para>
     /// </remarks>
     /// <typeparam name="T">The type of the objects in the pool.</typeparam>

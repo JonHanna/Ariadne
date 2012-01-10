@@ -48,11 +48,11 @@ namespace Ariadne.NUnitTests
                 foreach(string str in hs)
                 	SourceData[idx++] = str;
             }
-            private LockFreeDictionary<string, string> FilledStringDict(int lengthToUse = -1)
+            private ThreadSafeDictionary<string, string> FilledStringDict(int lengthToUse = -1)
             {
                 if(lengthToUse < 0)
                     lengthToUse = SourceDataLen;
-        		var dict = new LockFreeDictionary<string, string>();
+        		var dict = new ThreadSafeDictionary<string, string>();
         		for(int i = 0; i != lengthToUse; i+= 2)
         			dict[SourceData[i]] = SourceData[i + 1];
         		return dict;
@@ -77,8 +77,8 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void CreateFromIEnum()
         	{
-        		var dictIE = new LockFreeDictionary<string, string>(EnumeratePairs());
-        		var dictIL = new LockFreeDictionary<string, string>(EnumeratePairs().ToList());
+        		var dictIE = new ThreadSafeDictionary<string, string>(EnumeratePairs());
+        		var dictIL = new ThreadSafeDictionary<string, string>(EnumeratePairs().ToList());
         		var dict = FilledStringCompareDict();
         		Assert.AreEqual(dict.Count, SourceDataLen / 2);
         		Assert.AreEqual(dict.Count, SourceDataLen / 2);
@@ -194,13 +194,13 @@ namespace Ariadne.NUnitTests
         	[ExpectedException(typeof(ArgumentOutOfRangeException))]
         	public void NegativeCapacity()
         	{
-        		new LockFreeDictionary<int, decimal>(-1);
+        		new ThreadSafeDictionary<int, decimal>(-1);
         	}
         	[Test]
         	[ExpectedException(typeof(ArgumentOutOfRangeException))]
         	public void ExcessiveCapacity()
         	{
-        		new LockFreeDictionary<string, bool>(((int.MaxValue >> 1) + 2));
+        		new ThreadSafeDictionary<string, bool>(((int.MaxValue >> 1) + 2));
         	}
         	private class RoundedEquality : IEqualityComparer<int>
         	{
@@ -216,7 +216,7 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void EqualityComparer()
         	{
-        		var dict = new LockFreeDictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
+        		var dict = new ThreadSafeDictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
         		dict.Add("Weißbier", 93);
         		Assert.AreEqual(dict["WEISSBIER"], 93);
         		dict["weissbier"] = 777;
@@ -250,30 +250,30 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void ConstantReturns()
         	{
-        		var dict = new LockFreeDictionary<int, int>();
+        		var dict = new ThreadSafeDictionary<int, int>();
         		Assert.IsFalse(((ICollection<KeyValuePair<int, int>>)dict).IsReadOnly);
         		Assert.IsTrue(((ICollection<int>)dict.Keys).IsReadOnly && ((ICollection<int>)dict.Values).IsReadOnly);
         	}
         	[Test]
         	public void ResetEnumeator()
         	{
-        		((IEnumerator)new LockFreeDictionary<int, int>().GetEnumerator()).Reset();
+        		((IEnumerator)new ThreadSafeDictionary<int, int>().GetEnumerator()).Reset();
         	}
         	[Test]
         	public void ResetKeyEnumeator()
         	{
-        		((IEnumerator)new LockFreeDictionary<int, int>().Keys.GetEnumerator()).Reset();
+        		((IEnumerator)new ThreadSafeDictionary<int, int>().Keys.GetEnumerator()).Reset();
         	}
         	[Test]
         	public void ResetValueEnumeator()
         	{
-        		((IEnumerator)new LockFreeDictionary<int, int>().Values.GetEnumerator()).Reset();
+        		((IEnumerator)new ThreadSafeDictionary<int, int>().Values.GetEnumerator()).Reset();
         	}
         	[Test]
         	[ExpectedException(typeof(ArgumentException))]
         	public void BadAdd()
         	{
-        		var dict = new LockFreeDictionary<int, int>();
+        		var dict = new ThreadSafeDictionary<int, int>();
         		dict.Add(1, 1);
         		dict.Add(1, 2);
         	}
@@ -281,7 +281,7 @@ namespace Ariadne.NUnitTests
         	[ExpectedException(typeof(ArgumentException))]
         	public void BadAddKV()
         	{
-        		var dict = new LockFreeDictionary<int, int>();
+        		var dict = new ThreadSafeDictionary<int, int>();
         		dict.Add(1, 1);
         		dict.Add(new KeyValuePair<int, int>(1, 2));
         	}
@@ -380,13 +380,13 @@ namespace Ariadne.NUnitTests
         	[ExpectedException(typeof(ArgumentNullException))]
         	public void NullComparer()
         	{
-        		new LockFreeDictionary<int, int>((IEqualityComparer<int>)null);
+        		new ThreadSafeDictionary<int, int>((IEqualityComparer<int>)null);
         	}
         	[Test]
         	[ExpectedException(typeof(ArgumentNullException))]
         	public void NullSourceCollection()
         	{
-        		new LockFreeDictionary<int, int>((IEnumerable<KeyValuePair<int, int>>)null);
+        		new ThreadSafeDictionary<int, int>((IEnumerable<KeyValuePair<int, int>>)null);
         	}
         	[Test]
         	public void CopyKVWithNullAndOffset()
@@ -492,19 +492,19 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void PathologicalHashAlgorithm()
         	{
-        		var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 1000).Zip(Enumerable.Range(0, 1000), (k, v) => new KeyValuePair<int, int>(k, v * 2)));
+        		var dict = new ThreadSafeDictionary<int, int>(Enumerable.Range(0, 1000).Zip(Enumerable.Range(0, 1000), (k, v) => new KeyValuePair<int, int>(k, v * 2)));
         		for(int i = 999; i != -1; --i)
         			Assert.AreEqual(dict[i], i * 2);
         	}
         	[Test]
         	public void RemoveWhere()
         	{
-        		var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 1000).Select(x => new KeyValuePair<int, int>(x, x * 2)));
+        		var dict = new ThreadSafeDictionary<int, int>(Enumerable.Range(0, 1000).Select(x => new KeyValuePair<int, int>(x, x * 2)));
         		foreach(var kvp in dict.RemoveWhere((k, v) => k % 2 == 0))
         			Assert.AreEqual(kvp.Key % 2, 0);
         		foreach(var kvp in dict)
         			Assert.AreEqual(kvp.Key % 2, 1);
-        		dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 1000).Select(x => new KeyValuePair<int, int>(x, x * 2)));
+        		dict = new ThreadSafeDictionary<int, int>(Enumerable.Range(0, 1000).Select(x => new KeyValuePair<int, int>(x, x * 2)));
         		Assert.AreEqual(dict.Remove((k, v) => v % 4 == 0), 500);
         		Assert.AreEqual(dict.Count, 500);
         		foreach(var kvp in Enumerable.Range(1000, 4000).Select(x => new KeyValuePair<int, int>(x, x * 2)))
@@ -517,7 +517,7 @@ namespace Ariadne.NUnitTests
         	    //Note that the behaviour of the BinaryFormatter will fix some of the strings
         	    //used in many of these tests, as not being valid Unicode. This is desirable behaviour
         	    //in real code, but would give false negatives to this test.
-        	    var dict = new LockFreeDictionary<string, string>();
+        	    var dict = new ThreadSafeDictionary<string, string>();
         	    for(int i = 0; i != 10000; ++i)
         	        dict.Add(i.ToString(), (i * 2).ToString());
         	    dict.Add(null, "check null keys work");
@@ -527,13 +527,13 @@ namespace Ariadne.NUnitTests
         	        new BinaryFormatter().Serialize(ms, dict);
     	            ms.Flush();
     	            ms.Seek(0, SeekOrigin.Begin);
-    	            Assert.IsTrue(EqualDicts(dict, (LockFreeDictionary<string, string>)new BinaryFormatter().Deserialize(ms)));
+    	            Assert.IsTrue(EqualDicts(dict, (ThreadSafeDictionary<string, string>)new BinaryFormatter().Deserialize(ms)));
         	    }
         	}
         	[Test]
         	public void TryAdd()
         	{
-        	    var dict = new LockFreeDictionary<int, int>();
+        	    var dict = new ThreadSafeDictionary<int, int>();
         	    dict[0] = 0;
         	    Assert.IsTrue(dict.TryAdd(1, 2));
         	    Assert.IsFalse(dict.TryAdd(1, 9));
@@ -566,13 +566,13 @@ namespace Ariadne.NUnitTests
         	[ExpectedException(typeof(ArgumentNullException))]
         	public void TryAddNullFactory()
         	{
-        	    var dict = new LockFreeDictionary<int, int>();
+        	    var dict = new ThreadSafeDictionary<int, int>();
         	    dict.TryAdd(1, null);
         	}
         	[Test]
         	public void Update()
         	{
-        	    var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 100).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
+        	    var dict = new ThreadSafeDictionary<int, int>(Enumerable.Range(0, 100).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
         	    int val;
         	    Assert.IsFalse(dict.Update(10, 10, 1, EqualityComparer<int>.Default, out val));
         	    Assert.AreNotEqual(10, dict[10]);
@@ -624,13 +624,13 @@ namespace Ariadne.NUnitTests
         	[ExpectedException(typeof(ArgumentNullException))]
         	public void UpdateNullFactory()
         	{
-        	    var dict = new LockFreeDictionary<int, int>();
+        	    var dict = new ThreadSafeDictionary<int, int>();
         	    dict.Update(1, 1, null);
         	}
         	[Test]
         	public void GetOrAdd()
         	{
-        	    var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 100).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
+        	    var dict = new ThreadSafeDictionary<int, int>(Enumerable.Range(0, 100).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
         	    int val;
         	    Assert.IsTrue(dict.GetOrAdd(200, 400, out val));
         	    Assert.AreEqual(400, val);
@@ -674,7 +674,7 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void AddOrUpdate()
         	{
-        	    var dict = new LockFreeDictionary<int, int>(Enumerable.Range(0, 10).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
+        	    var dict = new ThreadSafeDictionary<int, int>(Enumerable.Range(0, 10).Select(x => new KeyValuePair<int, int>(x, 2 * x)));
         	    int val;
         	    Assert.IsTrue(dict.AddOrUpdate(10, 18, 99, EqualityComparer<int>.Default, out val));
         	    Assert.AreEqual(0, val);
@@ -827,7 +827,7 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void Reduce()
         	{
-        	    var dict = new LockFreeDictionary<FinaliserCounted, int>();
+        	    var dict = new ThreadSafeDictionary<FinaliserCounted, int>();
         	    for(int i = 0; i != 5000; ++ i)
         	        dict[new FinaliserCounted(i)] = i;
         	    for(int i = 0; i != 5000; i += 10)
@@ -846,7 +846,7 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void IncrementDecrementPlus()
         	{
-        	    var dict = new LockFreeDictionary<int, int>();
+        	    var dict = new ThreadSafeDictionary<int, int>();
         	    dict.Add(42, 93);
         	    Assert.AreEqual(94, dict.Increment(42));
         	    Assert.AreEqual(94, dict[42]);
@@ -862,7 +862,7 @@ namespace Ariadne.NUnitTests
         	    Assert.IsFalse(dict.Increment(2, out ret));
         	    Assert.IsFalse(dict.Decrement(2, out ret));
         	    Assert.IsFalse(dict.Plus(2, 57, out ret));
-        	    var ldict = new LockFreeDictionary<int, long>();
+        	    var ldict = new ThreadSafeDictionary<int, long>();
         	    ldict.Add(42, 93);
         	    Assert.AreEqual(94, ldict.Increment(42));
         	    Assert.AreEqual(94, ldict[42]);
@@ -965,7 +965,7 @@ namespace Ariadne.NUnitTests
         		[Test]
         		public void MultiWriteSame()
         		{
-        			var dict = new LockFreeDictionary<string, string>();
+        			var dict = new ThreadSafeDictionary<string, string>();
         			for(int i = 0; i != _threads.Length; ++i)
         			{
         				_threads[i] = new Thread(WriteSome);
@@ -978,7 +978,7 @@ namespace Ariadne.NUnitTests
         		}
         		private void WriteSome(object param)
         		{
-        			var tup = (Tuple<LockFreeDictionary<string, string>, int, int>)param;
+        			var tup = (Tuple<ThreadSafeDictionary<string, string>, int, int>)param;
         			var dict = tup.Item1;
         			var end = tup.Item2 + tup.Item3;
         			for(int i = tup.Item2; i != end; i += 2)
@@ -989,7 +989,7 @@ namespace Ariadne.NUnitTests
         		[Test]
         		public void MultiWriteParts()
         		{
-        			var dict = new LockFreeDictionary<string, string>();
+        			var dict = new ThreadSafeDictionary<string, string>();
         			for(int i = 0; i != _threads.Length; ++i)
         			{
         				_threads[i] = new Thread(WriteSome);
@@ -1005,7 +1005,7 @@ namespace Ariadne.NUnitTests
         		{
         			unchecked
         			{
-        				var dict = new LockFreeDictionary<int, int>();
+        				var dict = new ThreadSafeDictionary<int, int>();
         				int len = _threads.Length - 1;
         				if(len < 1)
         				    len = 1;
@@ -1044,7 +1044,7 @@ namespace Ariadne.NUnitTests
         		[Test]
         		public void RacingWrite()
         		{
-        		    var dict = new LockFreeDictionary<int, int>();
+        		    var dict = new ThreadSafeDictionary<int, int>();
     		        for(int i = 0; i != _threads.Length; ++i)
     		        {
     		            _threads[i] = new Thread((object obj) =>

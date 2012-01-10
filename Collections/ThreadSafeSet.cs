@@ -14,7 +14,7 @@
 
 
 
-// The algorithm here is a simplification of that used for the LockFreeDictionary class,
+// The algorithm here is a simplification of that used for the ThreadSafeDictionary class,
 // but excluding the work necessary to handle the value part of key-value pairs.
 
 using System;
@@ -33,7 +33,7 @@ namespace Ariadne.Collections
     /// <typeparam name="T">The type of the values stored.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
-    public sealed class LockFreeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
+    public sealed class ThreadSafeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
     {
         private const int REPROBE_LOWER_BOUND = 5;
         private const int REPROBE_SHIFT = 5;
@@ -104,7 +104,7 @@ namespace Ariadne.Collections
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
-        public LockFreeSet(int capacity, IEqualityComparer<T> comparer)
+        public ThreadSafeSet(int capacity, IEqualityComparer<T> comparer)
         {
         	if(capacity < 0 || capacity > 0x4000000)
         		throw new ArgumentOutOfRangeException("capacity");
@@ -131,14 +131,14 @@ namespace Ariadne.Collections
         }
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
-        public LockFreeSet(int capacity)
+        public ThreadSafeSet(int capacity)
             :this(capacity, EqualityComparer<T>.Default){}
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
-        public LockFreeSet(IEqualityComparer<T> comparer)
+        public ThreadSafeSet(IEqualityComparer<T> comparer)
             :this(DefaultCapacity, comparer){}
         /// <summary>Creates a new lock-free set.</summary>
-        public LockFreeSet()
+        public ThreadSafeSet()
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<T> collection)
         {
@@ -163,7 +163,7 @@ namespace Ariadne.Collections
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>"/> that compares the items.</param>
-        public LockFreeSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
+        public ThreadSafeSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
             :this(EstimateNecessaryCapacity(collection), comparer)
         {
             foreach(T item in collection)
@@ -171,7 +171,7 @@ namespace Ariadne.Collections
         }
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
-        public LockFreeSet(IEnumerable<T> collection)
+        public ThreadSafeSet(IEnumerable<T> collection)
             :this(collection, EqualityComparer<T>.Default){}
         [SecurityCritical] 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
@@ -183,7 +183,7 @@ namespace Ariadne.Collections
             info.AddValue("arr", arr);
             info.AddValue("c", arr.Length);
         }
-        private LockFreeSet(SerializationInfo info, StreamingContext context)
+        private ThreadSafeSet(SerializationInfo info, StreamingContext context)
             :this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
         {
             _initialCapacity = info.GetInt32("ic");
@@ -541,10 +541,10 @@ namespace Ariadne.Collections
         /// <tocexclude/>
         public sealed class AddedEnumeration : IEnumerable<T>, IEnumerator<T>
         {
-            private LockFreeSet<T> _set;
+            private ThreadSafeSet<T> _set;
             private IEnumerator<T> _srcEnumerator;
             private T _current;
-            internal AddedEnumeration(LockFreeSet<T> _set, IEnumerator<T> _srcEnumerator)
+            internal AddedEnumeration(ThreadSafeSet<T> _set, IEnumerator<T> _srcEnumerator)
             {
                 this._set = _set;
                 this._srcEnumerator = _srcEnumerator;
@@ -677,7 +677,7 @@ namespace Ariadne.Collections
                 throw new ArgumentNullException("other");
             if(other != this && Count != 0)
             {
-                LockFreeSet<T> copyTo = new LockFreeSet<T>(Capacity, _cmp);
+                ThreadSafeSet<T> copyTo = new ThreadSafeSet<T>(Capacity, _cmp);
                 foreach(T item in other)
                     if(Contains(item))
                         copyTo.Add(item);
@@ -736,7 +736,7 @@ namespace Ariadne.Collections
             {
                 if(asCol.Count < count)
                     return false;
-                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
+                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && asLFHS._cmp.Equals(_cmp))
                     return asLFHS.IsSupersetOf(this);
             }
@@ -764,7 +764,7 @@ namespace Ariadne.Collections
                 //We can only short-cut on other being larger if larger is a set
                 //with the same equality comparer, as otherwise two or more items
                 //could be considered a single item to this set.
-                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
+                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
                 HashSet<T> asHS = other as HashSet<T>;
@@ -794,7 +794,7 @@ namespace Ariadne.Collections
                 //We can only short-cut on other being larger if larger is a set
                 //with the same equality comparer, as otherwise two or more items
                 //could be considered a single item to this set.
-                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
+                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
                 HashSet<T> asHS = other as HashSet<T>;
@@ -827,7 +827,7 @@ namespace Ariadne.Collections
             {
                 if(asCol.Count < count)
                     return false;
-                LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
+                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && asLFHS._cmp.Equals(_cmp))
                     return asLFHS.IsProperSupersetOf(this);
             }
@@ -867,7 +867,7 @@ namespace Ariadne.Collections
             if(other == null)
                 throw new ArgumentNullException("other");
             int asSetCount = -1;
-            LockFreeSet<T> asLFHS = other as LockFreeSet<T>;
+            ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
             if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                 asSetCount = asLFHS.Count;
             else
@@ -969,21 +969,21 @@ namespace Ariadne.Collections
         {
             return new RemovingEnumeration(this, predicate);
         }
-        /// <summary>Enumerates a <see cref="LockFreeSet&lt;T>"/>, returning items that match a predicate,
+        /// <summary>Enumerates a <see cref="ThreadSafeSet&lt;T>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
         /// <tocexclude/>
         public sealed class RemovingEnumeration : IEnumerator<T>, IEnumerable<T>
         {
-            private readonly LockFreeSet<T> _set;
+            private readonly ThreadSafeSet<T> _set;
             private Table _table;
             private readonly Counter _size;
             private readonly Func<T, bool> _predicate;
             private int _idx;
             private int _removed;
             private Box _current;
-            internal RemovingEnumeration(LockFreeSet<T> lfSet, Func<T, bool> predicate)
+            internal RemovingEnumeration(ThreadSafeSet<T> lfSet, Func<T, bool> predicate)
             {
                 _size = (_table = (_set = lfSet)._table).Size;
                 _predicate = predicate;
@@ -1050,7 +1050,7 @@ namespace Ariadne.Collections
             private void ResizeIfManyRemoved()
             {
                 if(_table != null && _table.Next == null && (_removed > _table.Capacity >> 4 || _removed > _table.Size >> 2))
-                    LockFreeSet<T>.Resize(_table);
+                    ThreadSafeSet<T>.Resize(_table);
             }
             void IDisposable.Dispose()
             {
@@ -1090,11 +1090,11 @@ namespace Ariadne.Collections
         }
         internal class BoxEnumerator : IEnumerable<Box>, IEnumerator<Box>
         {
-            private readonly LockFreeSet<T> _set;
+            private readonly ThreadSafeSet<T> _set;
             private Table _tab;
             private Box _current;
             private int _idx = -1;
-            public BoxEnumerator(LockFreeSet<T> lfhs)
+            public BoxEnumerator(ThreadSafeSet<T> lfhs)
             {
                 _tab = (_set = lfhs)._table;
             }
@@ -1155,7 +1155,7 @@ namespace Ariadne.Collections
                 _idx = -1;
             }
         }
-        /// <summary>Enumerates a LockFreeSet&lt;T>.</summary>
+        /// <summary>Enumerates a ThreadSafeSet&lt;T>.</summary>
         /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
         /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
@@ -1213,10 +1213,10 @@ namespace Ariadne.Collections
         /// <remarks>Because this operation does not lock, the resulting set’s contents
         /// could be inconsistent in terms of an application’s use of the values.
         /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
-        /// <returns>The <see cref="LockFreeSet&lt;T>"/>.</returns>
-        public LockFreeSet<T> Clone()
+        /// <returns>The <see cref="ThreadSafeSet&lt;T>"/>.</returns>
+        public ThreadSafeSet<T> Clone()
         {
-            LockFreeSet<T> copy = new LockFreeSet<T>(Capacity, _cmp);
+            ThreadSafeSet<T> copy = new ThreadSafeSet<T>(Capacity, _cmp);
             foreach(Box box in EnumerateBoxes())
                 copy.PutIfMatch(box, false, false);
             return copy;

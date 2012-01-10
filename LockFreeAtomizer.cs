@@ -23,7 +23,7 @@ namespace Ariadne
     /// the flyweight pattern, and similar. Comparable to the
     /// string intern pool, but available for other types, and other equality comparisons
     /// (e.g. case-insensitive), removal of objects, and maintaining separate pools.
-    /// This is a wrapper around <see cref="LockFreeSet&lt;T>"/> (the implementation may change in the
+    /// This is a wrapper around <see cref="ThreadSafeSet&lt;T>"/> (the implementation may change in the
     /// future to wrap another set-type class), that calls into the FindOrStore and Find
     /// methods, which exist with exactly this sort of functionality in mind - considering
     /// the lack of such functionality in <see cref="HashSet&lt;T>"/> to be a lack.</summary>
@@ -32,8 +32,8 @@ namespace Ariadne
     [Serializable]
     public sealed class LockFreeAtomizer<T> : ICloneable where T:class
     {
-        private readonly LockFreeSet<T> _store;
-        private LockFreeAtomizer(LockFreeSet<T> store)
+        private readonly ThreadSafeSet<T> _store;
+        private LockFreeAtomizer(ThreadSafeSet<T> store)
         {
             _store = store;
         }
@@ -43,7 +43,7 @@ namespace Ariadne
         /// added to the store.</param>
         public LockFreeAtomizer(int capacity, IEqualityComparer<T> comparer)
         {
-            _store = new LockFreeSet<T>(capacity, comparer);
+            _store = new ThreadSafeSet<T>(capacity, comparer);
         }
         /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
         /// <param name="capacity">The initial capacity of the atomizer.</param>
@@ -54,7 +54,7 @@ namespace Ariadne
         /// added to the store.</param>
         public LockFreeAtomizer(IEqualityComparer<T> comparer)
         {
-            _store = new LockFreeSet<T>(comparer);
+            _store = new ThreadSafeSet<T>(comparer);
         }
         /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
         public LockFreeAtomizer()
@@ -65,7 +65,7 @@ namespace Ariadne
         /// added to the collection.</param>
         public LockFreeAtomizer(IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
-            _store = new LockFreeSet<T>(collection, comparer);
+            _store = new ThreadSafeSet<T>(collection, comparer);
         }
         /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/> and fills it from the collection passed.</summary>
         /// <param name="collection">The <see cref="IEnumerable&lt;T>"/> to fill the atomizer with on construction.</param>

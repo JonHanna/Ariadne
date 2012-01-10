@@ -30,7 +30,7 @@ namespace Ariadne.Collections
     /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
-    public sealed class LockFreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable, IDictionary
+    public sealed class ThreadSafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable, IDictionary
     {
         private const int REPROBE_LOWER_BOUND = 5;
         private const int REPROBE_SHIFT = 5;
@@ -327,10 +327,10 @@ namespace Ariadne.Collections
         internal readonly IEqualityComparer<TKey> _cmp;
         private const int DefaultCapacity = 1;
         private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
-        /// <summary>Constructs a new LockFreeDictionary.</summary>
+        /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
-        public LockFreeDictionary(int capacity, IEqualityComparer<TKey> comparer)
+        public ThreadSafeDictionary(int capacity, IEqualityComparer<TKey> comparer)
         {
         	if(capacity < 0 || capacity > 0x4000000)
         		throw new ArgumentOutOfRangeException("capacity");
@@ -358,16 +358,16 @@ namespace Ariadne.Collections
             _table = new Table(_initialCapacity = capacity, new Counter());
             _cmp = comparer;
         }
-        /// <summary>Constructs a new LockFreeDictionary.</summary>
+        /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
-        public LockFreeDictionary(int capacity)
+        public ThreadSafeDictionary(int capacity)
             :this(capacity, EqualityComparer<TKey>.Default){}
-        /// <summary>Constructs a new LockFreeDictionary.</summary>
+        /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
-        public LockFreeDictionary(IEqualityComparer<TKey> comparer)
+        public ThreadSafeDictionary(IEqualityComparer<TKey> comparer)
             :this(DefaultCapacity, comparer){}
-        /// <summary>Constructs a new LockFreeDictionary.</summary>
-        public LockFreeDictionary()
+        /// <summary>Constructs a new ThreadSafeDictionary.</summary>
+        public ThreadSafeDictionary()
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<KeyValuePair<TKey, TValue>> collection)
         {
@@ -391,18 +391,18 @@ namespace Ariadne.Collections
         	}
         	return DefaultCapacity;
         }
-        /// <summary>Constructs a new LockFreeDictionary.</summary>
+        /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
-        public LockFreeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
+        public ThreadSafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
         	:this(EstimateNecessaryCapacity(collection), comparer)
         {
         	foreach(KeyValuePair<TKey, TValue> kvp in collection)
         		this[kvp.Key] = kvp.Value;
         }
-        /// <summary>Constructs a new LockFreeDictionary.</summary>
+        /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
-        public LockFreeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
+        public ThreadSafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
             :this(collection, EqualityComparer<TKey>.Default){}
         private static Func<TKey, TValue, bool, TValue> ProducerFromFactory(Func<TKey, TValue> factory)
         {
@@ -472,7 +472,7 @@ namespace Ariadne.Collections
             info.AddValue("arr", arr);
             info.AddValue("cKVP", arr.Length);
         }
-        private LockFreeDictionary(SerializationInfo info, StreamingContext context)
+        private ThreadSafeDictionary(SerializationInfo info, StreamingContext context)
             :this(info.GetInt32("cKVP"), (IEqualityComparer<TKey>)info.GetValue("cmp", typeof(IEqualityComparer<TKey>)))
         {
             _initialCapacity = info.GetInt32("ic");
@@ -913,10 +913,10 @@ namespace Ariadne.Collections
     	/// <summary>Returns a copy of the current dictionary.</summary>
         /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
         /// could be inconsistent in terms of an application’s use of the values.</remarks>
-        /// <returns>The <see cref="LockFreeDictionary&lt;TKey, TValue>"/>.</returns>
-        public LockFreeDictionary<TKey, TValue> Clone()
+        /// <returns>The <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>.</returns>
+        public ThreadSafeDictionary<TKey, TValue> Clone()
         {
-        	LockFreeDictionary<TKey, TValue> snapshot = new LockFreeDictionary<TKey, TValue>(Count, _cmp);
+        	ThreadSafeDictionary<TKey, TValue> snapshot = new ThreadSafeDictionary<TKey, TValue>(Count, _cmp);
         	foreach(KV kv in EnumerateKVs())
         		snapshot.PutIfMatch(kv, MatchAll.Instance);
         	return snapshot;
@@ -1494,14 +1494,14 @@ namespace Ariadne.Collections
         /// be written to again for the life-time of the application, it would be better still to replace it with a
         /// <see cref="Dictionary&lt;TKey, TValue>"/> as per:</para>
         /// <code>
-        /// static IDictionary&lt;string, string> SharedDictionary = new LockFreeDictionary&lt;string, string>();
+        /// static IDictionary&lt;string, string> SharedDictionary = new ThreadSafeDictionary&lt;string, string>();
         /// /* 
         ///  * ⋮
         ///  */
         /// private void DoneWriting()  // Called when there will be no more writing to the dictionary.
         /// {
-        ///     LockFreeDictionary&lt;string, string> lfDict = (LockFreeDictionary&lt;string, string>)SharedDictionary;
-        ///     SharedDictionary = lfDict.ToDictionary();   //Create Dictionary&lt;string, string> and over-write LockFreeDictionary
+        ///     ThreadSafeDictionary&lt;string, string> lfDict = (ThreadSafeDictionary&lt;string, string>)SharedDictionary;
+        ///     SharedDictionary = lfDict.ToDictionary();   //Create Dictionary&lt;string, string> and over-write ThreadSafeDictionary
         ///                                                 //as Dictionary&lt;string, string> is thread-safe when read-only.
         ///     Thread.MemoryBarrier(); //Optional. Ensure change of IDictionary is seen by other threads immediately.
         /// }
@@ -1526,21 +1526,21 @@ namespace Ariadne.Collections
                 HelpCopy(_table, prime, true);
             }
         }
-        /// <summary>Enumerates a <see cref="LockFreeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
+        /// <summary>Enumerates a <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
         /// <tocexclude/>
         public sealed class RemovingEnumeration : IEnumerator<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
         {
-            private readonly LockFreeDictionary<TKey, TValue> _dict;
+            private readonly ThreadSafeDictionary<TKey, TValue> _dict;
             private Table _table;
             private readonly Counter _size;
             private readonly Func<TKey, TValue, bool> _predicate;
             private int _idx;
             private int _removed;
             private KV _current;
-            internal RemovingEnumeration(LockFreeDictionary<TKey, TValue> dict, Func<TKey, TValue, bool> predicate)
+            internal RemovingEnumeration(ThreadSafeDictionary<TKey, TValue> dict, Func<TKey, TValue, bool> predicate)
             {
                 _size = (_table = (_dict = dict)._table).Size;
                 _predicate = predicate;
@@ -1607,7 +1607,7 @@ namespace Ariadne.Collections
             private void ResizeIfManyRemoved()
             {
                 if(_table != null && _table.Next == null && (_removed > _table.Capacity >> 4 || _removed > _table.Size >> 2))
-                    LockFreeDictionary<TKey, TValue>.Resize(_table);
+                    ThreadSafeDictionary<TKey, TValue>.Resize(_table);
             }
             void IDisposable.Dispose()
             {
@@ -1647,11 +1647,11 @@ namespace Ariadne.Collections
         }
         internal sealed class KVEnumerator : IEnumerator<KV>, IEnumerable<KV>
         {
-        	private readonly LockFreeDictionary<TKey, TValue> _dict;
+        	private readonly ThreadSafeDictionary<TKey, TValue> _dict;
             private Table _tab;
             private KV _current;
             private int _idx = -1;
-            public KVEnumerator(LockFreeDictionary<TKey, TValue> dict)
+            public KVEnumerator(ThreadSafeDictionary<TKey, TValue> dict)
             {
             	_tab = (_dict = dict)._table;
             }
@@ -1714,7 +1714,7 @@ namespace Ariadne.Collections
         {
             return new KVEnumerator(this);
         }
-        /// <summary>Enumerates a LockFreeDictionary&lt;TKey, TValue>.</summary>
+        /// <summary>Enumerates a ThreadSafeDictionary&lt;TKey, TValue>.</summary>
         /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
         /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
         /// <tocexclude/>
@@ -1782,14 +1782,14 @@ namespace Ariadne.Collections
         {
             return GetEnumerator();
         }
-        /// <summary>A collection of the values in a LockFreeDictionary.</summary>
+        /// <summary>A collection of the values in a ThreadSafeDictionary.</summary>
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
 	    public struct ValueCollection : ICollection<TValue>, ICollection
 	    {
-	    	private readonly LockFreeDictionary<TKey, TValue> _dict;
-	    	internal ValueCollection(LockFreeDictionary<TKey, TValue> dict)
+	    	private readonly ThreadSafeDictionary<TKey, TValue> _dict;
+	    	internal ValueCollection(ThreadSafeDictionary<TKey, TValue> dict)
 	    	{
 	    		_dict = dict;
 	    	}
@@ -1924,14 +1924,14 @@ namespace Ariadne.Collections
 	        	((ICollection)_dict.ToDictionary().Values).CopyTo(array, index);
             }
 	    }
-        /// <summary>A collection of the keys in a LockFreeDictionary.</summary>
+        /// <summary>A collection of the keys in a ThreadSafeDictionary.</summary>
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
 	    public struct KeyCollection : ICollection<TKey>, ICollection
 	    {
-	    	private readonly LockFreeDictionary<TKey, TValue> _dict;
-	    	internal KeyCollection(LockFreeDictionary<TKey, TValue> dict)
+	    	private readonly ThreadSafeDictionary<TKey, TValue> _dict;
+	    	internal KeyCollection(ThreadSafeDictionary<TKey, TValue> dict)
 	    	{
 	    		_dict = dict;
 	    	}
