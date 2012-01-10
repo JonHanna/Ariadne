@@ -62,7 +62,7 @@ namespace Ariadne
             counters = new OffsetInt[size];
         }
         /// <summary>Creates a new <see cref="Counter"/> with an initial value of <paramref name="startingValue"/>.</summary>
-        /// <param name="startingValue"></param>
+        /// <param name="startingValue">The initial value for the <see cref="Counter"/>.</param>
         public Counter(int startingValue)
             :this()
         {
@@ -99,7 +99,7 @@ namespace Ariadne
             Interlocked.Decrement(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);
         }
         /// <summary>Atomically increments <paramref name="counter"/> by one.</summary>
-        /// <param name="counter"></param>
+        /// <param name="counter">The <see cref="Counter"/> to increment.</param>
         /// <returns>The <see cref="Counter"/> that was operated on.</returns>
         public static Counter operator ++(Counter counter)
         {
@@ -107,7 +107,7 @@ namespace Ariadne
             return counter;
         }
         /// <summary>Atomically decrements <paramref name="counter"/> by one.</summary>
-        /// <param name="counter"></param>
+        /// <param name="counter">The <see cref="Counter"/> to decrement.</param>
         /// <returns>The <see cref="Counter"/> that was operated on.</returns>
         public static Counter operator --(Counter counter)
         {
