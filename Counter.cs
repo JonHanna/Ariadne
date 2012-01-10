@@ -58,16 +58,6 @@ namespace Ariadne
             //We won't go above 32 so that the total array size (including overhead) fits in a 4KiB page.
             //We won't go below 16 so we've a good spread.
             int size = EstimateCoreCount <= 4 ? 16 : 32;
-            unchecked // binary round-up
-            {
-                --size;
-                size |= (size >> 1);
-                size |= (size >> 2);
-                size |= (size >> 4);
-                size |= (size >> 8);
-                size |= (size >> 16);
-                ++size;
-            }
             mask = size - 1;
             counters = new OffsetInt[size];
         }
