@@ -1,13 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <HelpKI>
 
-  <HelpKINode Title="Add method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Add.htm" />
+  <HelpKINode Title="Add method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Add.htm" />
   <HelpKINode Title="Add method" Url="html/M_Ariadne_SharedInt_Add.htm" />
-  <HelpKINode Title="Add method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Add.htm" />
-  <HelpKINode Title="AddOrUpdate method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate.htm" />
-  <HelpKINode Title="AddRange method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddRange.htm" />
+  <HelpKINode Title="Add method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Add.htm" />
+  <HelpKINode Title="AddOrUpdate method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_AddOrUpdate.htm" />
+  <HelpKINode Title="AddRange method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddRange.htm" />
   <HelpKINode Title="Ariadne namespace" Url="html/N_Ariadne.htm" />
   <HelpKINode Title="Ariadne.Collections namespace" Url="html/N_Ariadne_Collections.htm" />
+  <HelpKINode Title="Ariadne.Collections.DictionaryExtensions class" Url="html/AllMembers_T_Ariadne_Collections_DictionaryExtensions.htm" />
+  <HelpKINode Title="Ariadne.Collections.DictionaryExtensions class" Url="html/T_Ariadne_Collections_DictionaryExtensions.htm" />
   <HelpKINode Title="Ariadne.Collections.LLQueue(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_LLQueue_1.htm" />
   <HelpKINode Title="Ariadne.Collections.LLQueue(Of T) class" Url="html/T_Ariadne_Collections_LLQueue_1.htm" />
   <HelpKINode Title="Ariadne.Collections.LLQueue(Of T).AtDequeuEnumerator class" Url="html/AllMembers_T_Ariadne_Collections_LLQueue_1_AtDequeuEnumerator.htm" />
@@ -40,101 +42,126 @@
   <HelpKINode Title="Ariadne.Collections.LLStack&lt;T&gt;.Enumerator class" Url="html/T_Ariadne_Collections_LLStack_1_Enumerator.htm" />
   <HelpKINode Title="Ariadne.Collections.LLStack&lt;T&gt;.PopEnumerator class" Url="html/AllMembers_T_Ariadne_Collections_LLStack_1_PopEnumerator.htm" />
   <HelpKINode Title="Ariadne.Collections.LLStack&lt;T&gt;.PopEnumerator class" Url="html/T_Ariadne_Collections_LLStack_1_PopEnumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue) class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue) class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt; class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt; class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T) class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T).AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T).AddedEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T).Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet(Of T).RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt; class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.AddedEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.LockFreeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool(Of T) class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool(Of T).Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool(Of T).Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt; class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt;.Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
-  <HelpKINode Title="Ariadne.Collections.Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Ariadne.Collections.ReferenceEqualityComparer class" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+  <HelpKINode Title="Ariadne.Collections.ReferenceEqualityComparer class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+  <HelpKINode Title="Ariadne.Collections.ReferenceEqualityComparer(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ReferenceEqualityComparer(Of T) class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ReferenceEqualityComparer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ReferenceEqualityComparer&lt;T&gt; class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue) class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue) class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt; class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt; class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T) class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T).AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T).AddedEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T).Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet(Of T).RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt; class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt;.AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt;.AddedEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="Ariadne.Counter class" Url="html/AllMembers_T_Ariadne_Counter.htm" />
+  <HelpKINode Title="Ariadne.Counter class" Url="html/T_Ariadne_Counter.htm" />
+  <HelpKINode Title="Ariadne.LockFreeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="Ariadne.LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="Ariadne.LockFreeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="Ariadne.LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="Ariadne.Pool(Of T) class" Url="html/AllMembers_T_Ariadne_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Pool(Of T) class" Url="html/T_Ariadne_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Pool(Of T).Handle class" Url="html/AllMembers_T_Ariadne_Pool_1_Handle.htm" />
+  <HelpKINode Title="Ariadne.Pool(Of T).Handle class" Url="html/T_Ariadne_Pool_1_Handle.htm" />
+  <HelpKINode Title="Ariadne.Pool&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Pool&lt;T&gt; class" Url="html/T_Ariadne_Pool_1.htm" />
+  <HelpKINode Title="Ariadne.Pool&lt;T&gt;.Handle class" Url="html/AllMembers_T_Ariadne_Pool_1_Handle.htm" />
+  <HelpKINode Title="Ariadne.Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Pool_1_Handle.htm" />
   <HelpKINode Title="Ariadne.SharedInt class" Url="html/AllMembers_T_Ariadne_SharedInt.htm" />
   <HelpKINode Title="Ariadne.SharedInt class" Url="html/T_Ariadne_SharedInt.htm" />
   <HelpKINode Title="AtomicDequeueAll method" Url="html/M_Ariadne_Collections_LLQueue_1_AtomicDequeueAll.htm" />
   <HelpKINode Title="AtomicPopAll method" Url="html/M_Ariadne_Collections_LLStack_1_AtomicPopAll.htm" />
-  <HelpKINode Title="Atomize method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Atomize.htm" />
-  <HelpKINode Title="Capacity property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Capacity.htm" />
-  <HelpKINode Title="Capacity property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Capacity.htm" />
+  <HelpKINode Title="Atomize method" Url="html/M_Ariadne_LockFreeAtomizer_1_Atomize.htm" />
+  <HelpKINode Title="Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Capacity.htm" />
+  <HelpKINode Title="Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Capacity.htm" />
   <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_LLQueue_1_Clear.htm" />
   <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_LLStack_1_Clear.htm" />
-  <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clear.htm" />
-  <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clear.htm" />
-  <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Clear.htm" />
+  <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clear.htm" />
+  <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clear.htm" />
+  <HelpKINode Title="Clear method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clear.htm" />
   <HelpKINode Title="ClearLastItem method" Url="html/M_Ariadne_Collections_LLQueue_1_ClearLastItem.htm" />
   <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_LLQueue_1_Clone.htm" />
   <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_LLStack_1_Clone.htm" />
-  <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clone.htm" />
-  <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clone.htm" />
-  <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Clone.htm" />
-  <HelpKINode Title="Contains method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Contains.htm" />
-  <HelpKINode Title="Contains method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Contains.htm" />
+  <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clone.htm" />
+  <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clone.htm" />
+  <HelpKINode Title="Clone method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clone.htm" />
+  <HelpKINode Title="Contains method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Contains.htm" />
+  <HelpKINode Title="Contains method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Contains.htm" />
   <HelpKINode Title="Contains method" Url="html/Overload_Ariadne_Collections_LLQueue_1_Contains.htm" />
   <HelpKINode Title="Contains method" Url="html/Overload_Ariadne_Collections_LLStack_1_Contains.htm" />
-  <HelpKINode Title="Contains method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Contains.htm" />
-  <HelpKINode Title="Contains method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Contains.htm" />
-  <HelpKINode Title="ContainsKey method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ContainsKey.htm" />
+  <HelpKINode Title="Contains method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Contains.htm" />
+  <HelpKINode Title="Contains method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Contains.htm" />
+  <HelpKINode Title="ContainsKey method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ContainsKey.htm" />
   <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_LLQueue_1_CopyTo.htm" />
   <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_LLStack_1_CopyTo.htm" />
-  <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_CopyTo.htm" />
-  <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_CopyTo.htm" />
-  <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_CopyTo.htm" />
-  <HelpKINode Title="CopyTo method" Url="html/Overload_Ariadne_Collections_LockFreeSet_1_CopyTo.htm" />
+  <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_CopyTo.htm" />
+  <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_CopyTo.htm" />
+  <HelpKINode Title="CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_CopyTo.htm" />
+  <HelpKINode Title="CopyTo method" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1_CopyTo.htm" />
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LLQueue_1_Count.htm" />
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LLStack_1_Count.htm" />
-  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeAtomizer_1_Count.htm" />
-  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Count.htm" />
-  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Count.htm" />
-  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Count.htm" />
-  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Count.htm" />
-  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_Pool_1_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_LockFreeAtomizer_1_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_Pool_1_Count.htm" />
+  <HelpKINode Title="Counter class" Url="html/AllMembers_T_Ariadne_Counter.htm" />
+  <HelpKINode Title="Counter class" Url="html/T_Ariadne_Counter.htm" />
+  <HelpKINode Title="Counter class">
+    <HelpKINode Title="about Counter class" Url="html/T_Ariadne_Counter.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Counter.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Counter__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Counter.htm" />
+    <HelpKINode Title="operators and type conversions" Url="html/Operators_T_Ariadne_Counter.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Counter.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Counter to Int32 conversion" Url="html/M_Ariadne_Counter_op_Implicit.htm" />
+  <HelpKINode Title="Counter.Counter constructor" Url="html/Overload_Ariadne_Counter__ctor.htm" />
+  <HelpKINode Title="Counter.Decrement method" Url="html/M_Ariadne_Counter_Decrement.htm" />
+  <HelpKINode Title="Counter.Decrement operator" Url="html/M_Ariadne_Counter_op_Decrement.htm" />
+  <HelpKINode Title="Counter.Increment method" Url="html/M_Ariadne_Counter_Increment.htm" />
+  <HelpKINode Title="Counter.Increment operator" Url="html/M_Ariadne_Counter_op_Increment.htm" />
+  <HelpKINode Title="Counter.Value property" Url="html/P_Ariadne_Counter_Value.htm" />
   <HelpKINode Title="CountUntil method" Url="html/M_Ariadne_Collections_LLQueue_1_CountUntil.htm" />
   <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LLQueue_1_AtDequeuEnumerator_Current.htm" />
   <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LLQueue_1_DequeuEnumerator_Current.htm" />
@@ -142,54 +169,73 @@
   <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LLStack_1_AtPopEnumerator_Current.htm" />
   <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LLStack_1_Enumerator_Current.htm" />
   <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LLStack_1_PopEnumerator_Current.htm" />
-  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Enumerator_Current.htm" />
-  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Current.htm" />
-  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_Current.htm" />
-  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Current.htm" />
-  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Current.htm" />
-  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Enumerator_Current.htm" />
-  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_Current.htm" />
+  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_Current.htm" />
+  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_Current.htm" />
+  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_Current.htm" />
+  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_Current.htm" />
+  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Current.htm" />
+  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Enumerator_Current.htm" />
+  <HelpKINode Title="Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_Current.htm" />
+  <HelpKINode Title="Decrement method" Url="html/M_Ariadne_Counter_Decrement.htm" />
   <HelpKINode Title="Decrement method" Url="html/M_Ariadne_SharedInt_Decrement.htm" />
+  <HelpKINode Title="Decrement method" Url="html/Overload_Ariadne_Collections_DictionaryExtensions_Decrement.htm" />
+  <HelpKINode Title="Decrement operator" Url="html/M_Ariadne_Counter_op_Decrement.htm" />
   <HelpKINode Title="DequeueAll method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeueAll.htm" />
   <HelpKINode Title="DequeueToList method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeueToList.htm" />
-  <HelpKINode Title="Dispose method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Dispose.htm" />
-  <HelpKINode Title="Dispose method" Url="html/M_Ariadne_Collections_Pool_1_Handle_Dispose.htm" />
+  <HelpKINode Title="DictionaryExtensions class" Url="html/AllMembers_T_Ariadne_Collections_DictionaryExtensions.htm" />
+  <HelpKINode Title="DictionaryExtensions class" Url="html/T_Ariadne_Collections_DictionaryExtensions.htm" />
+  <HelpKINode Title="DictionaryExtensions class">
+    <HelpKINode Title="about DictionaryExtensions class" Url="html/T_Ariadne_Collections_DictionaryExtensions.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_DictionaryExtensions.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_DictionaryExtensions.htm" />
+  </HelpKINode>
+  <HelpKINode Title="DictionaryExtensions.Decrement method" Url="html/Overload_Ariadne_Collections_DictionaryExtensions_Decrement.htm" />
+  <HelpKINode Title="DictionaryExtensions.Increment method" Url="html/Overload_Ariadne_Collections_DictionaryExtensions_Increment.htm" />
+  <HelpKINode Title="DictionaryExtensions.Plus method" Url="html/Overload_Ariadne_Collections_DictionaryExtensions_Plus.htm" />
+  <HelpKINode Title="Dispose method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Dispose.htm" />
+  <HelpKINode Title="Dispose method" Url="html/M_Ariadne_Pool_1_Handle_Dispose.htm" />
   <HelpKINode Title="Enqueue method" Url="html/M_Ariadne_Collections_LLQueue_1_Enqueue.htm" />
   <HelpKINode Title="EnqueueRange method" Url="html/M_Ariadne_Collections_LLQueue_1_EnqueueRange.htm" />
-  <HelpKINode Title="ExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ExceptWith.htm" />
+  <HelpKINode Title="Equals method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_Equals.htm" />
+  <HelpKINode Title="Equals method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_Equals.htm" />
+  <HelpKINode Title="ExceptWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ExceptWith.htm" />
   <HelpKINode Title="Exchange method" Url="html/M_Ariadne_SharedInt_Exchange.htm" />
-  <HelpKINode Title="Fill method" Url="html/M_Ariadne_Collections_Pool_1_Fill.htm" />
-  <HelpKINode Title="FilterAdd method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FilterAdd.htm" />
-  <HelpKINode Title="Find method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Find.htm" />
-  <HelpKINode Title="FindOrStore method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FindOrStore.htm" />
-  <HelpKINode Title="Get method" Url="html/Overload_Ariadne_Collections_Pool_1_Get.htm" />
+  <HelpKINode Title="Fill method" Url="html/M_Ariadne_Pool_1_Fill.htm" />
+  <HelpKINode Title="FilterAdd method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_FilterAdd.htm" />
+  <HelpKINode Title="Find method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Find.htm" />
+  <HelpKINode Title="FindOrStore method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_FindOrStore.htm" />
+  <HelpKINode Title="Get method" Url="html/Overload_Ariadne_Pool_1_Get.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLQueue_1_AtDequeuEnumerator_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeuEnumerator_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLQueue_1_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLStack_1_AtPopEnumerator_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLStack_1_GetEnumerator.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LLStack_1_PopEnumerator_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_GetEnumerator.htm" />
-  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="GetHandle method" Url="html/Overload_Ariadne_Collections_Pool_1_GetHandle.htm" />
-  <HelpKINode Title="GetOrAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd.htm" />
+  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_GetEnumerator.htm" />
+  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_GetEnumerator.htm" />
+  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_GetEnumerator.htm" />
+  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_GetEnumerator.htm" />
+  <HelpKINode Title="GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="GetHandle method" Url="html/Overload_Ariadne_Pool_1_GetHandle.htm" />
+  <HelpKINode Title="GetHashCode method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_GetHashCode.htm" />
+  <HelpKINode Title="GetHashCode method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_GetHashCode.htm" />
+  <HelpKINode Title="GetOrAdd method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_GetOrAdd.htm" />
+  <HelpKINode Title="Increment method" Url="html/M_Ariadne_Counter_Increment.htm" />
   <HelpKINode Title="Increment method" Url="html/M_Ariadne_SharedInt_Increment.htm" />
-  <HelpKINode Title="IntersectWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IntersectWith.htm" />
-  <HelpKINode Title="IsAtomized method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_IsAtomized.htm" />
+  <HelpKINode Title="Increment method" Url="html/Overload_Ariadne_Collections_DictionaryExtensions_Increment.htm" />
+  <HelpKINode Title="Increment operator" Url="html/M_Ariadne_Counter_op_Increment.htm" />
+  <HelpKINode Title="IntersectWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IntersectWith.htm" />
+  <HelpKINode Title="IsAtomized method" Url="html/M_Ariadne_LockFreeAtomizer_1_IsAtomized.htm" />
   <HelpKINode Title="IsEmpty property" Url="html/P_Ariadne_Collections_LLQueue_1_IsEmpty.htm" />
   <HelpKINode Title="IsEmpty property" Url="html/P_Ariadne_Collections_LLStack_1_IsEmpty.htm" />
-  <HelpKINode Title="IsProperSubsetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsProperSubsetOf.htm" />
-  <HelpKINode Title="IsProperSupersetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsProperSupersetOf.htm" />
-  <HelpKINode Title="IsSubsetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSubsetOf.htm" />
-  <HelpKINode Title="IsSupersetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSupersetOf.htm" />
-  <HelpKINode Title="Item property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Item.htm" />
-  <HelpKINode Title="Keys property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Keys.htm" />
+  <HelpKINode Title="IsProperSubsetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsProperSubsetOf.htm" />
+  <HelpKINode Title="IsProperSupersetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsProperSupersetOf.htm" />
+  <HelpKINode Title="IsSubsetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsSubsetOf.htm" />
+  <HelpKINode Title="IsSupersetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsSupersetOf.htm" />
+  <HelpKINode Title="Item property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Item.htm" />
+  <HelpKINode Title="Keys property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Keys.htm" />
   <HelpKINode Title="LLQueue(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_LLQueue_1.htm" />
   <HelpKINode Title="LLQueue(Of T) class" Url="html/T_Ariadne_Collections_LLQueue_1.htm" />
   <HelpKINode Title="LLQueue(Of T) class">
@@ -438,468 +484,162 @@
   <HelpKINode Title="LLStack&lt;T&gt;.Transfer method" Url="html/M_Ariadne_Collections_LLStack_1_Transfer.htm" />
   <HelpKINode Title="LLStack&lt;T&gt;.TryPeek method" Url="html/M_Ariadne_Collections_LLStack_1_TryPeek.htm" />
   <HelpKINode Title="LLStack&lt;T&gt;.TryPop method" Url="html/M_Ariadne_Collections_LLStack_1_TryPop.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
   <HelpKINode Title="LockFreeAtomizer(Of T) class">
-    <HelpKINode Title="about LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_LockFreeAtomizer_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="about LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_LockFreeAtomizer_1.htm" />
   </HelpKINode>
-  <HelpKINode Title="LockFreeAtomizer(Of T).Atomize method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Atomize.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Clear method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clear.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Clone method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clone.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Count property" Url="html/P_Ariadne_Collections_LockFreeAtomizer_1_Count.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).IsAtomized method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_IsAtomized.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).LockFreeAtomizer constructor" Url="html/Overload_Ariadne_Collections_LockFreeAtomizer_1__ctor.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Remove method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Remove.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T).Atomize method" Url="html/M_Ariadne_LockFreeAtomizer_1_Atomize.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T).Clear method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clear.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T).Clone method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clone.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T).Count property" Url="html/P_Ariadne_LockFreeAtomizer_1_Count.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T).IsAtomized method" Url="html/M_Ariadne_LockFreeAtomizer_1_IsAtomized.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T).LockFreeAtomizer constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
+  <HelpKINode Title="LockFreeAtomizer(Of T).Remove method" Url="html/M_Ariadne_LockFreeAtomizer_1_Remove.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
   <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class">
-    <HelpKINode Title="about LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_LockFreeAtomizer_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="about LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_LockFreeAtomizer_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_LockFreeAtomizer_1.htm" />
   </HelpKINode>
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Atomize method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Atomize.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Clear method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clear.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Clone method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Clone.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Count property" Url="html/P_Ariadne_Collections_LockFreeAtomizer_1_Count.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.IsAtomized method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_IsAtomized.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.LockFreeAtomizer constructor" Url="html/Overload_Ariadne_Collections_LockFreeAtomizer_1__ctor.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Remove method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Remove.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue) class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue) class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue) class">
-    <HelpKINode Title="about LockFreeDictionary(Of TKey, TValue) class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Add method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Add.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).AddOrUpdate method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Capacity property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Capacity.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Clear method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clear.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Clone method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clone.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Contains method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Contains.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ContainsKey method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ContainsKey.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_CopyTo.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Count.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Enumerator structure">
-    <HelpKINode Title="about LockFreeDictionary(Of TKey, TValue).Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).GetOrAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Item property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Item.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection structure">
-    <HelpKINode Title="about LockFreeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Contains method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Contains.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_CopyTo.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Count.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure">
-    <HelpKINode Title="about LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).KeyCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Keys property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Keys.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).LockFreeDictionary constructor" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2__ctor.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Remove method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Remove.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).RemoveWhere method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemoveWhere.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).RemovingEnumeration class">
-    <HelpKINode Title="about LockFreeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ToDictionary method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ToDictionary.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).TryAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_TryAdd.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).TryGetValue method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryGetValue.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Update method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Update.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection structure">
-    <HelpKINode Title="about LockFreeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Contains method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Contains.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_CopyTo.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Count.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure">
-    <HelpKINode Title="about LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).ValueCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary(Of TKey, TValue).Values property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Values.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt; class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt; class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt; class">
-    <HelpKINode Title="about LockFreeDictionary&lt;TKey, TValue&gt; class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Add method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Add.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.AddOrUpdate method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_AddOrUpdate.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Capacity property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Capacity.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Clear method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clear.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Clone method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Clone.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Contains method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Contains.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ContainsKey method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ContainsKey.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_CopyTo.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Count.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator structure">
-    <HelpKINode Title="about LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.GetOrAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_GetOrAdd.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Item property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Item.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection structure">
-    <HelpKINode Title="about LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Contains method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Contains.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_CopyTo.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Count.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure">
-    <HelpKINode Title="about LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.KeyCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Keys property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Keys.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.LockFreeDictionary constructor" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2__ctor.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Remove method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Remove.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.RemoveWhere method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemoveWhere.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class">
-    <HelpKINode Title="about LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ToDictionary method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ToDictionary.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.TryAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_TryAdd.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.TryGetValue method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryGetValue.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Update method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Update.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection structure">
-    <HelpKINode Title="about LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Contains method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Contains.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.CopyTo method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_CopyTo.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Count property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Count.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure">
-    <HelpKINode Title="about LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.ValueCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeDictionary&lt;TKey, TValue&gt;.Values property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Values.htm" />
-  <HelpKINode Title="LockFreeSet(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="LockFreeSet(Of T) class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="LockFreeSet(Of T) class">
-    <HelpKINode Title="about LockFreeSet(Of T) class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_LockFreeSet_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet(Of T).Add method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Add.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration class">
-    <HelpKINode Title="about LockFreeSet(Of T).AddedEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration.Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Current.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration.Dispose method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Dispose.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_MoveNext.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddedEnumeration.Reset method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Reset.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).AddRange method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddRange.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Capacity property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Capacity.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Clear method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Clear.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Clone method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Clone.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Contains method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Contains.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).CopyTo method" Url="html/Overload_Ariadne_Collections_LockFreeSet_1_CopyTo.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Count property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Count.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Enumerator structure">
-    <HelpKINode Title="about LockFreeSet(Of T).Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet(Of T).Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).ExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ExceptWith.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).FilterAdd method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FilterAdd.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Find method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Find.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).FindOrStore method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FindOrStore.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).IntersectWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IntersectWith.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).IsProperSubsetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsProperSubsetOf.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).IsProperSupersetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsProperSupersetOf.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).IsSubsetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSubsetOf.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).IsSupersetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSupersetOf.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).LockFreeSet constructor" Url="html/Overload_Ariadne_Collections_LockFreeSet_1__ctor.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Overlaps method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Overlaps.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).Remove method" Url="html/Overload_Ariadne_Collections_LockFreeSet_1_Remove.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).RemoveWhere method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemoveWhere.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).RemovingEnumeration class">
-    <HelpKINode Title="about LockFreeSet(Of T).RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet(Of T).RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_Current.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_MoveNext.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).SetEquals method" Url="html/M_Ariadne_Collections_LockFreeSet_1_SetEquals.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).SymmetricExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_SymmetricExceptWith.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).ToArray method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToArray.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).ToHashSet method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToHashSet.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).ToList method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToList.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).TryTake method" Url="html/M_Ariadne_Collections_LockFreeSet_1_TryTake.htm" />
-  <HelpKINode Title="LockFreeSet(Of T).UnionWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_UnionWith.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt; class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt; class">
-    <HelpKINode Title="about LockFreeSet&lt;T&gt; class" Url="html/T_Ariadne_Collections_LockFreeSet_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_LockFreeSet_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Add method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Add.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration class">
-    <HelpKINode Title="about LockFreeSet&lt;T&gt;.AddedEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_AddedEnumeration.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration.Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Current.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration.Dispose method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Dispose.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_MoveNext.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddedEnumeration.Reset method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Reset.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.AddRange method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddRange.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Capacity property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Capacity.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Clear method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Clear.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Clone method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Clone.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Contains method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Contains.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.CopyTo method" Url="html/Overload_Ariadne_Collections_LockFreeSet_1_CopyTo.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Count property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Count.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Enumerator structure">
-    <HelpKINode Title="about LockFreeSet&lt;T&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_Enumerator.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Enumerator.Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_Enumerator_Current.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Enumerator.Reset method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_Reset.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.ExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ExceptWith.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.FilterAdd method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FilterAdd.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Find method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Find.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.FindOrStore method" Url="html/M_Ariadne_Collections_LockFreeSet_1_FindOrStore.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.IntersectWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IntersectWith.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.IsProperSubsetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsProperSubsetOf.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.IsProperSupersetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsProperSupersetOf.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.IsSubsetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSubsetOf.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.IsSupersetOf method" Url="html/M_Ariadne_Collections_LockFreeSet_1_IsSupersetOf.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.LockFreeSet constructor" Url="html/Overload_Ariadne_Collections_LockFreeSet_1__ctor.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Overlaps method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Overlaps.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.Remove method" Url="html/Overload_Ariadne_Collections_LockFreeSet_1_Remove.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.RemoveWhere method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemoveWhere.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.RemovingEnumeration class">
-    <HelpKINode Title="about LockFreeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_Current.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_GetEnumerator.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_MoveNext.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.SetEquals method" Url="html/M_Ariadne_Collections_LockFreeSet_1_SetEquals.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.SymmetricExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_SymmetricExceptWith.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.ToArray method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToArray.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.ToHashSet method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToHashSet.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.ToList method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToList.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.TryTake method" Url="html/M_Ariadne_Collections_LockFreeSet_1_TryTake.htm" />
-  <HelpKINode Title="LockFreeSet&lt;T&gt;.UnionWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_UnionWith.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Atomize method" Url="html/M_Ariadne_LockFreeAtomizer_1_Atomize.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Clear method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clear.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Clone method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clone.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Count property" Url="html/P_Ariadne_LockFreeAtomizer_1_Count.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.IsAtomized method" Url="html/M_Ariadne_LockFreeAtomizer_1_IsAtomized.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.LockFreeAtomizer constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
+  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Remove method" Url="html/M_Ariadne_LockFreeAtomizer_1_Remove.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLQueue_1_AtDequeuEnumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeuEnumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLQueue_1_Enumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLStack_1_AtPopEnumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLStack_1_Enumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLStack_1_PopEnumerator_MoveNext.htm" />
-  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemovingEnumeration_MoveNext.htm" />
-  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_MoveNext.htm" />
-  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_MoveNext.htm" />
-  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemovingEnumeration_MoveNext.htm" />
-  <HelpKINode Title="Object property" Url="html/P_Ariadne_Collections_Pool_1_Handle_Object.htm" />
-  <HelpKINode Title="Overlaps method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Overlaps.htm" />
-  <HelpKINode Title="Pool(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
-  <HelpKINode Title="Pool(Of T) class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_MoveNext.htm" />
+  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_MoveNext.htm" />
+  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_MoveNext.htm" />
+  <HelpKINode Title="Object property" Url="html/P_Ariadne_Pool_1_Handle_Object.htm" />
+  <HelpKINode Title="Overlaps method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Overlaps.htm" />
+  <HelpKINode Title="Plus method" Url="html/Overload_Ariadne_Collections_DictionaryExtensions_Plus.htm" />
+  <HelpKINode Title="Pool(Of T) class" Url="html/AllMembers_T_Ariadne_Pool_1.htm" />
+  <HelpKINode Title="Pool(Of T) class" Url="html/T_Ariadne_Pool_1.htm" />
   <HelpKINode Title="Pool(Of T) class">
-    <HelpKINode Title="about Pool(Of T) class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="about Pool(Of T) class" Url="html/T_Ariadne_Pool_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Pool_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Pool_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Pool_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Pool_1.htm" />
   </HelpKINode>
-  <HelpKINode Title="Pool(Of T).Count property" Url="html/P_Ariadne_Collections_Pool_1_Count.htm" />
-  <HelpKINode Title="Pool(Of T).Fill method" Url="html/M_Ariadne_Collections_Pool_1_Fill.htm" />
-  <HelpKINode Title="Pool(Of T).Get method" Url="html/Overload_Ariadne_Collections_Pool_1_Get.htm" />
-  <HelpKINode Title="Pool(Of T).GetHandle method" Url="html/Overload_Ariadne_Collections_Pool_1_GetHandle.htm" />
-  <HelpKINode Title="Pool(Of T).Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
-  <HelpKINode Title="Pool(Of T).Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool(Of T).Count property" Url="html/P_Ariadne_Pool_1_Count.htm" />
+  <HelpKINode Title="Pool(Of T).Fill method" Url="html/M_Ariadne_Pool_1_Fill.htm" />
+  <HelpKINode Title="Pool(Of T).Get method" Url="html/Overload_Ariadne_Pool_1_Get.htm" />
+  <HelpKINode Title="Pool(Of T).GetHandle method" Url="html/Overload_Ariadne_Pool_1_GetHandle.htm" />
+  <HelpKINode Title="Pool(Of T).Handle class" Url="html/AllMembers_T_Ariadne_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool(Of T).Handle class" Url="html/T_Ariadne_Pool_1_Handle.htm" />
   <HelpKINode Title="Pool(Of T).Handle class">
-    <HelpKINode Title="about Pool(Of T).Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1_Handle.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="about Pool(Of T).Handle class" Url="html/T_Ariadne_Pool_1_Handle.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Pool_1_Handle.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Pool_1_Handle.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Pool_1_Handle.htm" />
   </HelpKINode>
-  <HelpKINode Title="Pool(Of T).Handle.Dispose method" Url="html/M_Ariadne_Collections_Pool_1_Handle_Dispose.htm" />
-  <HelpKINode Title="Pool(Of T).Handle.Object property" Url="html/P_Ariadne_Collections_Pool_1_Handle_Object.htm" />
-  <HelpKINode Title="Pool(Of T).Pool constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
-  <HelpKINode Title="Pool(Of T).Store method" Url="html/M_Ariadne_Collections_Pool_1_Store.htm" />
-  <HelpKINode Title="Pool(Of T).TryGet method" Url="html/M_Ariadne_Collections_Pool_1_TryGet.htm" />
-  <HelpKINode Title="Pool&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
-  <HelpKINode Title="Pool&lt;T&gt; class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
+  <HelpKINode Title="Pool(Of T).Handle.Dispose method" Url="html/M_Ariadne_Pool_1_Handle_Dispose.htm" />
+  <HelpKINode Title="Pool(Of T).Handle.Object property" Url="html/P_Ariadne_Pool_1_Handle_Object.htm" />
+  <HelpKINode Title="Pool(Of T).Pool constructor" Url="html/Overload_Ariadne_Pool_1__ctor.htm" />
+  <HelpKINode Title="Pool(Of T).Store method" Url="html/M_Ariadne_Pool_1_Store.htm" />
+  <HelpKINode Title="Pool(Of T).TryGet method" Url="html/M_Ariadne_Pool_1_TryGet.htm" />
+  <HelpKINode Title="Pool&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Pool_1.htm" />
+  <HelpKINode Title="Pool&lt;T&gt; class" Url="html/T_Ariadne_Pool_1.htm" />
   <HelpKINode Title="Pool&lt;T&gt; class">
-    <HelpKINode Title="about Pool&lt;T&gt; class" Url="html/T_Ariadne_Collections_Pool_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1.htm" />
+    <HelpKINode Title="about Pool&lt;T&gt; class" Url="html/T_Ariadne_Pool_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Pool_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Pool_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Pool_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Pool_1.htm" />
   </HelpKINode>
-  <HelpKINode Title="Pool&lt;T&gt;.Count property" Url="html/P_Ariadne_Collections_Pool_1_Count.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.Fill method" Url="html/M_Ariadne_Collections_Pool_1_Fill.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.Get method" Url="html/Overload_Ariadne_Collections_Pool_1_Get.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.GetHandle method" Url="html/Overload_Ariadne_Collections_Pool_1_GetHandle.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.Handle class" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Count property" Url="html/P_Ariadne_Pool_1_Count.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Fill method" Url="html/M_Ariadne_Pool_1_Fill.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Get method" Url="html/Overload_Ariadne_Pool_1_Get.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.GetHandle method" Url="html/Overload_Ariadne_Pool_1_GetHandle.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle class" Url="html/AllMembers_T_Ariadne_Pool_1_Handle.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Pool_1_Handle.htm" />
   <HelpKINode Title="Pool&lt;T&gt;.Handle class">
-    <HelpKINode Title="about Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Collections_Pool_1_Handle.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_Pool_1_Handle.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_Pool_1_Handle.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_Pool_1_Handle.htm" />
+    <HelpKINode Title="about Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Pool_1_Handle.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Pool_1_Handle.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Pool_1_Handle.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Pool_1_Handle.htm" />
   </HelpKINode>
-  <HelpKINode Title="Pool&lt;T&gt;.Handle.Dispose method" Url="html/M_Ariadne_Collections_Pool_1_Handle_Dispose.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.Handle.Object property" Url="html/P_Ariadne_Collections_Pool_1_Handle_Object.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.Pool constructor" Url="html/Overload_Ariadne_Collections_Pool_1__ctor.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.Store method" Url="html/M_Ariadne_Collections_Pool_1_Store.htm" />
-  <HelpKINode Title="Pool&lt;T&gt;.TryGet method" Url="html/M_Ariadne_Collections_Pool_1_TryGet.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle.Dispose method" Url="html/M_Ariadne_Pool_1_Handle_Dispose.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Handle.Object property" Url="html/P_Ariadne_Pool_1_Handle_Object.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Pool constructor" Url="html/Overload_Ariadne_Pool_1__ctor.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.Store method" Url="html/M_Ariadne_Pool_1_Store.htm" />
+  <HelpKINode Title="Pool&lt;T&gt;.TryGet method" Url="html/M_Ariadne_Pool_1_TryGet.htm" />
   <HelpKINode Title="PopAll method" Url="html/M_Ariadne_Collections_LLStack_1_PopAll.htm" />
   <HelpKINode Title="PopToList method" Url="html/M_Ariadne_Collections_LLStack_1_PopToList.htm" />
   <HelpKINode Title="Push method" Url="html/M_Ariadne_Collections_LLStack_1_Push.htm" />
   <HelpKINode Title="PushRange method" Url="html/M_Ariadne_Collections_LLStack_1_PushRange.htm" />
-  <HelpKINode Title="Remove method" Url="html/M_Ariadne_Collections_LockFreeAtomizer_1_Remove.htm" />
-  <HelpKINode Title="Remove method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Remove.htm" />
-  <HelpKINode Title="Remove method" Url="html/Overload_Ariadne_Collections_LockFreeSet_1_Remove.htm" />
-  <HelpKINode Title="RemoveWhere method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_RemoveWhere.htm" />
-  <HelpKINode Title="RemoveWhere method" Url="html/M_Ariadne_Collections_LockFreeSet_1_RemoveWhere.htm" />
+  <HelpKINode Title="Reduce method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Reduce.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer class" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer class">
+    <HelpKINode Title="about ReferenceEqualityComparer class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+    <HelpKINode Title="constructor" Url="html/M_Ariadne_Collections_ReferenceEqualityComparer__ctor.htm" />
+    <HelpKINode Title="fields" Url="html/Fields_T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ReferenceEqualityComparer.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ReferenceEqualityComparer(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer(Of T) class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer(Of T) class">
+    <HelpKINode Title="about ReferenceEqualityComparer(Of T) class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/M_Ariadne_Collections_ReferenceEqualityComparer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ReferenceEqualityComparer(Of T).Equals method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_Equals.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer(Of T).GetHashCode method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_GetHashCode.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer(Of T).ReferenceEqualityComparer constructor" Url="html/M_Ariadne_Collections_ReferenceEqualityComparer_1__ctor.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer.Equals method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_Equals.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer.GetHashCode method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_GetHashCode.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer.ReferenceEqualityComparer constructor" Url="html/M_Ariadne_Collections_ReferenceEqualityComparer__ctor.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer.RootHashCode field" Url="html/F_Ariadne_Collections_ReferenceEqualityComparer_RootHashCode.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt; class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt; class">
+    <HelpKINode Title="about ReferenceEqualityComparer&lt;T&gt; class" Url="html/T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/M_Ariadne_Collections_ReferenceEqualityComparer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ReferenceEqualityComparer_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt;.Equals method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_Equals.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt;.GetHashCode method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_GetHashCode.htm" />
+  <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt;.ReferenceEqualityComparer constructor" Url="html/M_Ariadne_Collections_ReferenceEqualityComparer_1__ctor.htm" />
+  <HelpKINode Title="Remove method" Url="html/M_Ariadne_LockFreeAtomizer_1_Remove.htm" />
+  <HelpKINode Title="Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Remove.htm" />
+  <HelpKINode Title="Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1_Remove.htm" />
+  <HelpKINode Title="RemoveWhere method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemoveWhere.htm" />
+  <HelpKINode Title="RemoveWhere method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemoveWhere.htm" />
   <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeuEnumerator_Reset.htm" />
   <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LLQueue_1_Enumerator_Reset.htm" />
   <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LLStack_1_Enumerator_Reset.htm" />
   <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LLStack_1_PopEnumerator_Reset.htm" />
-  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_Enumerator_Reset.htm" />
-  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_KeyCollection_Enumerator_Reset.htm" />
-  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ValueCollection_Enumerator_Reset.htm" />
-  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LockFreeSet_1_AddedEnumeration_Reset.htm" />
-  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_LockFreeSet_1_Enumerator_Reset.htm" />
-  <HelpKINode Title="SetEquals method" Url="html/M_Ariadne_Collections_LockFreeSet_1_SetEquals.htm" />
+  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_Reset.htm" />
+  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_Reset.htm" />
+  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_Reset.htm" />
+  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Reset.htm" />
+  <HelpKINode Title="Reset method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Enumerator_Reset.htm" />
+  <HelpKINode Title="RootHashCode field" Url="html/F_Ariadne_Collections_ReferenceEqualityComparer_RootHashCode.htm" />
+  <HelpKINode Title="SetEquals method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_SetEquals.htm" />
   <HelpKINode Title="SharedInt class" Url="html/AllMembers_T_Ariadne_SharedInt.htm" />
   <HelpKINode Title="SharedInt class" Url="html/T_Ariadne_SharedInt.htm" />
   <HelpKINode Title="SharedInt class">
@@ -918,29 +658,374 @@
   <HelpKINode Title="SharedInt.SharedInt constructor" Url="html/Overload_Ariadne_SharedInt__ctor.htm" />
   <HelpKINode Title="SharedInt.Subtract method" Url="html/M_Ariadne_SharedInt_Subtract.htm" />
   <HelpKINode Title="SharedInt.Value property" Url="html/P_Ariadne_SharedInt_Value.htm" />
-  <HelpKINode Title="Store method" Url="html/M_Ariadne_Collections_Pool_1_Store.htm" />
+  <HelpKINode Title="Store method" Url="html/M_Ariadne_Pool_1_Store.htm" />
   <HelpKINode Title="Subtract method" Url="html/M_Ariadne_SharedInt_Subtract.htm" />
-  <HelpKINode Title="SymmetricExceptWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_SymmetricExceptWith.htm" />
+  <HelpKINode Title="SymmetricExceptWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_SymmetricExceptWith.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue) class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue) class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue) class">
+    <HelpKINode Title="about ThreadSafeDictionary(Of TKey, TValue) class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Add method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Add.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).AddOrUpdate method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_AddOrUpdate.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Capacity.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Clear method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clear.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Clone method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clone.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Contains method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Contains.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ContainsKey method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ContainsKey.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Count.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Enumerator structure">
+    <HelpKINode Title="about ThreadSafeDictionary(Of TKey, TValue).Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).GetOrAdd method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_GetOrAdd.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Item property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Item.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection structure">
+    <HelpKINode Title="about ThreadSafeDictionary(Of TKey, TValue).KeyCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Contains method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Contains.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Count.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure">
+    <HelpKINode Title="about ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).KeyCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Keys property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Keys.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Reduce method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Reduce.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Remove.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).RemoveWhere method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemoveWhere.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration class">
+    <HelpKINode Title="about ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ThreadSafeDictionary constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2__ctor.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ToDictionary method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ToDictionary.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).TryAdd method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_TryAdd.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).TryGetValue method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_TryGetValue.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Update method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Update.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection structure">
+    <HelpKINode Title="about ThreadSafeDictionary(Of TKey, TValue).ValueCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Contains method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Contains.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Count.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure">
+    <HelpKINode Title="about ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).ValueCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue).Values property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Values.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt; class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt; class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt; class">
+    <HelpKINode Title="about ThreadSafeDictionary&lt;TKey, TValue&gt; class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Add method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Add.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.AddOrUpdate method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_AddOrUpdate.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Capacity.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Clear method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clear.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Clone method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clone.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Contains method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Contains.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ContainsKey method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ContainsKey.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Count.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator structure">
+    <HelpKINode Title="about ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.GetOrAdd method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_GetOrAdd.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Item property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Item.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection structure">
+    <HelpKINode Title="about ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Contains method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Contains.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Count.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure">
+    <HelpKINode Title="about ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.KeyCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Keys property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Keys.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Reduce method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Reduce.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Remove.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.RemoveWhere method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemoveWhere.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class">
+    <HelpKINode Title="about ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemovingEnumeration_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ThreadSafeDictionary constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2__ctor.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ToDictionary method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ToDictionary.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.TryAdd method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_TryAdd.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.TryGetValue method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_TryGetValue.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Update method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Update.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection structure">
+    <HelpKINode Title="about ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Contains method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Contains.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.CopyTo method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Count.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure">
+    <HelpKINode Title="about ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.ValueCollection.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeDictionary&lt;TKey, TValue&gt;.Values property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Values.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T) class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T) class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T) class">
+    <HelpKINode Title="about ThreadSafeSet(Of T) class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet(Of T).Add method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Add.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration class">
+    <HelpKINode Title="about ThreadSafeSet(Of T).AddedEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration.Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Current.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration.Dispose method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Dispose.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddedEnumeration.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Reset.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).AddRange method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddRange.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Capacity.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Clear method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clear.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Clone method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clone.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Contains method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Contains.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).CopyTo method" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Count property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Count.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Enumerator structure">
+    <HelpKINode Title="about ThreadSafeSet(Of T).Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet(Of T).Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).ExceptWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ExceptWith.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).FilterAdd method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_FilterAdd.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Find method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Find.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).FindOrStore method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_FindOrStore.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).IntersectWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IntersectWith.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).IsProperSubsetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsProperSubsetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).IsProperSupersetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsProperSupersetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).IsSubsetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsSubsetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).IsSupersetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsSupersetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Overlaps method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Overlaps.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1_Remove.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).RemoveWhere method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemoveWhere.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).RemovingEnumeration class">
+    <HelpKINode Title="about ThreadSafeSet(Of T).RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet(Of T).RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_Current.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).SetEquals method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_SetEquals.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).SymmetricExceptWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_SymmetricExceptWith.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).ThreadSafeSet constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1__ctor.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).ToArray method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToArray.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).ToHashSet method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToHashSet.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).ToList method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToList.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).TryTake method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_TryTake.htm" />
+  <HelpKINode Title="ThreadSafeSet(Of T).UnionWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_UnionWith.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt; class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt; class">
+    <HelpKINode Title="about ThreadSafeSet&lt;T&gt; class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Add method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Add.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration class">
+    <HelpKINode Title="about ThreadSafeSet&lt;T&gt;.AddedEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration.Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Current.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration.Dispose method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Dispose.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddedEnumeration.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddedEnumeration_Reset.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.AddRange method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_AddRange.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Capacity.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Clear method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clear.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Clone method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clone.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Contains method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Contains.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.CopyTo method" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1_CopyTo.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Count property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Count.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Enumerator structure" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Enumerator structure">
+    <HelpKINode Title="about ThreadSafeSet&lt;T&gt;.Enumerator structure" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1_Enumerator.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Enumerator.Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Enumerator_Current.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Enumerator.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Enumerator_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Enumerator.Reset method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Enumerator_Reset.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.ExceptWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ExceptWith.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.FilterAdd method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_FilterAdd.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Find method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Find.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.FindOrStore method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_FindOrStore.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.IntersectWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IntersectWith.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.IsProperSubsetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsProperSubsetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.IsProperSupersetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsProperSupersetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.IsSubsetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsSubsetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.IsSupersetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsSupersetOf.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Overlaps method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Overlaps.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1_Remove.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.RemoveWhere method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemoveWhere.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.RemovingEnumeration class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.RemovingEnumeration class">
+    <HelpKINode Title="about ThreadSafeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.RemovingEnumeration.Current property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_Current.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.RemovingEnumeration.GetEnumerator method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_GetEnumerator.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.RemovingEnumeration.MoveNext method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration_MoveNext.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.SetEquals method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_SetEquals.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.SymmetricExceptWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_SymmetricExceptWith.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.ThreadSafeSet constructor" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1__ctor.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.ToArray method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToArray.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.ToHashSet method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToHashSet.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.ToList method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToList.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.TryTake method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_TryTake.htm" />
+  <HelpKINode Title="ThreadSafeSet&lt;T&gt;.UnionWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_UnionWith.htm" />
   <HelpKINode Title="ToArray method" Url="html/M_Ariadne_Collections_LLQueue_1_ToArray.htm" />
   <HelpKINode Title="ToArray method" Url="html/M_Ariadne_Collections_LLStack_1_ToArray.htm" />
-  <HelpKINode Title="ToArray method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToArray.htm" />
-  <HelpKINode Title="ToDictionary method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_ToDictionary.htm" />
-  <HelpKINode Title="ToHashSet method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToHashSet.htm" />
+  <HelpKINode Title="ToArray method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToArray.htm" />
+  <HelpKINode Title="ToDictionary method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_ToDictionary.htm" />
+  <HelpKINode Title="ToHashSet method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToHashSet.htm" />
   <HelpKINode Title="ToList method" Url="html/M_Ariadne_Collections_LLQueue_1_ToList.htm" />
   <HelpKINode Title="ToList method" Url="html/M_Ariadne_Collections_LLStack_1_ToList.htm" />
-  <HelpKINode Title="ToList method" Url="html/M_Ariadne_Collections_LockFreeSet_1_ToList.htm" />
+  <HelpKINode Title="ToList method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_ToList.htm" />
   <HelpKINode Title="Transfer method" Url="html/M_Ariadne_Collections_LLQueue_1_Transfer.htm" />
   <HelpKINode Title="Transfer method" Url="html/M_Ariadne_Collections_LLStack_1_Transfer.htm" />
-  <HelpKINode Title="TryAdd method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_TryAdd.htm" />
+  <HelpKINode Title="TryAdd method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_TryAdd.htm" />
   <HelpKINode Title="TryDequeue method" Url="html/M_Ariadne_Collections_LLQueue_1_TryDequeue.htm" />
-  <HelpKINode Title="TryGet method" Url="html/M_Ariadne_Collections_Pool_1_TryGet.htm" />
-  <HelpKINode Title="TryGetValue method" Url="html/M_Ariadne_Collections_LockFreeDictionary_2_TryGetValue.htm" />
+  <HelpKINode Title="TryGet method" Url="html/M_Ariadne_Pool_1_TryGet.htm" />
+  <HelpKINode Title="TryGetValue method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_TryGetValue.htm" />
   <HelpKINode Title="TryPeek method" Url="html/M_Ariadne_Collections_LLQueue_1_TryPeek.htm" />
   <HelpKINode Title="TryPeek method" Url="html/M_Ariadne_Collections_LLStack_1_TryPeek.htm" />
   <HelpKINode Title="TryPop method" Url="html/M_Ariadne_Collections_LLStack_1_TryPop.htm" />
-  <HelpKINode Title="TryTake method" Url="html/M_Ariadne_Collections_LockFreeSet_1_TryTake.htm" />
-  <HelpKINode Title="UnionWith method" Url="html/M_Ariadne_Collections_LockFreeSet_1_UnionWith.htm" />
-  <HelpKINode Title="Update method" Url="html/Overload_Ariadne_Collections_LockFreeDictionary_2_Update.htm" />
+  <HelpKINode Title="TryTake method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_TryTake.htm" />
+  <HelpKINode Title="UnionWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_UnionWith.htm" />
+  <HelpKINode Title="Update method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Update.htm" />
+  <HelpKINode Title="Value property" Url="html/P_Ariadne_Counter_Value.htm" />
   <HelpKINode Title="Value property" Url="html/P_Ariadne_SharedInt_Value.htm" />
-  <HelpKINode Title="Values property" Url="html/P_Ariadne_Collections_LockFreeDictionary_2_Values.htm" />
+  <HelpKINode Title="Values property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Values.htm" />
 </HelpKI>
