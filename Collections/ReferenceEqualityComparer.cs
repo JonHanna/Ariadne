@@ -34,6 +34,9 @@ namespace Ariadne.Collections
         protected static Func<object, int> RootHashCode;
         static ReferenceEqualityComparer()
         {
+            //Used because there is inconsistencies across frameworks with RuntimeHelpers.GetHashCode(Object). In the Windows Phone
+            //version at least, it’s the same as calling the object’s GetHashCode(), which while harmless if overridden in a
+            //sensible way (we should still always have equal hash codes when called on the same object twice), is sub-optimal.
             // Note: If moved to .NET 2.0 prior to SP 1, requires ReflectionPermission with ReflectionPermissionFlag.ReflectionEmit
             DynamicMethod dynM = new DynamicMethod(string.Empty, typeof(int), new Type[]{typeof(object)}, typeof(object));
             ILGenerator ilGen = dynM.GetILGenerator(7);
