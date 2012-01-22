@@ -36,7 +36,7 @@ namespace Ariadne
     /// when there is little contention. However, it is much faster in the face of contending threads, with the
     /// comparable cost of <see cref="Interlocked.Increment(ref int)"/> increasing nearly expotentially to
     /// the number of contending threads.</remarks>
-    public class Counter
+    public sealed class Counter
     {
         private static readonly int CoreCount = EstimateCoreCount();
         private static int EstimateCoreCount()
