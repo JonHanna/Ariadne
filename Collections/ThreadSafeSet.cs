@@ -106,7 +106,7 @@ namespace Ariadne.Collections
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public ThreadSafeSet(int capacity, IEqualityComparer<T> comparer)
         {
-        	if(capacity < 0 || capacity > 0x4000000)
+        	if(capacity < 0 || capacity > 0x40000000)
         		throw new ArgumentOutOfRangeException("capacity");
         	if(comparer == null)
         		throw new ArgumentNullException("comparer");
