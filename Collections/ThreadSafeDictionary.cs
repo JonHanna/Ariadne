@@ -138,21 +138,13 @@ namespace Ariadne.Collections
         	public TombstoneKV(TKey key)
         		:base(key, default(TValue)){}
         }
-        private abstract class IValueMatcher
+        private abstract class ValueMatcher
         {
             public abstract bool MatchEmpty{get;}
             public abstract bool MatchTombstone{get;}
             public abstract bool MatchValue(TValue current);
-            public bool MatchKV(KV current)
-            {
-                if(current == null)
-                    return MatchEmpty;
-                if(current is TombstoneKV)
-                    return MatchTombstone;
-                return MatchValue(current.Value);
-            }
         }
-        private sealed class MatchAll : IValueMatcher
+        private sealed class MatchAll : ValueMatcher
         {
             private MatchAll(){}
             public override bool MatchEmpty
@@ -169,7 +161,7 @@ namespace Ariadne.Collections
             }
             public static readonly MatchAll Instance = new MatchAll();
         }
-        private sealed class MatchEquality : IValueMatcher
+        private sealed class MatchEquality : ValueMatcher
         {
             private readonly IEqualityComparer<TValue> _ecmp;
             private readonly TValue _cmpVal;
@@ -191,7 +183,7 @@ namespace Ariadne.Collections
                 return _ecmp.Equals(current, _cmpVal);
             }
         }
-        private sealed class PredicateEquality : IValueMatcher
+        private sealed class PredicateEquality : ValueMatcher
         {
             private readonly Func<TValue, bool> _predicate;
             private readonly bool _matchDead;
@@ -213,7 +205,7 @@ namespace Ariadne.Collections
                 return _predicate(current);
             }
         }
-        private sealed class MatchEqualityOrDead : IValueMatcher
+        private sealed class MatchEqualityOrDead : ValueMatcher
         {
             private readonly IEqualityComparer<TValue> _ecmp;
             private readonly TValue _cmpVal;
@@ -235,7 +227,7 @@ namespace Ariadne.Collections
                 return _ecmp.Equals(current, _cmpVal);
             }
         }
-        private sealed class MatchEmptyOnly : IValueMatcher
+        private sealed class MatchEmptyOnly : ValueMatcher
         {
             private MatchEmptyOnly(){}
             public override bool MatchEmpty
@@ -252,7 +244,7 @@ namespace Ariadne.Collections
             }
             public static readonly MatchEmptyOnly Instance = new MatchEmptyOnly();
         }
-        private sealed class MatchDead : IValueMatcher
+        private sealed class MatchDead : ValueMatcher
         {
             private MatchDead(){}
             public override bool MatchEmpty
@@ -269,7 +261,7 @@ namespace Ariadne.Collections
             }
             public static readonly MatchDead Instance = new MatchDead();
         }
-        private sealed class MatchLive : IValueMatcher
+        private sealed class MatchLive : ValueMatcher
         {
             private MatchLive(){}
             public override bool MatchEmpty
@@ -292,7 +284,6 @@ namespace Ariadne.Collections
         // us the key we are interested in (and only rarely happen at all when the key isn’t
         // present), as we don’t need to examine it at all unless we’ve found or created a
         // matching hash.
-        [StructLayout(LayoutKind.Sequential, Pack=1)]
         internal struct Record
         {
             public int Hash;
@@ -332,7 +323,7 @@ namespace Ariadne.Collections
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public ThreadSafeDictionary(int capacity, IEqualityComparer<TKey> comparer)
         {
-        	if(capacity < 0 || capacity > 0x4000000)
+            if(capacity < 0 || capacity > 0x40000000)
         		throw new ArgumentOutOfRangeException("capacity");
         	if(comparer == null)
         		throw new ArgumentNullException("comparer");
@@ -555,16 +546,16 @@ namespace Ariadne.Collections
         // try to put a value into the dictionary, as long as the current value
         // matches oldPair based on the dictionary’s key-comparison rules
         // and the value-comparison rule passed through.
-        private bool PutIfMatch(KV pair, IValueMatcher valCmp, Func<TKey, TValue, bool, TValue> producer, out KV replaced)
+        private bool PutIfMatch<VM>(KV pair, VM valCmp, Func<TKey, TValue, bool, TValue> producer, out KV replaced) where VM : ValueMatcher
         {
             return PutIfMatch(_table, pair, Hash(pair.Key), valCmp, producer, out replaced);
         }
-        private bool PutIfMatch(KV pair, IValueMatcher valCmp, Func<TKey, TValue, bool, TValue> producer)
+        private bool PutIfMatch<VM>(KV pair, VM valCmp, Func<TKey, TValue, bool, TValue> producer) where VM : ValueMatcher
         {
             KV dontCare;
             return PutIfMatch(pair, valCmp, producer, out dontCare);
         }
-        private bool PutIfMatch(KV pair, IValueMatcher valCmp)
+        private bool PutIfMatch<VM>(KV pair, VM valCmp) where VM : ValueMatcher
         {
             KV dontCare;
             return PutIfMatch(pair, valCmp, null, out dontCare);
@@ -572,7 +563,7 @@ namespace Ariadne.Collections
         // try to put a value into a table. If there is a resize in progress
         // we mark the relevant slot in this table if necessary before writing
         // to the next table.
-        private bool PutIfMatch(Table table, KV pair, int hash, IValueMatcher valCmp, Func<TKey, TValue, bool, TValue> producer, out KV replaced)
+        private bool PutIfMatch<VM>(Table table, KV pair, int hash, VM valCmp, Func<TKey, TValue, bool, TValue> producer, out KV replaced) where VM : ValueMatcher
         {
             //Restart with next table by goto-ing to this label. Just as flame-bait for people quoting
             //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
@@ -683,7 +674,9 @@ namespace Ariadne.Collections
             {
                 //if we don’t match the conditions in which we want to overwrite a value
                 //then we just return the current value, and change nothing.
-                if(!valCmp.MatchKV(curPair))
+                bool MatchKV = (curPair == null) ?  valCmp.MatchEmpty : 
+                    ((curPair is TombstoneKV) ?  valCmp.MatchTombstone : valCmp.MatchValue(curPair.Value));
+                if(!MatchKV)
                 {
                     replaced = curPair;
                     return false;
