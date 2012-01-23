@@ -38,35 +38,20 @@ namespace Ariadne
     /// the number of contending threads.</remarks>
     public sealed class Counter
     {
-        private static readonly int CoreCount = EstimateCoreCount();
-        private static int EstimateCoreCount()
-        {
-            try
-            {
-                return Environment.ProcessorCount;
-            }
-            catch
-            {
-                return 4;
-            }
-        }
-        private readonly OffsetInt[] counters;
-        private readonly int mask;
+        private const int ArraySize = 32;
+        private const int Mask = ArraySize - 1;
+        private readonly OffsetInt[] _counters;
         /// <summary>Creates a new <see cref="Counter"/> with an initial value of zero.</summary>
         public Counter()
         {
-            //We won’t go above 32 so that the total array size (including overhead) fits in a 4KiB page.
-            //We won’t go below 16 so we’ve a good spread.
-            int size = EstimateCoreCount() <= 4 ? 16 : 32;
-            mask = size - 1;
-            counters = new OffsetInt[size];
+            _counters = new OffsetInt[ArraySize];
         }
         /// <summary>Creates a new <see cref="Counter"/> with an initial value of <paramref name="startingValue"/>.</summary>
         /// <param name="startingValue">The initial value for the <see cref="Counter"/>.</param>
         public Counter(int startingValue)
             :this()
         {
-            counters[0].Num = startingValue;
+            _counters[0].Num = startingValue;
         }
         /// <summary>The current value of the counter.</summary>
         public int Value
@@ -74,8 +59,8 @@ namespace Ariadne
             get
             {
                 int sum = 0;
-                for(int i = 0; i != counters.Length; ++i)
-                    sum += counters[i].Num;
+                for(int i = 0; i != ArraySize; ++i)
+                    sum += _counters[i].Num;
                 return sum;
             }
         }
@@ -86,17 +71,21 @@ namespace Ariadne
 	    {
 	        return counter.Value;
 	    }
+	    private int GetIndex()
+	    {
+	        return Thread.CurrentThread.ManagedThreadId & Mask;
+	    }
 	    /// <summary>Atomically increments the <see cref="Counter"/> by one.</summary>
         public void Increment()
         {
             //We avoid different cores hitting the same counter, but don’t completely prohibit it, so we
             //still need Interlocked.
-            Interlocked.Increment(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);
+            Interlocked.Increment(ref _counters[GetIndex()].Num);
         }
         /// <summary>Atomically decrements the <see cref="Counter"/> by one.</summary>
         public void Decrement()
         {
-            Interlocked.Decrement(ref counters[Thread.CurrentThread.ManagedThreadId & mask].Num);
+            Interlocked.Decrement(ref _counters[GetIndex()].Num);
         }
         /// <summary>Atomically increments <paramref name="counter"/> by one.</summary>
         /// <param name="counter">The <see cref="Counter"/> to increment.</param>

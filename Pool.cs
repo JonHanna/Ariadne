@@ -145,11 +145,12 @@ namespace Ariadne
         /// <returns>True if the method succeeds, false if there were </returns>
         public bool TryGet(out T item)
         {
-            if(_store.TryTake(out item))
-                return true;
-            if(_factory == null)
-                return false;
-            item = _factory();
+            if(!_store.TryTake(out item))
+            {
+                if(_factory == null)
+                    return false;
+                item = _factory();
+            }
             return true;
         }
         /// <summary>Obtains an object from the pool, or creates one with the default factory.</summary>
@@ -164,13 +165,17 @@ namespace Ariadne
             else
                 throw new InvalidOperationException();
         }
+        private void CheckNonNullFactory(Func<T> factory)
+        {
+            if(factory == null)
+                throw new ArgumentNullException("factory");
+        }
         /// <summary>Obtains an object from the pool, or creates one with the factory passed.</summary>
         /// <param name="factory">A <see cref="Func&lt;T>"/> to create a new object, if the pool is empty.</param>
         /// <returns>The object obtained or created.</returns>
         public T Get(Func<T> factory)
         {
-            if(factory == null)
-                throw new ArgumentNullException("factory");
+            CheckNonNullFactory(factory);
             T ret;
             return _store.TryTake(out ret) ? ret : factory();
         }
@@ -316,8 +321,7 @@ namespace Ariadne
         /// </example>
         public Handle GetHandle(Func<T> factory)
         {
-            if(factory == null)
-                throw new ArgumentNullException("factory");
+            CheckNonNullFactory(factory);
             return new Handle(this, factory);
         }
     }
