@@ -35,9 +35,8 @@ ConcurrentDictionary for at least some low-contention cases).
 
 To-Do:
 
-Testing! Lots of Testing! This is library should currently be considered alpha. Both
-practical tests on different hardware and theoretcial analysis is eagerly welcomed. The
-NUnit tests definitely need to be extensively fleshed out.
+Testing! Lots of Testing! Both practical tests on different hardware and theoretcial analysis is eagerly
+welcomed. The NUnit tests definitely need to be extensively fleshed out.
 
 More classes for the library. I’ve a few classes planned that will add functionality it
 will be sensible to include in such a library, but there should be plenty of scope for
