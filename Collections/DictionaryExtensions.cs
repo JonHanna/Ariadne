@@ -23,6 +23,11 @@ namespace Ariadne.Collections
     /// appropriately typed <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>s.</summary>
     public static class DictionaryExtensions
     {
+        private static void CheckDictNotNull<TKey, TValue>(ThreadSafeDictionary<TKey, TValue> dict)
+        {
+            if(dict == null)
+                throw new ArgumentNullException("dict");
+        }
         private static bool Increment<TKey>(ThreadSafeDictionary<TKey, int> dict, ThreadSafeDictionary<TKey, int>.Table table, TKey key, int hash, out int result)
         {
             for(;;)
@@ -94,8 +99,7 @@ namespace Ariadne.Collections
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
         public static bool Increment<TKey>(this ThreadSafeDictionary<TKey, int> dict, TKey key, out int result)
         {
-            if(dict == null)
-                throw new ArgumentNullException("dict");
+            CheckDictNotNull(dict);
             return Increment(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically increments the <see cref="int"/> value identified by the key, by one.</summary>
@@ -184,8 +188,7 @@ namespace Ariadne.Collections
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
         public static bool Increment<TKey>(this ThreadSafeDictionary<TKey, long> dict, TKey key, out long result)
         {
-            if(dict == null)
-                throw new ArgumentNullException("dict");
+            CheckDictNotNull(dict);
             return Increment(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically increments the <see cref="long"/> value identified by the key, by one.</summary>
@@ -274,8 +277,7 @@ namespace Ariadne.Collections
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
         public static bool Decrement<TKey>(this ThreadSafeDictionary<TKey, int> dict, TKey key, out int result)
         {
-            if(dict == null)
-                throw new ArgumentNullException("dict");
+            CheckDictNotNull(dict);
             return Decrement(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically decrements the <see cref="int"/> value identified by the key, by one.</summary>
@@ -364,8 +366,7 @@ namespace Ariadne.Collections
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
         public static bool Decrement<TKey>(this ThreadSafeDictionary<TKey, long> dict, TKey key, out long result)
         {
-            if(dict == null)
-                throw new ArgumentNullException("dict");
+            CheckDictNotNull(dict);
             return Decrement(dict, dict._table, key, dict.Hash(key), out result);
         }
         /// <summary>Atomically decrements the <see cref="long"/> value identified by the key, by one.</summary>
@@ -456,8 +457,7 @@ namespace Ariadne.Collections
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
         public static bool Plus<TKey>(this ThreadSafeDictionary<TKey, long> dict, TKey key, long addend, out long result)
         {
-            if(dict == null)
-                throw new ArgumentNullException("dict");
+            CheckDictNotNull(dict);
             return Plus(dict, dict._table, key, dict.Hash(key), addend, out result);
         }
         /// <summary>Atomically adds the supplied <see cref="long"/> value to the value identified by the key, returning
@@ -550,8 +550,7 @@ namespace Ariadne.Collections
         /// <exception cref="ArgumentNullException"><paramref name="dict"/> was null.</exception>
         public static bool Plus<TKey>(this ThreadSafeDictionary<TKey, int> dict, TKey key, int addend, out int result)
         {
-            if(dict == null)
-                throw new ArgumentNullException("dict");
+            CheckDictNotNull(dict);
             return Plus(dict, dict._table, key, dict.Hash(key), addend, out result);
         }
         /// <summary>Atomically adds the supplied <see cref="int"/> value to the value identified by the key, returning
