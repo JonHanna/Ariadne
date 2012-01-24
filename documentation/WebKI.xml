@@ -94,10 +94,6 @@
   <HelpKINode Title="Ariadne.Collections.ThreadSafeSet&lt;T&gt;.RemovingEnumeration class" Url="html/T_Ariadne_Collections_ThreadSafeSet_1_RemovingEnumeration.htm" />
   <HelpKINode Title="Ariadne.Counter class" Url="html/AllMembers_T_Ariadne_Counter.htm" />
   <HelpKINode Title="Ariadne.Counter class" Url="html/T_Ariadne_Counter.htm" />
-  <HelpKINode Title="Ariadne.LockFreeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="Ariadne.LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="Ariadne.LockFreeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="Ariadne.LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
   <HelpKINode Title="Ariadne.Pool(Of T) class" Url="html/AllMembers_T_Ariadne_Pool_1.htm" />
   <HelpKINode Title="Ariadne.Pool(Of T) class" Url="html/T_Ariadne_Pool_1.htm" />
   <HelpKINode Title="Ariadne.Pool(Of T).Handle class" Url="html/AllMembers_T_Ariadne_Pool_1_Handle.htm" />
@@ -108,22 +104,26 @@
   <HelpKINode Title="Ariadne.Pool&lt;T&gt;.Handle class" Url="html/T_Ariadne_Pool_1_Handle.htm" />
   <HelpKINode Title="Ariadne.SharedInt class" Url="html/AllMembers_T_Ariadne_SharedInt.htm" />
   <HelpKINode Title="Ariadne.SharedInt class" Url="html/T_Ariadne_SharedInt.htm" />
+  <HelpKINode Title="Ariadne.ThreadSafeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  <HelpKINode Title="Ariadne.ThreadSafeAtomizer(Of T) class" Url="html/T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  <HelpKINode Title="Ariadne.ThreadSafeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  <HelpKINode Title="Ariadne.ThreadSafeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_ThreadSafeAtomizer_1.htm" />
   <HelpKINode Title="AtomicDequeueAll method" Url="html/M_Ariadne_Collections_LLQueue_1_AtomicDequeueAll.htm" />
   <HelpKINode Title="AtomicPopAll method" Url="html/M_Ariadne_Collections_LLStack_1_AtomicPopAll.htm" />
-  <HelpKINode Title="Atomize method" Url="html/M_Ariadne_LockFreeAtomizer_1_Atomize.htm" />
+  <HelpKINode Title="Atomize method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Atomize.htm" />
   <HelpKINode Title="Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_Capacity.htm" />
   <HelpKINode Title="Capacity property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Capacity.htm" />
   <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_LLQueue_1_Clear.htm" />
   <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_LLStack_1_Clear.htm" />
   <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clear.htm" />
   <HelpKINode Title="Clear method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clear.htm" />
-  <HelpKINode Title="Clear method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clear.htm" />
+  <HelpKINode Title="Clear method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Clear.htm" />
   <HelpKINode Title="ClearLastItem method" Url="html/M_Ariadne_Collections_LLQueue_1_ClearLastItem.htm" />
   <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_LLQueue_1_Clone.htm" />
   <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_LLStack_1_Clone.htm" />
   <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_Clone.htm" />
   <HelpKINode Title="Clone method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Clone.htm" />
-  <HelpKINode Title="Clone method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clone.htm" />
+  <HelpKINode Title="Clone method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Clone.htm" />
   <HelpKINode Title="Contains method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Contains.htm" />
   <HelpKINode Title="Contains method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_Contains.htm" />
   <HelpKINode Title="Contains method" Url="html/Overload_Ariadne_Collections_LLQueue_1_Contains.htm" />
@@ -143,8 +143,8 @@
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_KeyCollection_Count.htm" />
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_ThreadSafeDictionary_2_ValueCollection_Count.htm" />
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Collections_ThreadSafeSet_1_Count.htm" />
-  <HelpKINode Title="Count property" Url="html/P_Ariadne_LockFreeAtomizer_1_Count.htm" />
   <HelpKINode Title="Count property" Url="html/P_Ariadne_Pool_1_Count.htm" />
+  <HelpKINode Title="Count property" Url="html/P_Ariadne_ThreadSafeAtomizer_1_Count.htm" />
   <HelpKINode Title="Counter class" Url="html/AllMembers_T_Ariadne_Counter.htm" />
   <HelpKINode Title="Counter class" Url="html/T_Ariadne_Counter.htm" />
   <HelpKINode Title="Counter class">
@@ -227,7 +227,7 @@
   <HelpKINode Title="Increment method" Url="html/Overload_Ariadne_Collections_DictionaryExtensions_Increment.htm" />
   <HelpKINode Title="Increment operator" Url="html/M_Ariadne_Counter_op_Increment.htm" />
   <HelpKINode Title="IntersectWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IntersectWith.htm" />
-  <HelpKINode Title="IsAtomized method" Url="html/M_Ariadne_LockFreeAtomizer_1_IsAtomized.htm" />
+  <HelpKINode Title="IsAtomized method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_IsAtomized.htm" />
   <HelpKINode Title="IsEmpty property" Url="html/P_Ariadne_Collections_LLQueue_1_IsEmpty.htm" />
   <HelpKINode Title="IsEmpty property" Url="html/P_Ariadne_Collections_LLStack_1_IsEmpty.htm" />
   <HelpKINode Title="IsProperSubsetOf method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_IsProperSubsetOf.htm" />
@@ -484,38 +484,6 @@
   <HelpKINode Title="LLStack&lt;T&gt;.Transfer method" Url="html/M_Ariadne_Collections_LLStack_1_Transfer.htm" />
   <HelpKINode Title="LLStack&lt;T&gt;.TryPeek method" Url="html/M_Ariadne_Collections_LLStack_1_TryPeek.htm" />
   <HelpKINode Title="LLStack&lt;T&gt;.TryPop method" Url="html/M_Ariadne_Collections_LLStack_1_TryPop.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T) class">
-    <HelpKINode Title="about LockFreeAtomizer(Of T) class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_LockFreeAtomizer_1.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeAtomizer(Of T).Atomize method" Url="html/M_Ariadne_LockFreeAtomizer_1_Atomize.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Clear method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clear.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Clone method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clone.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Count property" Url="html/P_Ariadne_LockFreeAtomizer_1_Count.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).IsAtomized method" Url="html/M_Ariadne_LockFreeAtomizer_1_IsAtomized.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).LockFreeAtomizer constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
-  <HelpKINode Title="LockFreeAtomizer(Of T).Remove method" Url="html/M_Ariadne_LockFreeAtomizer_1_Remove.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt; class">
-    <HelpKINode Title="about LockFreeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_LockFreeAtomizer_1.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_LockFreeAtomizer_1.htm" />
-  </HelpKINode>
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Atomize method" Url="html/M_Ariadne_LockFreeAtomizer_1_Atomize.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Clear method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clear.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Clone method" Url="html/M_Ariadne_LockFreeAtomizer_1_Clone.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Count property" Url="html/P_Ariadne_LockFreeAtomizer_1_Count.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.IsAtomized method" Url="html/M_Ariadne_LockFreeAtomizer_1_IsAtomized.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.LockFreeAtomizer constructor" Url="html/Overload_Ariadne_LockFreeAtomizer_1__ctor.htm" />
-  <HelpKINode Title="LockFreeAtomizer&lt;T&gt;.Remove method" Url="html/M_Ariadne_LockFreeAtomizer_1_Remove.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLQueue_1_AtDequeuEnumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLQueue_1_DequeuEnumerator_MoveNext.htm" />
   <HelpKINode Title="MoveNext method" Url="html/M_Ariadne_Collections_LLQueue_1_Enumerator_MoveNext.htm" />
@@ -624,7 +592,7 @@
   <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt;.Equals method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_Equals.htm" />
   <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt;.GetHashCode method" Url="html/Overload_Ariadne_Collections_ReferenceEqualityComparer_1_GetHashCode.htm" />
   <HelpKINode Title="ReferenceEqualityComparer&lt;T&gt;.ReferenceEqualityComparer constructor" Url="html/M_Ariadne_Collections_ReferenceEqualityComparer_1__ctor.htm" />
-  <HelpKINode Title="Remove method" Url="html/M_Ariadne_LockFreeAtomizer_1_Remove.htm" />
+  <HelpKINode Title="Remove method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Remove.htm" />
   <HelpKINode Title="Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeDictionary_2_Remove.htm" />
   <HelpKINode Title="Remove method" Url="html/Overload_Ariadne_Collections_ThreadSafeSet_1_Remove.htm" />
   <HelpKINode Title="RemoveWhere method" Url="html/M_Ariadne_Collections_ThreadSafeDictionary_2_RemoveWhere.htm" />
@@ -661,6 +629,38 @@
   <HelpKINode Title="Store method" Url="html/M_Ariadne_Pool_1_Store.htm" />
   <HelpKINode Title="Subtract method" Url="html/M_Ariadne_SharedInt_Subtract.htm" />
   <HelpKINode Title="SymmetricExceptWith method" Url="html/M_Ariadne_Collections_ThreadSafeSet_1_SymmetricExceptWith.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T) class" Url="html/AllMembers_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T) class" Url="html/T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T) class">
+    <HelpKINode Title="about ThreadSafeAtomizer(Of T) class" Url="html/T_Ariadne_ThreadSafeAtomizer_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_ThreadSafeAtomizer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeAtomizer(Of T).Atomize method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Atomize.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T).Clear method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Clear.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T).Clone method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Clone.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T).Count property" Url="html/P_Ariadne_ThreadSafeAtomizer_1_Count.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T).IsAtomized method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_IsAtomized.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T).Remove method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Remove.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer(Of T).ThreadSafeAtomizer constructor" Url="html/Overload_Ariadne_ThreadSafeAtomizer_1__ctor.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt; class" Url="html/AllMembers_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt; class">
+    <HelpKINode Title="about ThreadSafeAtomizer&lt;T&gt; class" Url="html/T_Ariadne_ThreadSafeAtomizer_1.htm" />
+    <HelpKINode Title="all members" Url="html/AllMembers_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_Ariadne_ThreadSafeAtomizer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_Ariadne_ThreadSafeAtomizer_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt;.Atomize method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Atomize.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt;.Clear method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Clear.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt;.Clone method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Clone.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt;.Count property" Url="html/P_Ariadne_ThreadSafeAtomizer_1_Count.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt;.IsAtomized method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_IsAtomized.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt;.Remove method" Url="html/M_Ariadne_ThreadSafeAtomizer_1_Remove.htm" />
+  <HelpKINode Title="ThreadSafeAtomizer&lt;T&gt;.ThreadSafeAtomizer constructor" Url="html/Overload_Ariadne_ThreadSafeAtomizer_1__ctor.htm" />
   <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue) class" Url="html/AllMembers_T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
   <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue) class" Url="html/T_Ariadne_Collections_ThreadSafeDictionary_2.htm" />
   <HelpKINode Title="ThreadSafeDictionary(Of TKey, TValue) class">
