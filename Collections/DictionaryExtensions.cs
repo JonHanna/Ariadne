@@ -55,10 +55,9 @@ namespace Ariadne.Collections
                         ThreadSafeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            ThreadSafeDictionary<TKey, int>.PrimeKV prime = pair as ThreadSafeDictionary<TKey, int>.PrimeKV;
-                            if(prime != null)
+                            if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, prime, idx);
+                                dict.CopySlotsAndCheck(table, pair.NewPrime(), idx);
                                 table = table.Next;
                                 break;
                             }
@@ -144,10 +143,9 @@ namespace Ariadne.Collections
                         ThreadSafeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            ThreadSafeDictionary<TKey, long>.PrimeKV prime = pair as ThreadSafeDictionary<TKey, long>.PrimeKV;
-                            if(prime != null)
+                            if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, prime, idx);
+                                dict.CopySlotsAndCheck(table, pair.NewPrime(), idx);
                                 table = table.Next;
                                 break;
                             }
@@ -233,10 +231,9 @@ namespace Ariadne.Collections
                         ThreadSafeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            ThreadSafeDictionary<TKey, int>.PrimeKV prime = pair as ThreadSafeDictionary<TKey, int>.PrimeKV;
-                            if(prime != null)
+                            if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, prime, idx);
+                                dict.CopySlotsAndCheck(table, pair.NewPrime(), idx);
                                 table = table.Next;
                                 break;
                             }
@@ -322,10 +319,9 @@ namespace Ariadne.Collections
                         ThreadSafeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            ThreadSafeDictionary<TKey, long>.PrimeKV prime = pair as ThreadSafeDictionary<TKey, long>.PrimeKV;
-                            if(prime != null)
+                            if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, prime, idx);
+                                dict.CopySlotsAndCheck(table, pair.NewPrime(), idx);
                                 table = table.Next;
                                 break;
                             }
@@ -411,10 +407,9 @@ namespace Ariadne.Collections
                         ThreadSafeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            ThreadSafeDictionary<TKey, long>.PrimeKV prime = pair as ThreadSafeDictionary<TKey, long>.PrimeKV;
-                            if(prime != null)
+                            if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, prime, idx);
+                                dict.CopySlotsAndCheck(table, pair.NewPrime(), idx);
                                 table = table.Next;
                                 break;
                             }
@@ -504,10 +499,9 @@ namespace Ariadne.Collections
                         ThreadSafeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            ThreadSafeDictionary<TKey, int>.PrimeKV prime = pair as ThreadSafeDictionary<TKey, int>.PrimeKV;
-                            if(prime != null)
+                            if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, prime, idx);
+                                dict.CopySlotsAndCheck(table, pair.NewPrime(), idx);
                                 table = table.Next;
                                 break;
                             }

@@ -113,6 +113,10 @@ namespace Ariadne.Collections
             {
             	return this is PrimeKV ? new KV(Key, Value) : this;
             }
+            public PrimeKV NewPrime()
+            {
+                return new PrimeKV(Key, Value);
+            }
             // A dead record. Any relevant record is in the next table.
             public static readonly TombstoneKV DeadKey = new TombstoneKV(default(TKey));
             public static implicit operator KV(KeyValuePair<TKey, TValue> kvp)
@@ -129,6 +133,9 @@ namespace Ariadne.Collections
         {
         	public PrimeKV()
         	    :base(default(TKey), default(TValue)){}
+        	public PrimeKV(TKey key, TValue value)
+        	    :base(key, value){}
+        	
         }
         // There used to be a value here, but it was deleted. We can write to this
         // record again if the key is to be inserted again. Otherwise the key stays
@@ -499,13 +506,12 @@ namespace Ariadne.Collections
                     {
                         if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
                         {
-                        	PrimeKV asPrime = pair as PrimeKV;
-                            if(asPrime != null)
+                            if(pair is PrimeKV)
                             {
                                 // A resize-copy is part-way through. Let’s make sure it completes before hitting that
                                 // other table (we do this rather than trust the value we found, because the next table
                                 // could have a more recently-written value).
-                            	CopySlotsAndCheck(table, asPrime, idx);
+                                CopySlotsAndCheck(table, pair.NewPrime(), idx);
                             	// Note that Click has reading operations help the resize operation.
                             	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
                                 // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
@@ -703,11 +709,11 @@ namespace Ariadne.Collections
                 }
                 
                 //we lost the race, another thread set the pair.
-                PrimeKV prevPrime = prevPair as PrimeKV;
-                if(prevPrime != null)
+                if(prevPair is PrimeKV)
                 {
-                    CopySlotsAndCheck(table, prevPrime, idx);
-                    HelpCopy(table, prevPrime, false);
+                    PrimeKV prime = prevPair.NewPrime();
+                    CopySlotsAndCheck(table, prime, idx);
+                    HelpCopy(table, prime, false);
                     table = table.Next;
                     goto restart;
                 }
@@ -1558,9 +1564,8 @@ namespace Ariadne.Collections
                     for(++_idx; _idx != records.Length; ++_idx)
                     {
                         KV kv = records[_idx].KeyValue;
-                        PrimeKV prime = kv as PrimeKV;
-                        if(prime != null)
-                            _dict.CopySlotsAndCheck(_table, prime, _idx);
+                        if(kv is PrimeKV)
+                           _dict.CopySlotsAndCheck(_table, kv.NewPrime(), _idx);
                         else if(kv != null && !(kv is TombstoneKV) && _predicate(kv.Key, kv.Value))
                         {
                             TombstoneKV tomb = new TombstoneKV(kv.Key);
@@ -1576,7 +1581,7 @@ namespace Ariadne.Collections
                                 }
                                 else if(oldKV is PrimeKV)
                                 {
-                                    _dict.CopySlotsAndCheck(_table, (PrimeKV)oldKV, _idx);
+                                    _dict.CopySlotsAndCheck(_table, oldKV.NewPrime(), _idx);
                                     break;
                                 }
                                 else if(oldKV is TombstoneKV || !_predicate(oldKV.Key, oldKV.Value))
@@ -1670,9 +1675,8 @@ namespace Ariadne.Collections
                         KV kv = records[_idx].KeyValue;
                         if(kv != null && !(kv is TombstoneKV))
                         {
-                        	PrimeKV prime = kv as PrimeKV;
-                        	if(prime != null)//part-way through being copied to next table
-                        		_dict.CopySlotsAndCheck(_tab, prime, _idx);//make sure it’s there when we come to it.
+                            if(kv is PrimeKV)//part-way through being copied to next table
+                                _dict.CopySlotsAndCheck(_tab, kv.NewPrime(), _idx);//make sure it’s there when we come to it.
                         	else
                         	{
 	                            _current = kv;
