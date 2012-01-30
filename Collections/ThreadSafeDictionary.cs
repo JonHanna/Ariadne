@@ -2045,7 +2045,13 @@ namespace Ariadne.Collections
             {
                 Validation.CopyTo(array, index);
 	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
-	        	((ICollection)_dict.ToDictionary().Keys).CopyTo(array, index);
+	        	if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
+	        	{
+	        	    if(index + snapshot.Count + 1 > array.Length)
+	        	        throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
+	        	    array.SetValue(default(TKey), index++);
+	        	}
+	        	((ICollection)snapshot.Keys).CopyTo(array, index);
             }
 	    }
 	    object IDictionary.this[object key]
