@@ -37,7 +37,7 @@ namespace Ariadne
         {
             _store = store;
         }
-        /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
+        /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/>.</summary>
         /// <param name="capacity">The initial capacity of the atomizer.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use when comparing items
         /// added to the store.</param>
@@ -45,21 +45,21 @@ namespace Ariadne
         {
             _store = new ThreadSafeSet<T>(capacity, comparer);
         }
-        /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
+        /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/>.</summary>
         /// <param name="capacity">The initial capacity of the atomizer.</param>
         public ThreadSafeAtomizer(int capacity)
             :this(capacity, EqualityComparer<T>.Default){}
-        /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
+        /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/>.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use when comparing items
         /// added to the store.</param>
         public ThreadSafeAtomizer(IEqualityComparer<T> comparer)
         {
             _store = new ThreadSafeSet<T>(comparer);
         }
-        /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/>.</summary>
+        /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/>.</summary>
         public ThreadSafeAtomizer()
             :this(EqualityComparer<T>.Default){}
-        /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/> and fills it from the collection passed.</summary>
+        /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/> and fills it from the collection passed.</summary>
         /// <param name="collection">The <see cref="IEnumerable&lt;T>"/> to fill the atomizer with on construction.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use when comparing items
         /// added to the collection.</param>
@@ -67,7 +67,7 @@ namespace Ariadne
         {
             _store = new ThreadSafeSet<T>(collection, comparer);
         }
-        /// <summary>Creates a new <see cref="LockFreeAtomizer&lt;T>"/> and fills it from the collection passed.</summary>
+        /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/> and fills it from the collection passed.</summary>
         /// <param name="collection">The <see cref="IEnumerable&lt;T>"/> to fill the atomizer with on construction.</param>
         public ThreadSafeAtomizer(IEnumerable<T> collection)
             :this(collection, EqualityComparer<T>.Default){}
@@ -93,8 +93,8 @@ namespace Ariadne
         {
             return _store.Remove(item);
         }
-        /// <summary>Returns another <see cref="LockFreeAtomizer&lt;T>"/> with the same contents as this.</summary>
-        /// <returns>The copied <see cref="LockFreeAtomizer&lt;T>"/>.</returns>
+        /// <summary>Returns another <see cref="ThreadSafeAtomizer&lt;T>"/> with the same contents as this.</summary>
+        /// <returns>The copied <see cref="ThreadSafeAtomizer&lt;T>"/>.</returns>
         public ThreadSafeAtomizer<T> Clone()
         {
             return new ThreadSafeAtomizer<T>(_store.Clone());
