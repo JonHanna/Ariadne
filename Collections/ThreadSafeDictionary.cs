@@ -136,15 +136,14 @@ namespace Ariadne.Collections
             {
                 Key = default(TKey);
                 Value = default(TValue);
-                PrimeKV next = Next = _head.Next;
-                PrimeKV oldNext = Interlocked.CompareExchange(ref _head.Next, this, next);
+                Interlocked.CompareExchange(ref _head.Next, this, Next = _head.Next);
             }
             private static PrimeKV TryGet()
             {
                 PrimeKV node = _head.Next;
                 if(node != null)
                 {
-                    PrimeKV next = _head.Next;
+                    PrimeKV next = node.Next;
                     if(next == Interlocked.CompareExchange(ref _head.Next, next, node))
                         return node;
                 }
