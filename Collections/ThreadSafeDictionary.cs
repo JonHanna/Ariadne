@@ -137,32 +137,18 @@ namespace Ariadne.Collections
                 Key = default(TKey);
                 Value = default(TValue);
                 PrimeKV next = Next = _head.Next;
-                for(;;)
-                {
-                    PrimeKV oldNext = Interlocked.CompareExchange(ref _head.Next, this, next);
-                    if(oldNext == next)
-                        return;
-                    next = Next = oldNext;
-                }
+                PrimeKV oldNext = Interlocked.CompareExchange(ref _head.Next, this, next);
             }
-            private static bool TryGet(out PrimeKV popped)
+            private static PrimeKV TryGet()
             {
-                for(;;)
+                PrimeKV node = _head.Next;
+                if(node != null)
                 {
-                    PrimeKV node = _head.Next;
-                    if(node == null)
-                    {
-                        popped = null;
-                        return false;
-                    }
                     PrimeKV next = _head.Next;
-                    PrimeKV oldNext = Interlocked.CompareExchange(ref _head.Next, next, node);
-                    if(oldNext == next)
-                    {
-                        popped = node;
-                        return true;
-                    }
+                    if(next == Interlocked.CompareExchange(ref _head.Next, next, node))
+                        return node;
                 }
+                return null;
             }
             private PrimeKV Next;
         	private PrimeKV()
@@ -171,13 +157,12 @@ namespace Ariadne.Collections
         	    :base(key, value){}
         	public static PrimeKV Get()
         	{
-        	    PrimeKV ret;
-        	    return TryGet(out ret) ? ret : new PrimeKV();
+        	    return TryGet() ?? new PrimeKV();
         	}
         	public static PrimeKV Get(TKey key, TValue value)
         	{
-        	    PrimeKV ret;
-        	    if(TryGet(out ret))
+        	    PrimeKV ret = TryGet();
+        	    if(ret != null)
         	    {
         	        ret.Key = key;
         	        ret.Value = value;
