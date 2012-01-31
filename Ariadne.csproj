@@ -63,7 +63,7 @@
     <Compile Include="Collections\ThreadSafeSet.cs" />
     <Compile Include="Collections\ReferenceEqualityComparer.cs" />
     <Compile Include="Counter.cs" />
-    <Compile Include="LockFreeAtomizer.cs" />
+    <Compile Include="ThreadSafeAtomizer.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="SharedInt.cs" />
     <Compile Include="AssemblyInfo.cs">
