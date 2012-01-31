@@ -102,7 +102,6 @@ namespace Ariadne.Collections
         }
         
         private Table _table;
-        private readonly int _initialCapacity;
         private readonly IEqualityComparer<T> _cmp;
         private const int DefaultCapacity = 1;
         /// <summary>Creates a new lock-free set.</summary>
@@ -130,7 +129,7 @@ namespace Ariadne.Collections
 	            }
         	}
             	
-            _table = new Table(_initialCapacity = capacity, new Counter());
+            _table = new Table(capacity, new Counter());
             _cmp = comparer;
         }
         /// <summary>Creates a new lock-free set.</summary>
@@ -181,7 +180,6 @@ namespace Ariadne.Collections
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("ic", _initialCapacity);
             info.AddValue("cmp", _cmp, typeof(IEqualityComparer<T>));
             T[] arr = ToArray();
             info.AddValue("arr", arr);
@@ -190,7 +188,6 @@ namespace Ariadne.Collections
         private ThreadSafeSet(SerializationInfo info, StreamingContext context)
             :this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
         {
-            _initialCapacity = info.GetInt32("ic");
             AddRange((T[])info.GetValue("arr", typeof(T[])));
         }
         private int Hash(T item)
@@ -903,9 +900,7 @@ namespace Ariadne.Collections
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
-            Table newTable = new Table(_initialCapacity, new Counter());
-            Thread.MemoryBarrier();
-            _table = newTable;
+            Interlocked.Exchange(ref _table, new Table(DefaultCapacity, new Counter()));
         }
         /// <summary>Determines whether an item is present in the set.</summary>
         /// <param name="item">The item sought.</param>
