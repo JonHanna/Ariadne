@@ -225,9 +225,20 @@ namespace Ariadne.Collections
                         storedItem = default(T);
                         return false;
                     }
-                    Box box = records[idx].Box;
                     if(curHash == hash)//hash we care about, is it the item we care about?
                     {
+                        Box box = records[idx].Box;
+                        if(box == null)//part-way through write perhaps of what we want, but we're too early. If not, what we want isn't further on.
+                        {
+                            Table next = table.Next;
+                            if(next != null)
+                            {
+                                table = next;
+                                break;
+                            }
+                            storedItem = default(T);
+                            return false;
+                        }
                         if(_cmp.Equals(item, box.Value))//items match, and this can’t change
                         {
                             if(box is PrimeBox)

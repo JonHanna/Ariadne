@@ -497,9 +497,20 @@ namespace Ariadne.Collections
                         value = default(TValue);
                         return false;
                     }
-                    KV pair = records[idx].KeyValue;
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
+                        KV pair = records[idx].KeyValue;
+                        if(pair == null)//part-way through write perhaps of what we want, but we're too early. If not, what we want isn't further on.
+                        {
+                            Table next = table.Next;
+                            if(next != null)
+                            {
+                                table = next;
+                                break;
+                            }
+                            value = default(TValue);
+                            return false;
+                        }
                         if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
                         {
                             PrimeKV prime = pair as PrimeKV;
