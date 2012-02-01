@@ -97,6 +97,7 @@ namespace Ariadne.Collections
         {
             public TKey Key;
             public TValue Value;
+            protected KV(){}
             public KV(TKey key, TValue value)
             {
                 Key = key;
@@ -127,14 +128,6 @@ namespace Ariadne.Collections
         // Marks the record as part-way copied to the next table.
         internal sealed class PrimeKV : KV
         {
-        	public PrimeKV()
-        	    :base(default(TKey), default(TValue)){}
-        	public PrimeKV(TKey key, TValue value)
-        	    :base(key, value){}
-        	public PrimeKV Clone()
-        	{
-        	    return new PrimeKV(Key, Value);
-        	}
         }
         // There used to be a value here, but it was deleted. We can write to this
         // record again if the key is to be inserted again. Otherwise the key stays
@@ -513,13 +506,12 @@ namespace Ariadne.Collections
                         }
                         if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
                         {
-                            PrimeKV prime = pair as PrimeKV;
-                            if(prime != null)
+                            if(pair is PrimeKV)
                             {
                                 // A resize-copy is part-way through. Let’s make sure it completes before hitting that
                                 // other table (we do this rather than trust the value we found, because the next table
                                 // could have a more recently-written value).
-                                CopySlotsAndCheck(table, prime.Clone(), idx);
+                                CopySlotsAndCheck(table, new PrimeKV(), idx);
                             	// Note that Click has reading operations help the resize operation.
                             	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
                                 // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
@@ -717,9 +709,9 @@ namespace Ariadne.Collections
                 }
                 
                 //we lost the race, another thread set the pair.
-                PrimeKV prime = prevPair as PrimeKV;
-                if(prime != null)
+                if(prevPair is PrimeKV)
                 {
+                    PrimeKV prime = new PrimeKV();
                     CopySlotsAndCheck(table, prime, idx);
                     HelpCopy(table, prime, false);
                     table = table.Next;
@@ -1570,9 +1562,8 @@ namespace Ariadne.Collections
                     for(++_idx; _idx != records.Length; ++_idx)
                     {
                         KV kv = records[_idx].KeyValue;
-                        PrimeKV prime = kv as PrimeKV;
-                        if(prime != null)
-                            _dict.CopySlotsAndCheck(_table, prime.Clone(), _idx);
+                        if(kv is PrimeKV)
+                            _dict.CopySlotsAndCheck(_table, new PrimeKV(), _idx);
                         else if(kv != null && !(kv is TombstoneKV) && _predicate(kv.Key, kv.Value))
                         {
                             TombstoneKV tomb = new TombstoneKV(kv.Key);
@@ -1588,7 +1579,7 @@ namespace Ariadne.Collections
                                 }
                                 else if(oldKV is PrimeKV)
                                 {
-                                    _dict.CopySlotsAndCheck(_table, ((PrimeKV)oldKV).Clone(), _idx);
+                                    _dict.CopySlotsAndCheck(_table, new PrimeKV(), _idx);
                                     break;
                                 }
                                 else if(oldKV is TombstoneKV || !_predicate(oldKV.Key, oldKV.Value))
@@ -1682,9 +1673,8 @@ namespace Ariadne.Collections
                         KV kv = records[_idx].KeyValue;
                         if(kv != null && !(kv is TombstoneKV))
                         {
-                            PrimeKV prime = kv as PrimeKV;
-                            if(prime != null)//part-way through being copied to next table
-                                _dict.CopySlotsAndCheck(_tab, prime.Clone(), _idx);//make sure it’s there when we come to it.
+                            if(kv is PrimeKV)//part-way through being copied to next table
+                                _dict.CopySlotsAndCheck(_tab, new PrimeKV(), _idx);//make sure it’s there when we come to it.
                         	else
                         	{
 	                            _current = kv;

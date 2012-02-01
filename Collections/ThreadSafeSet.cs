@@ -53,16 +53,12 @@ namespace Ariadne.Collections
             {
                 return this is PrimeBox ? new Box(Value) : this;
             }
-            public PrimeBox NewPrime()
-            {
-                return new PrimeBox(Value);
-            }
             public static readonly TombstoneBox DeadItem = new TombstoneBox();
         }
         internal sealed class PrimeBox : Box
         {
-            public PrimeBox(T value)
-                :base(value){}
+            public PrimeBox()
+                :base(default(T)){}
         }
         internal sealed class TombstoneBox : Box
         {
@@ -243,7 +239,7 @@ namespace Ariadne.Collections
                         {
                             if(box is PrimeBox)
                             {
-                                CopySlotsAndCheck(table, box.NewPrime(), idx);
+                                CopySlotsAndCheck(table, new PrimeBox(), idx);
                                 table = table.Next;
                                 break;
                             }
@@ -329,7 +325,7 @@ namespace Ariadne.Collections
                     //test if we’re putting from a copy
                     //and don’t do this if that’s
                     //the case
-                    HelpCopy(table, curBox.NewPrime(), false);
+                    HelpCopy(table, new PrimeBox(), false);
                     table = next;
                     goto restart;
                 }
@@ -341,9 +337,9 @@ namespace Ariadne.Collections
             
             if(table.Next != null)
             {
-                PrimeBox prevPrime = curBox.NewPrime();
-                CopySlotsAndCheck(table, prevPrime, idx);
-                HelpCopy(table, prevPrime, false);
+                PrimeBox prime = new PrimeBox();
+                CopySlotsAndCheck(table, prime, idx);
+                HelpCopy(table, prime, false);
                 table = table.Next;
                 goto restart;
             }
@@ -367,10 +363,10 @@ namespace Ariadne.Collections
                 //we lost the race, another thread set the box.
                 if(prevBox is PrimeBox)
                 {
-                    PrimeBox prevPrime = prevBox.NewPrime();
-                    CopySlotsAndCheck(table, prevPrime, idx);
+                    PrimeBox prime = new PrimeBox();
+                    CopySlotsAndCheck(table, prime, idx);
                     if(!emptyOnly)
-                        HelpCopy(table, prevPrime, false);
+                        HelpCopy(table, prime, false);
                     table = table.Next;
                     goto restart;
                 }
@@ -1017,7 +1013,7 @@ namespace Ariadne.Collections
                     {
                         Box box = records[_idx].Box;
                         if(box is PrimeBox)
-                            _set.CopySlotsAndCheck(_table, box.NewPrime(), _idx);
+                            _set.CopySlotsAndCheck(_table, new PrimeBox(), _idx);
                         else if(box != null && !(box is TombstoneBox) && _predicate(box.Value))
                         {
                             TombstoneBox tomb = new TombstoneBox(box.Value);
@@ -1033,7 +1029,7 @@ namespace Ariadne.Collections
                                 }
                                 else if(oldBox is PrimeBox)
                                 {
-                                    _set.CopySlotsAndCheck(_table, oldBox.NewPrime(), _idx);
+                                    _set.CopySlotsAndCheck(_table, new PrimeBox(), _idx);
                                     break;
                                 }
                                 else if(oldBox is TombstoneBox || !_predicate(oldBox.Value))
@@ -1143,7 +1139,7 @@ namespace Ariadne.Collections
                         if(box != null && !(box is TombstoneBox))
                         {
                             if(box is PrimeBox)//part-way through being copied to next table
-                                _set.CopySlotsAndCheck(_tab, box.NewPrime(), _idx);//make sure it’s there when we come to it.
+                                _set.CopySlotsAndCheck(_tab, new PrimeBox(), _idx);//make sure it’s there when we come to it.
                             else
                             {
                                 _current = box;
@@ -1292,7 +1288,7 @@ namespace Ariadne.Collections
                     {
                         if(curBox is PrimeBox)
                         {
-                            CopySlotsAndCheck(table, curBox.NewPrime(), idx);
+                            CopySlotsAndCheck(table, new PrimeBox(), idx);
                         }
                         else
                             for(;;)
