@@ -575,6 +575,7 @@ namespace Ariadne.Collections
             //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
             //essentially this is doing tail-call optimisation by hand, the compiler could do this, but
             //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
+            KV deadKey = KV.DeadKey;
         restart:
             int mask = table.Mask;
             int idx = hash & mask;
@@ -620,12 +621,12 @@ namespace Ariadne.Collections
                     else
                         curPair = records[idx].KeyValue;
                     //okay there’s something with the same hash here, does it have the same key?
-                    if(_cmp.Equals(curPair.Key, pair.Key))
+                    if(_cmp.Equals(curPair.Key, pair.Key) && curPair != deadKey)
                         break;
                 }
                 else
                     curPair = records[idx].KeyValue; //just to check for dead records
-                if(curPair == KV.DeadKey || ++reprobeCount >= maxProbe)
+                if(curPair == deadKey || ++reprobeCount >= maxProbe)
                 {
                     Table next = table.Next ?? Resize(table);
                     //test if we’re putting from a copy
@@ -717,7 +718,7 @@ namespace Ariadne.Collections
                     table = table.Next;
                     goto restart;
                 }
-                else if(prevPair == KV.DeadKey)
+                else if(prevPair == deadKey)
                 {
                     table = table.Next;
                     goto restart;
@@ -729,7 +730,7 @@ namespace Ariadne.Collections
         // Copies a record to the next table, and checks if there should be a promotion.
         internal void CopySlotsAndCheck(Table table, PrimeKV prime, int idx)
         {
-            if(CopySlot(table, prime, idx))
+            if(CopySlot(table, prime, KV.DeadKey, idx))
                 CopySlotAndPromote(table, 1);
         }
         // Copy a bunch of records to the next table.
@@ -742,12 +743,13 @@ namespace Ariadne.Collections
             int chunk = table.Capacity;
             if(chunk > 1024)
                 chunk = 1024;
+            KV deadKey = KV.DeadKey;
             while(table.CopyDone < table.Capacity)
             {
                 int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
                 int workDone = 0;
                 for(int i = 0; i != chunk; ++i)
-                    if(CopySlot(table, prime, copyIdx + i))
+                    if(CopySlot(table, prime, deadKey, copyIdx + i))
                         ++workDone;
                 if(workDone != 0)
                     CopySlotAndPromote(table, workDone);
@@ -768,7 +770,7 @@ namespace Ariadne.Collections
                         break;
                 }
         }
-        private bool CopySlot(Table table, PrimeKV prime, int idx)
+        private bool CopySlot(Table table, PrimeKV prime, KV deadKey, int idx)
         {
             //Note that the prime is passed through. This prevents the allocation of multiple
             //objects which will in the normal case become unnecessary after this method completes
@@ -783,10 +785,9 @@ namespace Ariadne.Collections
             //written in step 1 above (perhaps in a different table in a different dictionary).
             //Besides which, such thread-local implementation could profile as giving a tiny improvement in tests
             //and then hammer memory usage in real world use!
-
             Record[] records = table.Records;
             //if unwritten-to we should be able to just mark it as dead.
-            KV kv = Interlocked.CompareExchange(ref records[idx].KeyValue, KV.DeadKey, null);
+            KV kv = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, null);
             if(kv  == null)
                 return true;
             KV oldKV = kv;
@@ -794,7 +795,7 @@ namespace Ariadne.Collections
             {
             	if(kv is TombstoneKV)
             	{
-            		oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, KV.DeadKey, kv);
+            		oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, kv);
             		if(oldKV == kv)
             			return true;
             	}
@@ -820,7 +821,7 @@ namespace Ariadne.Collections
             KV dontCare;
             bool copied = PutIfMatch(table.Next, newRecord, records[idx].Hash, MatchEmptyOnly.Instance, null, out dontCare);
             
-            while((oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, KV.DeadKey, kv)) != kv)
+            while((oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, kv)) != kv)
                 kv = oldKV;
             
             return copied;

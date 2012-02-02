@@ -276,6 +276,7 @@ namespace Ariadne.Collections
         }
         private Box PutIfMatch(Table table, Box box, int hash, bool removing, bool emptyOnly)
         {
+            Box deadItem = Box.DeadItem;
         restart:
             int mask = table.Mask;
             int idx = hash & mask;
@@ -314,12 +315,12 @@ namespace Ariadne.Collections
                     else
                         curBox = records[idx].Box;
                     //okay there’s something with the same hash here, does it have the same item?
-                    if(_cmp.Equals(curBox.Value, box.Value))
+                    if(_cmp.Equals(curBox.Value, box.Value) && curBox != deadItem)
                         break;
                 }
                 else
                     curBox = records[idx].Box; //just to check for dead records
-                if(curBox == Box.DeadItem || ++reprobeCount >= maxProbe)
+                if(curBox == deadItem || ++reprobeCount >= maxProbe)
                 {
                     Table next = table.Next ?? Resize(table);
                     //test if we’re putting from a copy
@@ -370,7 +371,7 @@ namespace Ariadne.Collections
                     table = table.Next;
                     goto restart;
                 }
-                else if(prevBox == Box.DeadItem)
+                else if(prevBox == deadItem)
                 {
                     table = table.Next;
                     goto restart;
@@ -382,7 +383,7 @@ namespace Ariadne.Collections
         }
         private void CopySlotsAndCheck(Table table, PrimeBox prime, int idx)
         {
-            if(CopySlot(table, prime, idx))
+            if(CopySlot(table, prime, Box.DeadItem, idx))
                 CopySlotAndPromote(table, 1);
         }
         private void HelpCopy(Table table, PrimeBox prime, bool all)
@@ -390,12 +391,13 @@ namespace Ariadne.Collections
             int chunk = table.Capacity;
             if(chunk > 1024)
                 chunk = 1024;
+            Box deadItem = Box.DeadItem;
             while(table.CopyDone < table.Capacity)
             {
                 int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
                 int workDone = 0;
                 for(int i = 0; i != chunk; ++i)
-                    if(CopySlot(table, prime, copyIdx + i))
+                    if(CopySlot(table, prime, deadItem, copyIdx + i))
                         ++workDone;
                 if(workDone != 0)
                     CopySlotAndPromote(table, workDone);
@@ -413,11 +415,11 @@ namespace Ariadne.Collections
                         break;
                 }
         }
-        private bool CopySlot(Table table, PrimeBox prime, int idx)
+        private bool CopySlot(Table table, PrimeBox prime, Box deadItem, int idx)
         {
             Record[] records = table.Records;
             //if unwritten-to we should be able to just mark it as dead.
-            Box box = Interlocked.CompareExchange(ref records[idx].Box, Box.DeadItem, null);
+            Box box = Interlocked.CompareExchange(ref records[idx].Box, deadItem, null);
             if(box == null)
                 return true;
             Box oldBox = box;
@@ -425,7 +427,7 @@ namespace Ariadne.Collections
             {
                 if(box is TombstoneBox)
                 {
-                    oldBox = Interlocked.CompareExchange(ref records[idx].Box, Box.DeadItem, box);
+                    oldBox = Interlocked.CompareExchange(ref records[idx].Box, deadItem, box);
                     if(oldBox == box)
                         return true;
                 }
@@ -450,7 +452,7 @@ namespace Ariadne.Collections
             
             bool copied = PutIfMatch(table.Next, newBox, records[idx].Hash, false, true) == null;
             
-            while((oldBox = Interlocked.CompareExchange(ref records[idx].Box, Box.DeadItem, box)) != box)
+            while((oldBox = Interlocked.CompareExchange(ref records[idx].Box, deadItem, box)) != box)
                 box = oldBox;
             
             return copied;
