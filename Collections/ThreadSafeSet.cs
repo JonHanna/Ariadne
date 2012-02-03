@@ -107,8 +107,7 @@ namespace Ariadne.Collections
         {
         	if(capacity < 0 || capacity > 0x40000000)
         		throw new ArgumentOutOfRangeException("capacity");
-        	if(comparer == null)
-        		throw new ArgumentNullException("comparer");
+        	Validation.NullCheck(comparer, "comparer");
         	if(capacity == 0)
         		capacity = DefaultCapacity;
         	else
@@ -668,8 +667,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public void UnionWith(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             if(other != this)
                 foreach(T item in other)
                     Add(item);
@@ -681,8 +679,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public void IntersectWith(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             if(other != this && Count != 0)
             {
                 ThreadSafeSet<T> copyTo = new ThreadSafeSet<T>(Capacity, _cmp);
@@ -700,9 +697,8 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public void ExceptWith(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
-            else if(other == this)
+            Validation.NullCheck(other, "other");
+            if(other == this)
                 Clear();
             else
                 foreach(T item in other)
@@ -715,9 +711,8 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
-            else if(other == this)
+            Validation.NullCheck(other, "other");
+            if(other == this)
                 Clear();
             else if(Count == 0)
                 UnionWith(other);
@@ -734,8 +729,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public bool IsSubsetOf(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             int count = Count;
             if(count == 0)
                 return true;
@@ -762,8 +756,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             ICollection<T> asCol = other as ICollection<T>;
             if(asCol != null)
             {
@@ -792,8 +785,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             ICollection<T> asCol = other as ICollection<T>;
             if(asCol != null)
             {
@@ -825,8 +817,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             int count = Count;
             if(count == 0)
                 return true;
@@ -856,8 +847,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public bool Overlaps(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             if(Count != 0)
                 foreach(T item in other)
                     if(Contains(item))
@@ -872,8 +862,7 @@ namespace Ariadne.Collections
         /// use).</remarks>
         public bool SetEquals(IEnumerable<T> other)
         {
-            if(other == null)
-                throw new ArgumentNullException("other");
+            Validation.NullCheck(other, "other");
             int asSetCount = -1;
             ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
             if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)

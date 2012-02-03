@@ -32,21 +32,32 @@ namespace Ariadne
     {
         public static void CopyTo<T>(T[] array, int arrayIndex)
         {
-        	if(array == null)
-        		throw new ArgumentNullException("array");
-        	if(arrayIndex < 0)
-        		throw new ArgumentOutOfRangeException("arrayIndex");
+        	NullCheck(array, "array");
+        	Positive(arrayIndex, "arrayIndex");
         }
         public static void CopyTo(Array array, int index)
         {
-        	if(array == null)
-        		throw new ArgumentNullException("array");
+        	NullCheck(array, "array");
         	if(array.Rank != 1)
         	    throw new ArgumentException(Strings.Cant_Copy_Multidimensional, "array");
         	if(array.GetLowerBound(0) != 0)
         	    throw new ArgumentException(Strings.Cant_Copy_NonZero, "array");
-        	if(index < 0)
-        		throw new ArgumentOutOfRangeException("index");
+        	Positive(index, "index");
+        }
+        public static void NullCheck<T>(T value, string paramName)
+        {
+            if(value == null)
+                throw new ArgumentNullException(paramName);
+        }
+        public static void PositiveNonZero(int value, string paramName)
+        {
+            if(value < 1)
+                throw new ArgumentOutOfRangeException(paramName);
+        }
+        public static void Positive(int value, string paramName)
+        {
+            if(value < 0)
+                throw new ArgumentOutOfRangeException(paramName);
         }
     }
     internal static class Strings

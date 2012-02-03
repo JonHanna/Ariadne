@@ -323,8 +323,7 @@ namespace Ariadne.Collections
         {
             if(capacity < 0 || capacity > 0x40000000)
         		throw new ArgumentOutOfRangeException("capacity");
-        	if(comparer == null)
-        		throw new ArgumentNullException("comparer");
+        	Validation.NullCheck(comparer, "comparer");
         	if(capacity == 0)
         		capacity = DefaultCapacity;
         	else
@@ -930,7 +929,7 @@ namespace Ariadne.Collections
                 TValue ret;
                 if(TryGetValue(key, out ret))
                     return ret;
-                throw new KeyNotFoundException(key.ToString());
+                throw new KeyNotFoundException();
             }
             set
             {
@@ -1031,8 +1030,7 @@ namespace Ariadne.Collections
         /// <paramref name="factory"/> has an appropriate degree of thread-safety.</para></remarks>
         public bool TryAdd(TKey key, Func<TKey, TValue> factory, out TValue existing)
         {
-            if(factory == null)
-                throw new ArgumentNullException("factory");
+            Validation.NullCheck(factory, "factory");
             KV prev;
             if(PutIfMatch(new KV(key, default(TValue)), MatchDead.Instance, ProducerFromFactory(factory), out prev))
             {
@@ -1065,8 +1063,7 @@ namespace Ariadne.Collections
         /// <returns>True if the key was updated, false if it wasn’t present or if <paramref name="compare"/> did not match the current value.</returns>
         public bool Update(TKey key, TValue value, TValue compare, IEqualityComparer<TValue> comparer, out TValue previous)
         {
-            if(comparer == null)
-                throw new ArgumentNullException("comparer");
+            Validation.NullCheck(comparer, "comparer");
             KV old;
             if(PutIfMatch(new KV(key, value), new MatchEquality(comparer, compare), null, out old))
             {
@@ -1121,8 +1118,7 @@ namespace Ariadne.Collections
         /// deletes the value, or the predicate returns false.</remarks>
         public bool Update(TKey key, TValue value, Func<TValue, bool> predicate, out TValue previous)
         {
-            if(predicate == null)
-                throw new ArgumentNullException("predicate");
+            Validation.NullCheck(predicate, "predicate");
             KV old;
             if(PutIfMatch(new KV(key, value), new PredicateEquality(predicate, false), null, out old))
             {

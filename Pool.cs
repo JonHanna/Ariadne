@@ -53,12 +53,9 @@ namespace Ariadne
         /// <exception cref="ArgumentException">Both <paramref name="factory"/> is null and <paramref name="prefill"/> is greater than zero.</exception>
         public Pool(IProducerConsumerCollection<T> store, Func<T> factory, int max, int prefill)
         {
-            if(store == null)
-                throw new ArgumentNullException("store");
-            if(max < 1)
-                throw new ArgumentOutOfRangeException("max");
-            if(prefill < 0)
-                throw new ArgumentOutOfRangeException("prefill");
+            Validation.NullCheck(store, "store");
+            Validation.PositiveNonZero(max, "max");
+            Validation.Positive(prefill, "prefill");
             if(factory == null && prefill != 0)
                 throw new ArgumentException();
             _store = store;
@@ -167,8 +164,7 @@ namespace Ariadne
         }
         private void CheckNonNullFactory(Func<T> factory)
         {
-            if(factory == null)
-                throw new ArgumentNullException("factory");
+            Validation.NullCheck(factory, "factory");
         }
         /// <summary>Obtains an object from the pool, or creates one with the factory passed.</summary>
         /// <param name="factory">A <see cref="Func&lt;T>"/> to create a new object, if the pool is empty.</param>
@@ -193,8 +189,7 @@ namespace Ariadne
         /// </remarks>
         public bool Store(T item)
         {
-            if(typeof(T).IsClass && ReferenceEquals(item, null))
-                throw new ArgumentNullException("item");
+            Validation.NullCheck(item, "item");
             return (_max == int.MaxValue || Count < _max) && _store.TryAdd(item);
         }
         /// <summary>Returns the number of items in the pool.</summary>

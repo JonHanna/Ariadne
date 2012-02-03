@@ -51,10 +51,7 @@ namespace Ariadne.Collections
         public LLQueue(IEnumerable<T> collection)
             :this()
         {
-            if(collection == null)
-                throw new ArgumentNullException("collection");
-            foreach(T item in collection)
-                Enqueue(item);
+            EnqueueRange(collection);
         }
         private LLQueue(SerializationInfo info, StreamingContext context)
             :this((T[])info.GetValue("arr", typeof(T[]))){}
@@ -82,14 +79,13 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>Adds a collection of items to the queue.</summary>
-        /// <param name="items">The <see cref="IEnumerable&lt;T>"/> to add to the queue.</param>
+        /// <param name="collection">The <see cref="IEnumerable&lt;T>"/> to add to the queue.</param>
         /// <remarks>The operation is not atomic, and may interleave with other enqueues or
         /// have some of the first items added dequeued before the last is enqueued.</remarks>
-        public void EnqueueRange(IEnumerable<T> items)
+        public void EnqueueRange(IEnumerable<T> collection)
         {
-            if(items == null)
-                throw new ArgumentNullException("items");
-            foreach(T item in items)
+            Validation.NullCheck(collection, "collection");
+            foreach(T item in collection)
                 Enqueue(item);
         }
         /// <summary>Attempts to remove an item from the start of the queue.</summary>

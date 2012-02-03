@@ -70,13 +70,12 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>Pushes a collection of items to the top of the stack as a single atomic operation.</summary>
-        /// <param name="items">The items to push onto the stack.</param>
+        /// <param name="collection">The items to push onto the stack.</param>
         /// <exception cref="ArgumentNullException"/>The collection was null.
-        public void PushRange(IEnumerable<T> items)
+        public void PushRange(IEnumerable<T> collection)
         {
-            if(items == null)
-                throw new ArgumentNullException("items");
-            using(IEnumerator<T> en = items.GetEnumerator())
+            Validation.NullCheck(collection, "collection");
+            using(IEnumerator<T> en = collection.GetEnumerator())
             {
                 if(!en.MoveNext())
                     return;

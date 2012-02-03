@@ -25,8 +25,7 @@ namespace Ariadne.Collections
     {
         private static void CheckDictNotNull<TKey, TValue>(ThreadSafeDictionary<TKey, TValue> dict)
         {
-            if(dict == null)
-                throw new ArgumentNullException("dict");
+            Validation.NullCheck(dict, "dict");
         }
         private static bool Increment<TKey>(ThreadSafeDictionary<TKey, int> dict, ThreadSafeDictionary<TKey, int>.Table table, TKey key, int hash, out int result)
         {
