@@ -199,7 +199,7 @@ namespace Ariadne.Collections
             int givenHash = _cmp.GetHashCode(item);
             return givenHash == 0 ? ZERO_HASH : givenHash;
         }
-        private bool Obtain(T item, out T storedItem)
+        internal bool Obtain(T item, out T storedItem)
         {
             return Obtain(_table, item, Hash(item), out storedItem);
         }
@@ -274,7 +274,7 @@ namespace Ariadne.Collections
                 }
             }
         }
-        private Box PutIfMatch(Box box, bool removing, bool emptyOnly)
+        internal Box PutIfMatch(Box box, bool removing, bool emptyOnly)
         {
             return PutIfMatch(_table, box, Hash(box.Value), removing, emptyOnly);
         }
@@ -631,39 +631,6 @@ namespace Ariadne.Collections
             foreach(T item in FilterAdd(items))
                 ++count;
             return count;
-        }
-        /// <summary>Retrieves a reference to the specified item.</summary>
-        /// <param name="item">The item sought.</param>
-        /// <returns>A reference to a matching item if it is present in the set, null otherwise.</returns>
-        /// <exception cref="System.InvalidOperationException"> An attempt was made to use this when the generic type of the
-        /// set is not a reference type (that is, a value or pointer type).</exception>
-        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
-        /// memory use, and reference-based equality checking, comparable with how <see cref="string.IsInterned(string)"/> allows
-        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
-        /// only valid for reference types.</remarks>
-        public T Find(T item)
-        {
-            if(typeof(T).IsValueType)
-                throw new InvalidOperationException(Strings.Retrieving_Non_Reference);
-            T found;
-            return Obtain(item, out found) ? found : default(T);
-        }
-        /// <summary>Retrieves a reference to the specified item, adding it if necessary.</summary>
-        /// <param name="item">The item sought.</param>
-        /// <returns>A reference to a matching item if it is present in the set, using the item given if there isn’t
-        /// already a matching item.</returns>
-        /// <exception cref="System.InvalidOperationException"> An attempt was made to use this when the generic type of the
-        /// set is not a reference type (that is, a value or pointer type).</exception>
-        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
-        /// memory use, and reference-based equality checking, comparable with how <see cref="string.Intern(string)"/> allows
-        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
-        /// only valid for reference types.</remarks>
-        public T FindOrStore(T item)
-        {
-            if(typeof(T).IsValueType)
-                throw new InvalidOperationException(Strings.Retrieving_Non_Reference);
-            Box found = PutIfMatch(new Box(item), false, false);
-            return found == null || found is TombstoneBox ? item : found.Value;
         }
         /// <summary>Modifies the current set so that it contains all elements that are present in both the current set and in the specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
@@ -1309,6 +1276,45 @@ namespace Ariadne.Collections
         {
             Validation.CopyTo(array, index);
         	((ICollection)ToHashSet()).CopyTo(array, index);
+        }
+    }
+    
+    /// <summary>Provides further static methods for manipulating <see cref="ThreadSafeSet&lt;T>"/>’s with
+    /// particular parameter types. In C♯ and VB.NET these extension methods can be called as instance methods on
+    /// appropriately typed <see cref="ThreadSafeSet&lt;T>"/>s.</summary>
+    /// <threadsafety static="true" instance="true"/>
+    public static class SetExtensions
+    {
+        /// <summary>Retrieves a reference to the specified item.</summary>
+        /// <typeparam name="T">The type of the items in the set.</typeparam>
+        /// <param name="tset">The set to search.</param>
+        /// <param name="item">The item sought.</param>
+        /// <returns>A reference to a matching item if it is present in the set, null otherwise.</returns>
+        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
+        /// memory use, and reference-based equality checking, comparable with how <see cref="string.IsInterned(string)"/> allows
+        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
+        /// only valid for reference types.</remarks>
+        public static T Find<T>(this ThreadSafeSet<T> tset, T item) where T : class
+        {
+            T found;
+            return tset.Obtain(item, out found) ? found : default(T);
+        }
+        /// <summary>Retrieves a reference to the specified item, adding it if necessary.</summary>
+        /// <typeparam name="T">The type of the items in the set.</typeparam>
+        /// <param name="tset">The set to search, and add to if necessary.</param>
+        /// <param name="item">The item sought.</param>
+        /// <returns>A reference to a matching item if it is present in the set, using the item given if there isn’t
+        /// already a matching item.</returns>
+        /// <exception cref="System.InvalidOperationException"> An attempt was made to use this when the generic type of the
+        /// set is not a reference type (that is, a value or pointer type).</exception>
+        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
+        /// memory use, and reference-based equality checking, comparable with how <see cref="string.Intern(string)"/> allows
+        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
+        /// only valid for reference types.</remarks>
+        public static T FindOrStore<T>(this ThreadSafeSet<T> tset, T item) where T : class
+        {
+            ThreadSafeSet<T>.Box found = tset.PutIfMatch(new ThreadSafeSet<T>.Box(item), false, false);
+            return found == null || found is ThreadSafeSet<T>.TombstoneBox ? item : found.Value;
         }
     }
 }
