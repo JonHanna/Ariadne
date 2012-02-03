@@ -111,9 +111,9 @@ namespace Ariadne.Collections
         public static int Increment<TKey>(this ThreadSafeDictionary<TKey, int> dict, TKey key)
         {
             int ret;
-            if(!dict.Increment(key, out ret))
-                throw new KeyNotFoundException();
-            return ret;
+            if(dict.Increment(key, out ret))
+                return ret;
+            throw new KeyNotFoundException();
         }
         private static bool Increment<TKey>(ThreadSafeDictionary<TKey, long> dict, ThreadSafeDictionary<TKey, long>.Table table, TKey key, int hash, out long result)
         {
@@ -199,9 +199,9 @@ namespace Ariadne.Collections
         public static long Increment<TKey>(this ThreadSafeDictionary<TKey, long> dict, TKey key)
         {
             long ret;
-            if(!dict.Increment(key, out ret))
-                throw new KeyNotFoundException();
-            return ret;
+            if(dict.Increment(key, out ret))
+                return ret;
+            throw new KeyNotFoundException();
         }
         private static bool Decrement<TKey>(ThreadSafeDictionary<TKey, int> dict, ThreadSafeDictionary<TKey, int>.Table table, TKey key, int hash, out int result)
         {
@@ -287,9 +287,9 @@ namespace Ariadne.Collections
         public static int Decrement<TKey>(this ThreadSafeDictionary<TKey, int> dict, TKey key)
         {
             int ret;
-            if(!dict.Decrement(key, out ret))
-                throw new KeyNotFoundException();
-            return ret;
+            if(dict.Decrement(key, out ret))
+                return ret;
+            throw new KeyNotFoundException();
         }
         private static bool Decrement<TKey>(ThreadSafeDictionary<TKey, long> dict, ThreadSafeDictionary<TKey, long>.Table table, TKey key, int hash, out long result)
         {
@@ -375,9 +375,9 @@ namespace Ariadne.Collections
         public static long Decrement<TKey>(this ThreadSafeDictionary<TKey, long> dict, TKey key)
         {
             long ret;
-            if(!dict.Decrement(key, out ret))
-                throw new KeyNotFoundException();
-            return ret;
+            if(dict.Decrement(key, out ret))
+                return ret;
+            throw new KeyNotFoundException();
         }
         private static bool Plus<TKey>(ThreadSafeDictionary<TKey, long> dict, ThreadSafeDictionary<TKey, long>.Table table, TKey key, int hash, long addend, out long result)
         {
@@ -467,9 +467,9 @@ namespace Ariadne.Collections
         public static long Plus<TKey>(this ThreadSafeDictionary<TKey, long> dict, TKey key, long addend)
         {
             long ret;
-            if(!dict.Plus(key, addend, out ret))
-                throw new KeyNotFoundException();
-            return ret;
+            if(dict.Plus(key, addend, out ret))
+                return ret;
+            throw new KeyNotFoundException();
         }
         private static bool Plus<TKey>(ThreadSafeDictionary<TKey, int> dict, ThreadSafeDictionary<TKey, int>.Table table, TKey key, int hash, int addend, out int result)
         {
@@ -559,9 +559,9 @@ namespace Ariadne.Collections
         public static int Plus<TKey>(this ThreadSafeDictionary<TKey, int> dict, TKey key, int addend)
         {
             int ret;
-            if(!dict.Plus(key, addend, out ret))
-                throw new KeyNotFoundException();
-            return ret;
+            if(dict.Plus(key, addend, out ret))
+                return ret;
+            throw new KeyNotFoundException();
         }
     }
 }

@@ -321,30 +321,33 @@ namespace Ariadne.Collections
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public ThreadSafeDictionary(int capacity, IEqualityComparer<TKey> comparer)
         {
-            if(capacity < 0 || capacity > 0x40000000)
-        		throw new ArgumentOutOfRangeException("capacity");
-        	Validation.NullCheck(comparer, "comparer");
-        	if(capacity == 0)
-        		capacity = DefaultCapacity;
-        	else
-        	{
-        	    // A classic hash-table trade-off. The (debated) advantages
-        	    // of prime-number sized tables vs. the speed of masking rather
-        	    // than modding. We go for the latter.
-	            unchecked // binary round-up
-	            {
-	                --capacity;
-	                capacity |= (capacity >> 1);
-	                capacity |= (capacity >> 2);
-	                capacity |= (capacity >> 4);
-	                capacity |= (capacity >> 8);
-	                capacity |= (capacity >> 16);
-	                ++capacity;
-	            }
-        	}
-            	
-            _table = new Table(capacity, new Counter());
-            _cmp = comparer;
+            if(capacity >= 0 && capacity <= 0x40000000)
+            {
+            	Validation.NullCheck(comparer, "comparer");
+            	if(capacity == 0)
+            		capacity = DefaultCapacity;
+            	else
+            	{
+            	    // A classic hash-table trade-off. The (debated) advantages
+            	    // of prime-number sized tables vs. the speed of masking rather
+            	    // than modding. We go for the latter.
+    	            unchecked // binary round-up
+    	            {
+    	                --capacity;
+    	                capacity |= (capacity >> 1);
+    	                capacity |= (capacity >> 2);
+    	                capacity |= (capacity >> 4);
+    	                capacity |= (capacity >> 8);
+    	                capacity |= (capacity >> 16);
+    	                ++capacity;
+    	            }
+            	}
+
+                _table = new Table(capacity, new Counter());
+                _cmp = comparer;
+            }
+            else
+                throw new ArgumentOutOfRangeException("capacity");
         }
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
@@ -361,23 +364,25 @@ namespace Ariadne.Collections
         {
             // we want to avoid pointless re-sizes if we can tell what size the source collection is, (though in
             // worse cases it could be a million items!), but can only do so for some collection types.
-        	if(collection == null)
-        	    throw new ArgumentNullException("collection", Strings.Dict_Null_Source_Collection);
-        	try
+        	if(collection != null)
         	{
-            	ICollection<KeyValuePair<TKey, TValue>> colKVP = collection as ICollection<KeyValuePair<TKey, TValue>>;
-            	if(colKVP != null)
-            	    return Math.Min(colKVP.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
-            	ICollection col = collection as ICollection;
-            	if(col != null)
-            	    return Math.Min(col.Count, 1024);
+            	try
+            	{
+                	ICollection<KeyValuePair<TKey, TValue>> colKVP = collection as ICollection<KeyValuePair<TKey, TValue>>;
+                	if(colKVP != null)
+                	    return Math.Min(colKVP.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
+                	ICollection col = collection as ICollection;
+                	if(col != null)
+                	    return Math.Min(col.Count, 1024);
+            	}
+            	catch
+            	{
+            	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
+            	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
+            	}
+            	return DefaultCapacity;
         	}
-        	catch
-        	{
-        	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
-        	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
-        	}
-        	return DefaultCapacity;
+    	    throw new ArgumentNullException("collection", Strings.Dict_Null_Source_Collection);
         }
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
@@ -984,8 +989,9 @@ namespace Ariadne.Collections
         /// <exception cref="System.ArgumentException">An item with the same key has already been added.</exception>
         public void Add(TKey key, TValue value)
         {
-            if(!TryAdd(key, value))
-                throw new ArgumentException(Strings.Dict_Same_Key, "key");
+            if(TryAdd(key, value))
+                return;
+            throw new ArgumentException(Strings.Dict_Same_Key, "key");
         }
         /// <summary>Attempts to add the specified key and value into the dictionary.</summary>
         /// <param name="key">The key to add.</param>
@@ -2066,26 +2072,31 @@ namespace Ariadne.Collections
             }
             set
             {
-                if(typeof(TKey).IsValueType && key == null)
-                    throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
-                if(typeof(TValue).IsValueType && value == null)
+                if(key != null)
+                {
+                    if(value != null)
+                    {
+                        try
+                        {
+                            TKey convKey = (TKey)key;
+                            try
+                            {
+                                this[convKey] = (TValue)value;
+                                return;
+                            }
+                            catch(InvalidCastException)
+                            {
+                                throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
+                            }
+                        }
+                        catch(InvalidCastException)
+                        {
+                            throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
+                        }
+                    }
                     throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
-                try
-                {
-                    TKey convKey = (TKey)key;
-                    try
-                    {
-                        this[convKey] = (TValue)value;
-                    }
-                    catch(InvalidCastException)
-                    {
-                        throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
-                    }
                 }
-                catch(InvalidCastException)
-                {
-                    throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
-                }
+                throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
             }
         }
         
@@ -2123,26 +2134,31 @@ namespace Ariadne.Collections
         
         void IDictionary.Add(object key, object value)
         {
-            if(typeof(TKey).IsValueType && key == null)
-                throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
-            if(typeof(TValue).IsValueType && value == null)
+            if(key != null)
+            {
+                if(value != null)
+                {
+                    try
+                    {
+                        TKey convKey = (TKey)key;
+                        try
+                        {
+                            Add(convKey, (TValue)value);
+                            return;
+                        }
+                        catch(InvalidCastException)
+                        {
+                            throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
+                        }
+                    }
+                    catch(InvalidCastException)
+                    {
+                        throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
+                    }
+                }
                 throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
-            try
-            {
-                TKey convKey = (TKey)key;
-                try
-                {
-                    Add(convKey, (TValue)value);
-                }
-                catch(InvalidCastException)
-                {
-                    throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
-                }
             }
-            catch(InvalidCastException)
-            {
-                throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
-            }
+            throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
         }
         
         IDictionaryEnumerator IDictionary.GetEnumerator()

@@ -374,16 +374,18 @@ namespace Ariadne.Collections
         /// being guaranteed to return once max is reached, even when racing with other threads.</returns>
         public int CountUntil(int max)
         {
-            if(max < -1)
-                throw new ArgumentOutOfRangeException("max");
+            if(max > 0)
+            {
+                int c = 0;
+                Enumerator en = new Enumerator(this);
+                while(en.MoveNext())
+                    if(++c == max)
+                        return max;
+                return c;
+            }
             if(max == 0)
                 return 0;
-            int c = 0;
-            Enumerator en = new Enumerator(this);
-            while(en.MoveNext())
-                if(++c == max)
-                    return max;
-            return c;
+            throw new ArgumentOutOfRangeException("max");
         }
         /// <summary>Returns a <see cref="List&lt;T>"/> of the current items in the queue without removing them.</summary>
         /// <returns>A <see cref="List&lt;T>"/> of the current items in the queue.</returns>

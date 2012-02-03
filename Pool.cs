@@ -56,13 +56,16 @@ namespace Ariadne
             Validation.NullCheck(store, "store");
             Validation.PositiveNonZero(max, "max");
             Validation.Positive(prefill, "prefill");
-            if(factory == null && prefill != 0)
+            if(factory != null || prefill == 0)
+            {
+                _store = store;
+                _factory = factory;
+                _max = max;
+                if(prefill != 0)
+                    Fill(prefill);
+            }
+            else
                 throw new ArgumentException();
-            _store = store;
-            _factory = factory;
-            _max = max;
-            if(prefill != 0)
-                Fill(prefill);
         }
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="store">The <see cref="IProducerConsumerCollection&lt;T>"/> to use as a backing store to the pool.</param>
@@ -130,12 +133,14 @@ namespace Ariadne
         /// <remarks>If the underlying store rejects some of the items, this is ignored.</remarks>
         public void Fill(int count)
         {
-            if(count < 1)
-                throw new ArgumentOutOfRangeException("count");
-            if(_factory == null)
+            Validation.PositiveNonZero(count, "count");
+            if(_factory != null)
+            {
+                while(count-- != 0)
+                    Store(_factory());
+            }
+            else
                 throw new InvalidOperationException();
-            while(count-- != 0)
-                Store(_factory());
         }
         /// <summary>Attempts to obtain an object from the pool.</summary>
         /// <param name="item">The item obtained if successful, or the default value for <c>T</c> otherwise.</param>
@@ -293,9 +298,9 @@ namespace Ariadne
         /// it was constructed.</exception>
         public Handle GetHandle()
         {
-            if(_factory == null)
-                throw new InvalidOperationException();
-            return new Handle(this);
+            if(_factory != null)
+                return new Handle(this);
+            throw new InvalidOperationException();
         }
         /// <summary>Returns a <see cref="Handle"/> that will obtain an object from the
         /// pool or create it with the factory passed to it, and return it to the pool upon disposal.</summary>

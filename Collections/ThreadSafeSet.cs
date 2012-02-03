@@ -105,27 +105,30 @@ namespace Ariadne.Collections
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public ThreadSafeSet(int capacity, IEqualityComparer<T> comparer)
         {
-        	if(capacity < 0 || capacity > 0x40000000)
-        		throw new ArgumentOutOfRangeException("capacity");
-        	Validation.NullCheck(comparer, "comparer");
-        	if(capacity == 0)
-        		capacity = DefaultCapacity;
-        	else
-        	{
-	            unchecked // binary round-up
-	            {
-	                --capacity;
-	                capacity |= (capacity >> 1);
-	                capacity |= (capacity >> 2);
-	                capacity |= (capacity >> 4);
-	                capacity |= (capacity >> 8);
-	                capacity |= (capacity >> 16);
-	                ++capacity;
-	            }
-        	}
-            	
-            _table = new Table(capacity, new Counter());
-            _cmp = comparer;
+            if(capacity >= 0 && capacity <= 0x40000000)
+            {
+            	Validation.NullCheck(comparer, "comparer");
+            	if(capacity == 0)
+            		capacity = DefaultCapacity;
+            	else
+            	{
+    	            unchecked // binary round-up
+    	            {
+    	                --capacity;
+    	                capacity |= (capacity >> 1);
+    	                capacity |= (capacity >> 2);
+    	                capacity |= (capacity >> 4);
+    	                capacity |= (capacity >> 8);
+    	                capacity |= (capacity >> 16);
+    	                ++capacity;
+    	            }
+            	}
+                	
+                _table = new Table(capacity, new Counter());
+                _cmp = comparer;
+            }
+            else
+                throw new ArgumentOutOfRangeException("capacity");
         }
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
@@ -140,23 +143,25 @@ namespace Ariadne.Collections
             :this(DefaultCapacity){}
         private static int EstimateNecessaryCapacity(IEnumerable<T> collection)
         {
-        	if(collection == null)
-        		throw new ArgumentNullException("collection", Strings.Set_Null_Source_Collection);
-        	try
+        	if(collection != null)
         	{
-            	ICollection<T> colT = collection as ICollection<T>;
-            	if(colT != null)
-            		return Math.Min(colT.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
-            	ICollection col = collection as ICollection;
-            	if(col != null)
-            	    return Math.Min(col.Count, 1024);
+            	try
+            	{
+                	ICollection<T> colT = collection as ICollection<T>;
+                	if(colT != null)
+                		return Math.Min(colT.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
+                	ICollection col = collection as ICollection;
+                	if(col != null)
+                	    return Math.Min(col.Count, 1024);
+            	}
+            	catch
+            	{
+            	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
+            	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
+            	}
+            	return DefaultCapacity;
         	}
-        	catch
-        	{
-        	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
-        	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
-        	}
-        	return DefaultCapacity;
+    		throw new ArgumentNullException("collection", Strings.Set_Null_Source_Collection);
         }
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
