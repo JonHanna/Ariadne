@@ -825,25 +825,6 @@ namespace Ariadne.NUnitTests
                 }
         	}
         	[Test]
-        	public void Reduce()
-        	{
-        	    var dict = new ThreadSafeDictionary<FinaliserCounted, int>();
-        	    for(int i = 0; i != 5000; ++ i)
-        	        dict[new FinaliserCounted(i)] = i;
-        	    for(int i = 0; i != 5000; i += 10)
-        	        dict[new FinaliserCounted(i)] = i;
-        	    GC.Collect();
-        	    GC.WaitForPendingFinalizers();
-        	    int finCount = FinaliserCounted.FinalCount;
-        	    Assert.AreNotEqual(0, finCount);
-        	    dict.Remove((fc, i) => i % 10 != 0);
-        	    finCount = FinaliserCounted.FinalCount;
-        	    dict.Reduce();
-        	    GC.Collect();
-        	    GC.WaitForPendingFinalizers();
-        	    Assert.IsTrue(FinaliserCounted.FinalCount > finCount);
-        	}
-        	[Test]
         	public void IncrementDecrementPlus()
         	{
         	    var dict = new ThreadSafeDictionary<int, int>();

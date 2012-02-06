@@ -1485,45 +1485,6 @@ namespace Ariadne.Collections
         {
             return new RemovingEnumeration(this, predicate);
         }
-        /// <summary>Ensures that the dictionary completes all pending resize operations, and allows the keys for all removed
-        /// values to be garbage collected.</summary>
-        /// <remarks>
-        /// <para>This method is offered purely as an optimisation for periods where the dictionary will only be read from. It will reduce
-        /// performance if there are continuing writes (which would continue the resize themselves more efficiently). If the dictionary will never
-        /// be written to again for the life-time of the application, it would be better still to replace it with a
-        /// <see cref="Dictionary&lt;TKey, TValue>"/> as per:</para>
-        /// <code>
-        /// static IDictionary&lt;string, string> SharedDictionary = new ThreadSafeDictionary&lt;string, string>();
-        /// /* 
-        ///  * ⋮
-        ///  */
-        /// private void DoneWriting()  // Called when there will be no more writing to the dictionary.
-        /// {
-        ///     ThreadSafeDictionary&lt;string, string> lfDict = (ThreadSafeDictionary&lt;string, string>)SharedDictionary;
-        ///     SharedDictionary = lfDict.ToDictionary();   //Create Dictionary&lt;string, string> and over-write ThreadSafeDictionary
-        ///                                                 //as Dictionary&lt;string, string> is thread-safe when read-only.
-        ///     Thread.MemoryBarrier(); //Optional. Ensure change of IDictionary is seen by other threads immediately.
-        /// }
-        /// </code>
-        /// <para>As such, <see cref="Reduce()"/> falls into a middle-area that will rarely, if ever, arise.</para>
-        /// </remarks>
-        public void Reduce()
-        {
-            if(_table.Next == null && _table.Slots == _table.Size)
-                return;
-            if(_table.Next == null)
-                Resize(_table);
-            Table last = _table.Next;
-            while(last.Next != null)
-                last = last.Next;
-            while(_table != last)
-                HelpCopy(_table, true);
-            if(_table.Slots > _table.Size)
-            {
-                Resize(_table);
-                HelpCopy(_table, true);
-            }
-        }
         /// <summary>Enumerates a <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
