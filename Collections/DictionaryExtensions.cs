@@ -56,7 +56,7 @@ namespace Ariadne.Collections
                         {
                             if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, new ThreadSafeDictionary<TKey, int>.PrimeKV(), idx);
+                                dict.CopySlotsAndCheck(table, idx);
                                 table = table.Next;
                                 break;
                             }
@@ -144,7 +144,7 @@ namespace Ariadne.Collections
                         {
                             if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, new ThreadSafeDictionary<TKey, long>.PrimeKV(), idx);
+                                dict.CopySlotsAndCheck(table, idx);
                                 table = table.Next;
                                 break;
                             }
@@ -232,7 +232,7 @@ namespace Ariadne.Collections
                         {
                             if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, new ThreadSafeDictionary<TKey, int>.PrimeKV(), idx);
+                                dict.CopySlotsAndCheck(table, idx);
                                 table = table.Next;
                                 break;
                             }
@@ -320,7 +320,7 @@ namespace Ariadne.Collections
                         {
                             if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, new ThreadSafeDictionary<TKey, long>.PrimeKV(), idx);
+                                dict.CopySlotsAndCheck(table, idx);
                                 table = table.Next;
                                 break;
                             }
@@ -408,7 +408,7 @@ namespace Ariadne.Collections
                         {
                             if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, new ThreadSafeDictionary<TKey, long>.PrimeKV(), idx);
+                                dict.CopySlotsAndCheck(table, idx);
                                 table = table.Next;
                                 break;
                             }
@@ -500,7 +500,7 @@ namespace Ariadne.Collections
                         {
                             if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
                             {
-                                dict.CopySlotsAndCheck(table, new ThreadSafeDictionary<TKey, int>.PrimeKV(), idx);
+                                dict.CopySlotsAndCheck(table, idx);
                                 table = table.Next;
                                 break;
                             }

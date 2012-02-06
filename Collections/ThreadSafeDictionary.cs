@@ -128,6 +128,9 @@ namespace Ariadne.Collections
         // Marks the record as part-way copied to the next table.
         internal sealed class PrimeKV : KV
         {
+            public PrimeKV(){}
+            public PrimeKV(TKey key, TValue value)
+                :base(key, value){}
         }
         // There used to be a value here, but it was deleted. We can write to this
         // record again if the key is to be inserted again. Otherwise the key stays
@@ -515,7 +518,7 @@ namespace Ariadne.Collections
                                 // A resize-copy is part-way through. Let’s make sure it completes before hitting that
                                 // other table (we do this rather than trust the value we found, because the next table
                                 // could have a more recently-written value).
-                                CopySlotsAndCheck(table, new PrimeKV(), idx);
+                                CopySlotsAndCheck(table, idx);
                             	// Note that Click has reading operations help the resize operation.
                             	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
                                 // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
@@ -636,7 +639,7 @@ namespace Ariadne.Collections
                     //test if we’re putting from a copy
                     //and don’t do this if that’s
                     //the case
-                    HelpCopy(table, new PrimeKV(), false);
+                    HelpCopy(table, false);
                     table = next;
                     goto restart;
                 }
@@ -675,8 +678,8 @@ namespace Ariadne.Collections
             if(table.Next != null)
             {
                 PrimeKV prime = new PrimeKV();
-                CopySlotsAndCheck(table, prime, idx);
-                HelpCopy(table, prime, false);
+                CopySlotsAndCheck(table, idx);
+                HelpCopy(table, false);
                 table = table.Next;
                 goto restart;
             }
@@ -716,9 +719,8 @@ namespace Ariadne.Collections
                 //we lost the race, another thread set the pair.
                 if(prevPair is PrimeKV)
                 {
-                    PrimeKV prime = new PrimeKV();
-                    CopySlotsAndCheck(table, prime, idx);
-                    HelpCopy(table, prime, false);
+                    CopySlotsAndCheck(table, idx);
+                    HelpCopy(table, false);
                     table = table.Next;
                     goto restart;
                 }
@@ -732,13 +734,13 @@ namespace Ariadne.Collections
             }
         }
         // Copies a record to the next table, and checks if there should be a promotion.
-        internal void CopySlotsAndCheck(Table table, PrimeKV prime, int idx)
+        internal void CopySlotsAndCheck(Table table, int idx)
         {
-            if(CopySlot(table, prime, KV.DeadKey, idx))
+            if(CopySlot(table, KV.DeadKey, idx))
                 CopySlotAndPromote(table, 1);
         }
         // Copy a bunch of records to the next table.
-        private void HelpCopy(Table table, PrimeKV prime, bool all)
+        private void HelpCopy(Table table, bool all)
         {
             //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
             //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
@@ -751,9 +753,10 @@ namespace Ariadne.Collections
             while(table.CopyDone < table.Capacity)
             {
                 int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
+                int end = copyIdx + chunk;
                 int workDone = 0;
-                for(int i = 0; i != chunk; ++i)
-                    if(CopySlot(table, prime, deadKey, copyIdx + i))
+                for(; copyIdx != end; ++copyIdx)
+                    if(CopySlot(table, deadKey, copyIdx))
                         ++workDone;
                 if(workDone != 0)
                     CopySlotAndPromote(table, workDone);
@@ -774,7 +777,7 @@ namespace Ariadne.Collections
                         break;
                 }
         }
-        private bool CopySlot(Table table, PrimeKV prime, KV deadKey, int idx)
+        private bool CopySlot(Table table, KV deadKey, int idx)
         {
             //Note that the prime is passed through. This prevents the allocation of multiple
             //objects which will in the normal case become unnecessary after this method completes
@@ -805,30 +808,26 @@ namespace Ariadne.Collections
             	}
             	else
             	{
-	            	kv.FillPrime(prime);
+            	    PrimeKV prime = new PrimeKV(kv.Key, kv.Value);
 	                oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, prime, kv);
 	                if(kv == oldKV)
 	                {
-	                    if(kv is TombstoneKV)
-	                        return true;
 	                    kv = prime;
 	                    break;
 	                }
             	}
                 kv = oldKV;
             }
-            if(kv is TombstoneKV)
-                return false;
-
-            KV newRecord = oldKV.StripPrime();
-            
-            KV dontCare;
-            bool copied = PutIfMatch(table.Next, newRecord, records[idx].Hash, MatchEmptyOnly.Instance, null, out dontCare);
-            
-            while((oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, kv)) != kv)
+            PutIfMatch(table.Next, oldKV.StripPrime(), records[idx].Hash, MatchEmptyOnly.Instance, null, out oldKV);
+            for(;;)
+            {
+                oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, kv);
+                if(oldKV == kv)
+                    return true;
+                if(oldKV == deadKey)
+                    return false;
                 kv = oldKV;
-            
-            return copied;
+            }
         }
         private static Table Resize(Table tab)
         {
@@ -1517,13 +1516,12 @@ namespace Ariadne.Collections
             Table last = _table.Next;
             while(last.Next != null)
                 last = last.Next;
-            PrimeKV prime = new PrimeKV();
             while(_table != last)
-                HelpCopy(_table, prime, true);
+                HelpCopy(_table, true);
             if(_table.Slots > _table.Size)
             {
                 Resize(_table);
-                HelpCopy(_table, prime, true);
+                HelpCopy(_table, true);
             }
         }
         /// <summary>Enumerates a <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
@@ -1566,7 +1564,7 @@ namespace Ariadne.Collections
                     {
                         KV kv = records[_idx].KeyValue;
                         if(kv is PrimeKV)
-                            _dict.CopySlotsAndCheck(_table, new PrimeKV(), _idx);
+                            _dict.CopySlotsAndCheck(_table, _idx);
                         else if(kv != null && !(kv is TombstoneKV) && _predicate(kv.Key, kv.Value))
                         {
                             TombstoneKV tomb = new TombstoneKV(kv.Key);
@@ -1582,7 +1580,7 @@ namespace Ariadne.Collections
                                 }
                                 else if(oldKV is PrimeKV)
                                 {
-                                    _dict.CopySlotsAndCheck(_table, new PrimeKV(), _idx);
+                                    _dict.CopySlotsAndCheck(_table, _idx);
                                     break;
                                 }
                                 else if(oldKV is TombstoneKV || !_predicate(oldKV.Key, oldKV.Value))
@@ -1677,7 +1675,7 @@ namespace Ariadne.Collections
                         if(kv != null && !(kv is TombstoneKV))
                         {
                             if(kv is PrimeKV)//part-way through being copied to next table
-                                _dict.CopySlotsAndCheck(_tab, new PrimeKV(), _idx);//make sure it’s there when we come to it.
+                                _dict.CopySlotsAndCheck(_tab, _idx);//make sure it’s there when we come to it.
                         	else
                         	{
 	                            _current = kv;
