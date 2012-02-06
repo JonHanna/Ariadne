@@ -97,7 +97,6 @@ namespace Ariadne.Collections
         {
             public TKey Key;
             public TValue Value;
-            protected KV(){}
             public KV(TKey key, TValue value)
             {
                 Key = key;
@@ -128,7 +127,6 @@ namespace Ariadne.Collections
         // Marks the record as part-way copied to the next table.
         internal sealed class PrimeKV : KV
         {
-            public PrimeKV(){}
             public PrimeKV(TKey key, TValue value)
                 :base(key, value){}
         }
@@ -294,7 +292,7 @@ namespace Ariadne.Collections
         internal sealed class Table
         {
             public readonly Record[] Records;
-            public volatile Table Next;
+            public Table Next;
             public readonly Counter Size;
             public readonly Counter Slots = new Counter();
             public readonly int Capacity;
@@ -635,12 +633,12 @@ namespace Ariadne.Collections
                     curPair = records[idx].KeyValue; //just to check for dead records
                 if(curPair == deadKey || ++reprobeCount >= maxProbe)
                 {
-                    Table next = table.Next ?? Resize(table);
+                    Resize(table);
                     //test if we’re putting from a copy
                     //and don’t do this if that’s
                     //the case
-                    HelpCopy(table, false);
-                    table = next;
+                    HelpCopy(table, records);
+                    table = table.Next;
                     goto restart;
                 }
                 idx = (idx + 1) & mask;
@@ -677,9 +675,8 @@ namespace Ariadne.Collections
             //should look to the next table - and then we write there.
             if(table.Next != null)
             {
-                PrimeKV prime = new PrimeKV();
                 CopySlotsAndCheck(table, idx);
-                HelpCopy(table, false);
+                HelpCopy(table, records);
                 table = table.Next;
                 goto restart;
             }
@@ -720,7 +717,7 @@ namespace Ariadne.Collections
                 if(prevPair is PrimeKV)
                 {
                     CopySlotsAndCheck(table, idx);
-                    HelpCopy(table, false);
+                    HelpCopy(table, records);
                     table = table.Next;
                     goto restart;
                 }
@@ -736,11 +733,11 @@ namespace Ariadne.Collections
         // Copies a record to the next table, and checks if there should be a promotion.
         internal void CopySlotsAndCheck(Table table, int idx)
         {
-            if(CopySlot(table, KV.DeadKey, idx))
+            if(CopySlot(table, KV.DeadKey, ref table.Records[idx]))
                 CopySlotAndPromote(table, 1);
         }
         // Copy a bunch of records to the next table.
-        private void HelpCopy(Table table, bool all)
+        private void HelpCopy(Table table, Record[] records)
         {
             //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
             //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
@@ -749,19 +746,17 @@ namespace Ariadne.Collections
             int chunk = table.Capacity;
             if(chunk > 1024)
                 chunk = 1024;
-            KV deadKey = KV.DeadKey;
-            while(table.CopyDone < table.Capacity)
+            TombstoneKV deadKey = KV.DeadKey;
+            if(table.CopyDone < table.Capacity)
             {
                 int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
                 int end = copyIdx + chunk;
                 int workDone = 0;
-                for(; copyIdx != end; ++copyIdx)
-                    if(CopySlot(table, deadKey, copyIdx))
+                while(copyIdx != end)
+                    if(CopySlot(table, deadKey, ref records[copyIdx++]))
                         ++workDone;
                 if(workDone != 0)
                     CopySlotAndPromote(table, workDone);
-                if(!all)
-                    return;
             }
         }
         //If we’ve just finished copying the current table, then we should make the next table
@@ -777,39 +772,29 @@ namespace Ariadne.Collections
                         break;
                 }
         }
-        private bool CopySlot(Table table, KV deadKey, int idx)
+        private bool CopySlot(Table table, TombstoneKV deadKey, ref Record record)
         {
-            //Note that the prime is passed through. This prevents the allocation of multiple
-            //objects which will in the normal case become unnecessary after this method completes
-            //and in the case of an exception would be abandoned by the thread anyway.
-            //This is pretty much a pure optimisation, but does profile as giving real improvements.
-            //There could be a temptation to go further and have a single permanent prime in tread-local
-            //storage. However, this fails in the following case:
-            //1. Thread is aborted or otherwise rudely interrupted after putting the prime in the table
-            //but before over-writing it with the dead record.
-            //2. This exception is caught, and the thread is put back into service.
-            //3. The thread uses its thread-local prime in another operation, hence mutating the value
-            //written in step 1 above (perhaps in a different table in a different dictionary).
-            //Besides which, such thread-local implementation could profile as giving a tiny improvement in tests
-            //and then hammer memory usage in real world use!
-            Record[] records = table.Records;
+            return CopySlot(table, deadKey, ref record.KeyValue, record.Hash);
+        }
+        private bool CopySlot(Table table, TombstoneKV deadKey, ref KV keyValue, int hash)
+        {
             //if unwritten-to we should be able to just mark it as dead.
-            KV kv = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, null);
-            if(kv  == null)
+            KV kv = Interlocked.CompareExchange(ref keyValue, deadKey, null);
+            if(kv  == null || kv == deadKey)
                 return true;
             KV oldKV = kv;
             while(!(kv is PrimeKV))
             {
             	if(kv is TombstoneKV)
             	{
-            		oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, kv);
+            		oldKV = Interlocked.CompareExchange(ref keyValue, deadKey, kv);
             		if(oldKV == kv)
             			return true;
             	}
             	else
             	{
             	    PrimeKV prime = new PrimeKV(kv.Key, kv.Value);
-	                oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, prime, kv);
+	                oldKV = Interlocked.CompareExchange(ref keyValue, prime, kv);
 	                if(kv == oldKV)
 	                {
 	                    kv = prime;
@@ -817,11 +802,13 @@ namespace Ariadne.Collections
 	                }
             	}
                 kv = oldKV;
+                if(kv == deadKey)
+                    return false;
             }
-            PutIfMatch(table.Next, oldKV.StripPrime(), records[idx].Hash, MatchEmptyOnly.Instance, null, out oldKV);
+            PutIfMatch(table.Next, oldKV.StripPrime(), hash, MatchEmptyOnly.Instance, null, out oldKV);
             for(;;)
             {
-                oldKV = Interlocked.CompareExchange(ref records[idx].KeyValue, deadKey, kv);
+                oldKV = Interlocked.CompareExchange(ref keyValue, deadKey, kv);
                 if(oldKV == kv)
                     return true;
                 if(oldKV == deadKey)
@@ -829,15 +816,14 @@ namespace Ariadne.Collections
                 kv = oldKV;
             }
         }
-        private static Table Resize(Table tab)
+        private static void Resize(Table tab)
         {
             //Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
             //but determining just how best to do so requires the consideration of many different cases.
+            if(tab.Next != null)
+                return;
             int sz = tab.Size;
             int cap = tab.Capacity;
-            Table next = tab.Next;
-            if(next != null)
-                return next;
             int newCap;
             if(sz >= cap * 3 / 4)
                 newCap = sz * 8;
@@ -865,26 +851,26 @@ namespace Ariadne.Collections
                 ++newCap;
             }
             
-            int resizers = Interlocked.Increment(ref tab.Resizers);
-            int MB = newCap / 0x40000;
-            if(MB > 0 && resizers > 2)
+            
+            int MB = newCap >> 18;
+            if(MB > 0)
             {
-                if((next = tab.Next) != null)
-                    return next;
-                Thread.SpinWait(20);
-                if((next = tab.Next) != null)
-                    return next;
-                Thread.Sleep(Math.Max(MB * 5 * resizers, 200));
+                int resizers = Interlocked.Increment(ref tab.Resizers);
+                if(resizers > 2)
+                {
+                    if(tab.Next != null)
+                        return;
+                    Thread.SpinWait(20);
+                    if(tab.Next != null)
+                        return;
+                    Thread.Sleep(Math.Max(MB * 5 * resizers, 200));
+                }
             }
             
-            if((next = tab.Next) != null)
-                return next;
+            if(tab.Next != null)
+                return;
             
-            next = new Table(newCap, tab.Size);
-
-            #pragma warning disable 420 // CompareExchange has its own volatility guarantees
-            return Interlocked.CompareExchange(ref tab.Next, next, null) ?? next;
-			#pragma warning restore 420
+            Interlocked.CompareExchange(ref tab.Next, new Table(newCap, tab.Size), null);
         }
         /// <summary>The current capacity of the dictionary.</summary>
         /// <remarks>If the dictionary is in the midst of a resize, the capacity it is resizing to is returned, ignoring other internal storage in use.</remarks>
