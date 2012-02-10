@@ -29,63 +29,42 @@ namespace Ariadne.Collections
         }
         private static bool Increment<TKey>(ThreadSafeDictionary<TKey, int> dict, ThreadSafeDictionary<TKey, int>.Table table, TKey key, int hash, out int result)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = (idx + table.ReprobeLimit)  & mask;
                 ThreadSafeDictionary<TKey, int>.Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)
-                    {
-                        ThreadSafeDictionary<TKey, int>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        ThreadSafeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
+                        var pair = records[idx].KeyValue;
+                        if(pair == null)
+                            break;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
+                            if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
                             {
-                                dict.CopySlotsAndCheck(table, idx);
-                                table = table.Next;
-                                break;
-                            }
-                            else if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
-                            {
-                                result = 0;
-                                return false;
-                            }
-                            else
-                            {
-                                result = Interlocked.Increment(ref records[idx].KeyValue.Value);
+                                if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
+                                {
+                                    dict.CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
+                                result = Interlocked.Increment(ref pair.Value);
                                 return true;
                             }
+                            result = 0;
+                            return false;
                         }
                     }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        ThreadSafeDictionary<TKey, int>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            result = 0;
+            return false;
         }
         /// <summary>Atomically increments the <see cref="int"/> value identified by the key, by one.</summary>
         /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
@@ -117,63 +96,42 @@ namespace Ariadne.Collections
         }
         private static bool Increment<TKey>(ThreadSafeDictionary<TKey, long> dict, ThreadSafeDictionary<TKey, long>.Table table, TKey key, int hash, out long result)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = (idx + table.ReprobeLimit)  & mask;
                 ThreadSafeDictionary<TKey, long>.Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)
-                    {
-                        ThreadSafeDictionary<TKey, long>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        ThreadSafeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
+                        var pair = records[idx].KeyValue;
+                        if(pair == null)
+                            break;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
+                            if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
                             {
-                                dict.CopySlotsAndCheck(table, idx);
-                                table = table.Next;
-                                break;
-                            }
-                            else if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
-                            {
-                                result = 0;
-                                return false;
-                            }
-                            else
-                            {
-                                result = Interlocked.Increment(ref records[idx].KeyValue.Value);
+                                if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
+                                {
+                                    dict.CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
+                                result = Interlocked.Increment(ref pair.Value);
                                 return true;
                             }
+                            result = 0;
+                            return false;
                         }
                     }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        ThreadSafeDictionary<TKey, long>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            result = 0;
+            return false;
         }
         /// <summary>Atomically increments the <see cref="long"/> value identified by the key, by one.</summary>
         /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
@@ -205,63 +163,42 @@ namespace Ariadne.Collections
         }
         private static bool Decrement<TKey>(ThreadSafeDictionary<TKey, int> dict, ThreadSafeDictionary<TKey, int>.Table table, TKey key, int hash, out int result)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = (idx + table.ReprobeLimit)  & mask;
                 ThreadSafeDictionary<TKey, int>.Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)
-                    {
-                        ThreadSafeDictionary<TKey, int>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        ThreadSafeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
+                        var pair = records[idx].KeyValue;
+                        if(pair == null)
+                            break;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
+                            if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
                             {
-                                dict.CopySlotsAndCheck(table, idx);
-                                table = table.Next;
-                                break;
-                            }
-                            else if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
-                            {
-                                result = 0;
-                                return false;
-                            }
-                            else
-                            {
-                                result = Interlocked.Decrement(ref records[idx].KeyValue.Value);
+                                if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
+                                {
+                                    dict.CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
+                                result = Interlocked.Decrement(ref pair.Value);
                                 return true;
                             }
+                            result = 0;
+                            return false;
                         }
                     }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        ThreadSafeDictionary<TKey, int>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            result = 0;
+            return false;
         }
         /// <summary>Atomically decrements the <see cref="int"/> value identified by the key, by one.</summary>
         /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
@@ -293,63 +230,42 @@ namespace Ariadne.Collections
         }
         private static bool Decrement<TKey>(ThreadSafeDictionary<TKey, long> dict, ThreadSafeDictionary<TKey, long>.Table table, TKey key, int hash, out long result)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = (idx + table.ReprobeLimit)  & mask;
                 ThreadSafeDictionary<TKey, long>.Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)
-                    {
-                        ThreadSafeDictionary<TKey, long>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        ThreadSafeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
+                        var pair = records[idx].KeyValue;
+                        if(pair == null)
+                            break;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
+                            if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
                             {
-                                dict.CopySlotsAndCheck(table, idx);
-                                table = table.Next;
-                                break;
-                            }
-                            else if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
-                            {
-                                result = 0;
-                                return false;
-                            }
-                            else
-                            {
-                                result = Interlocked.Decrement(ref records[idx].KeyValue.Value);
+                                if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
+                                {
+                                    dict.CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
+                                result = Interlocked.Decrement(ref pair.Value);
                                 return true;
                             }
+                            result = 0;
+                            return false;
                         }
                     }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        ThreadSafeDictionary<TKey, long>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            result = 0;
+            return false;
         }
         /// <summary>Atomically decrements the <see cref="long"/> value identified by the key, by one.</summary>
         /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
@@ -381,63 +297,42 @@ namespace Ariadne.Collections
         }
         private static bool Plus<TKey>(ThreadSafeDictionary<TKey, long> dict, ThreadSafeDictionary<TKey, long>.Table table, TKey key, int hash, long addend, out long result)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = (idx + table.ReprobeLimit)  & mask;
                 ThreadSafeDictionary<TKey, long>.Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)
-                    {
-                        ThreadSafeDictionary<TKey, long>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        ThreadSafeDictionary<TKey, long>.KV pair = records[idx].KeyValue;
+                        var pair = records[idx].KeyValue;
+                        if(pair == null)
+                            break;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
+                            if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
                             {
-                                dict.CopySlotsAndCheck(table, idx);
-                                table = table.Next;
-                                break;
-                            }
-                            else if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
-                            {
-                                result = 0;
-                                return false;
-                            }
-                            else
-                            {
-                                result = Interlocked.Add(ref records[idx].KeyValue.Value, addend);
+                                if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
+                                {
+                                    dict.CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
+                                result = Interlocked.Add(ref pair.Value, addend);
                                 return true;
                             }
+                            result = 0;
+                            return false;
                         }
                     }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        ThreadSafeDictionary<TKey, long>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            result = 0;
+            return false;
         }
         /// <summary>Atomically adds the supplied <see cref="long"/> value to the value identified by the key, returning
         /// the result.</summary>
@@ -473,63 +368,42 @@ namespace Ariadne.Collections
         }
         private static bool Plus<TKey>(ThreadSafeDictionary<TKey, int> dict, ThreadSafeDictionary<TKey, int>.Table table, TKey key, int hash, int addend, out int result)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = (idx + table.ReprobeLimit)  & mask;
                 ThreadSafeDictionary<TKey, int>.Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)
-                    {
-                        ThreadSafeDictionary<TKey, int>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
-                        ThreadSafeDictionary<TKey, int>.KV pair = records[idx].KeyValue;
+                        var pair = records[idx].KeyValue;
+                        if(pair == null)
+                            break;
                         if(dict._cmp.Equals(key, pair.Key))
                         {
-                            if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
+                            if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
                             {
-                                dict.CopySlotsAndCheck(table, idx);
-                                table = table.Next;
-                                break;
-                            }
-                            else if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
-                            {
-                                result = 0;
-                                return false;
-                            }
-                            else
-                            {
-                                result = Interlocked.Add(ref records[idx].KeyValue.Value, addend);
+                                if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
+                                {
+                                    dict.CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
+                                result = Interlocked.Add(ref pair.Value, addend);
                                 return true;
                             }
+                            result = 0;
+                            return false;
                         }
                     }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        ThreadSafeDictionary<TKey, int>.Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        result = 0;
-                        return false;
-                    }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            result = 0;
+            return false;
         }
         /// <summary>Atomically adds the supplied <see cref="int"/> value to the value identified by the key, returning
         /// the result.</summary>

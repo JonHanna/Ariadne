@@ -475,84 +475,50 @@ namespace Ariadne.Collections
         // Try to get a value from a table. If necessary, move to the next table. 
         private bool Obtain(Table table, TKey key, int hash, out TValue value)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = (idx + table.ReprobeLimit) & mask;
                 Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)//nothing written to this record
-                    {
-                        Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        value = default(TValue);
-                        return false;
-                    }
                     if(curHash == hash)//hash we care about, is it the key we care about?
                     {
                         KV pair = records[idx].KeyValue;
                         if(pair == null)//part-way through write perhaps of what we want, but we're too early. If not, what we want isn't further on.
-                        {
-                            Table next = table.Next;
-                            if(next != null)
-                            {
-                                table = next;
-                                break;
-                            }
-                            value = default(TValue);
-                            return false;
-                        }
+                            break;
                         if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
                         {
-                            if(pair is PrimeKV)
+                            if(!(pair is TombstoneKV))
                             {
-                                // A resize-copy is part-way through. Let’s make sure it completes before hitting that
-                                // other table (we do this rather than trust the value we found, because the next table
-                                // could have a more recently-written value).
-                                CopySlotsAndCheck(table, idx);
-                            	// Note that Click has reading operations help the resize operation.
-                            	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
-                                // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
-                            	// in heavily memory-constrained scenarios. Since reading wouldn’t conceptually add to
-                            	// memory use, this could be surprising to users.
-                                table = table.Next;
-                                break;
-                            }
-                            else if(pair is TombstoneKV)
-                            {
-                                value = default(TValue);
-                                return false;
-                            }
-                            else
-                            {
+                                if(pair is PrimeKV)
+                                {
+                                    // A resize-copy is part-way through. Let’s make sure it completes before hitting that
+                                    // other table (we do this rather than trust the value we found, because the next table
+                                    // could have a more recently-written value).
+                                    CopySlotsAndCheck(table, idx);
+                                	// Note that Click has reading operations help the resize operation.
+                                	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
+                                    // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
+                                	// in heavily memory-constrained scenarios. Since reading wouldn’t conceptually add to
+                                	// memory use, this could be surprising to users.
+                                    break;
+                                }
                                 value = pair.Value;
                                 return true;
                             }
-                        }
-                    }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        //if there’s a resize in progress, the desired value might be in the next table.
-                        //otherwise, it doesn’t exist.
-                        Table next = table.Next;
-                        if(next == null)
-                        {
                             value = default(TValue);
                             return false;
                         }
-                        table = next;
-                        break;
                     }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            value = default(TValue);
+            return false;
         }
         // try to put a value into the dictionary, as long as the current value
         // matches oldPair based on the dictionary’s key-comparison rules
@@ -584,8 +550,7 @@ namespace Ariadne.Collections
         restart:
             int mask = table.Mask;
             int idx = hash & mask;
-            int reprobeCount = 0;
-            int maxProbe = table.ReprobeLimit;
+            int endIdx = (idx + table.ReprobeLimit) & mask;
             Record[] records = table.Records;
             KV curPair = null;
             for(;;)
@@ -631,7 +596,7 @@ namespace Ariadne.Collections
                 }
                 else
                     curPair = records[idx].KeyValue; //just to check for dead records
-                if(curPair == deadKey || ++reprobeCount >= maxProbe)
+                if(curPair == deadKey || (idx = (idx + 1) & mask) == endIdx)
                 {
                     Resize(table);
                     //test if we’re putting from a copy
@@ -641,7 +606,6 @@ namespace Ariadne.Collections
                     table = table.Next;
                     goto restart;
                 }
-                idx = (idx + 1) & mask;
             }
             //we have a record with a matching key.
 
