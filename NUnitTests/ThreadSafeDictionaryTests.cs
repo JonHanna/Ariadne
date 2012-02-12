@@ -27,7 +27,7 @@ namespace Ariadne.NUnitTests
         [TestFixture]
         public class SingleThreaded
         {
-        	protected const int SourceDataLen = 131072 * 16;
+        	protected const int SourceDataLen = 131072 * 32;
         	protected static string[] SourceData = new string[SourceDataLen];
         	[TestFixtureSetUpAttribute]
             public void FillSourceData()
