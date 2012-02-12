@@ -1,4 +1,4 @@
-﻿// © 2011 Jon Hanna.
+﻿// © 2011–2012 Jon Hanna.
 // This source code is licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -33,7 +33,8 @@ namespace Ariadne.Collections
             {
                 int mask = table.Mask;
                 int idx = hash & mask;
-                int endIdx = (idx + table.ReprobeLimit)  & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
                 ThreadSafeDictionary<TKey, int>.Record[] records = table.Records;
                 do
                 {
@@ -43,7 +44,7 @@ namespace Ariadne.Collections
                         var pair = records[idx].KeyValue;
                         if(pair == null)
                             break;
-                        if(dict._cmp.Equals(key, pair.Key))
+                        if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
                             if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
                             {
@@ -59,7 +60,7 @@ namespace Ariadne.Collections
                             return false;
                         }
                     }
-                    else if(curHash == 0)
+                    else if(curHash == 0 || --reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
@@ -100,7 +101,8 @@ namespace Ariadne.Collections
             {
                 int mask = table.Mask;
                 int idx = hash & mask;
-                int endIdx = (idx + table.ReprobeLimit)  & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
                 ThreadSafeDictionary<TKey, long>.Record[] records = table.Records;
                 do
                 {
@@ -110,7 +112,7 @@ namespace Ariadne.Collections
                         var pair = records[idx].KeyValue;
                         if(pair == null)
                             break;
-                        if(dict._cmp.Equals(key, pair.Key))
+                        if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
                             if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
                             {
@@ -126,7 +128,7 @@ namespace Ariadne.Collections
                             return false;
                         }
                     }
-                    else if(curHash == 0)
+                    else if(curHash == 0 || --reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
@@ -167,7 +169,8 @@ namespace Ariadne.Collections
             {
                 int mask = table.Mask;
                 int idx = hash & mask;
-                int endIdx = (idx + table.ReprobeLimit)  & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
                 ThreadSafeDictionary<TKey, int>.Record[] records = table.Records;
                 do
                 {
@@ -177,7 +180,7 @@ namespace Ariadne.Collections
                         var pair = records[idx].KeyValue;
                         if(pair == null)
                             break;
-                        if(dict._cmp.Equals(key, pair.Key))
+                        if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
                             if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
                             {
@@ -193,7 +196,7 @@ namespace Ariadne.Collections
                             return false;
                         }
                     }
-                    else if(curHash == 0)
+                    else if(curHash == 0 || --reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
@@ -234,7 +237,8 @@ namespace Ariadne.Collections
             {
                 int mask = table.Mask;
                 int idx = hash & mask;
-                int endIdx = (idx + table.ReprobeLimit)  & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
                 ThreadSafeDictionary<TKey, long>.Record[] records = table.Records;
                 do
                 {
@@ -244,7 +248,7 @@ namespace Ariadne.Collections
                         var pair = records[idx].KeyValue;
                         if(pair == null)
                             break;
-                        if(dict._cmp.Equals(key, pair.Key))
+                        if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
                             if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
                             {
@@ -260,7 +264,7 @@ namespace Ariadne.Collections
                             return false;
                         }
                     }
-                    else if(curHash == 0)
+                    else if(curHash == 0 || --reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
@@ -301,7 +305,8 @@ namespace Ariadne.Collections
             {
                 int mask = table.Mask;
                 int idx = hash & mask;
-                int endIdx = (idx + table.ReprobeLimit)  & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
                 ThreadSafeDictionary<TKey, long>.Record[] records = table.Records;
                 do
                 {
@@ -311,7 +316,7 @@ namespace Ariadne.Collections
                         var pair = records[idx].KeyValue;
                         if(pair == null)
                             break;
-                        if(dict._cmp.Equals(key, pair.Key))
+                        if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
                             if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
                             {
@@ -327,7 +332,7 @@ namespace Ariadne.Collections
                             return false;
                         }
                     }
-                    else if(curHash == 0)
+                    else if(curHash == 0 || --reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
@@ -372,7 +377,8 @@ namespace Ariadne.Collections
             {
                 int mask = table.Mask;
                 int idx = hash & mask;
-                int endIdx = (idx + table.ReprobeLimit)  & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
                 ThreadSafeDictionary<TKey, int>.Record[] records = table.Records;
                 do
                 {
@@ -382,7 +388,7 @@ namespace Ariadne.Collections
                         var pair = records[idx].KeyValue;
                         if(pair == null)
                             break;
-                        if(dict._cmp.Equals(key, pair.Key))
+                        if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
                             if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
                             {
@@ -398,7 +404,7 @@ namespace Ariadne.Collections
                             return false;
                         }
                     }
-                    else if(curHash == 0)
+                    else if(curHash == 0 || --reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
