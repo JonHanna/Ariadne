@@ -96,7 +96,7 @@ namespace Ariadne.Collections
         [Serializable]
         internal class KV
         {
-            public TKey Key;
+            public readonly TKey Key;
             public TValue Value;
             public KV(TKey key, TValue value)
             {
@@ -326,7 +326,7 @@ namespace Ariadne.Collections
         
         internal Table _table;
         internal readonly IEqualityComparer<TKey> _cmp;
-        private const int DefaultCapacity = 1;
+        private const int DefaultCapacity = 16;
         private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
@@ -473,8 +473,8 @@ namespace Ariadne.Collections
             foreach(KV pair in EnumerateKVs())
                 list.Add(pair);
             KV[] arr = list.ToArray();
-            info.AddValue("arr", arr);
             info.AddValue("cKVP", arr.Length);
+            info.AddValue("arr", arr);
         }
         private ThreadSafeDictionary(SerializationInfo info, StreamingContext context)
             :this(info.GetInt32("cKVP"), (IEqualityComparer<TKey>)info.GetValue("cmp", typeof(IEqualityComparer<TKey>)))
@@ -2086,7 +2086,6 @@ namespace Ariadne.Collections
             if(key == null || key is TKey)
                 Remove((TKey)key);
         }
-        
         void ICollection.CopyTo(Array array, int index)
         {
             Validation.CopyTo(array, index);
