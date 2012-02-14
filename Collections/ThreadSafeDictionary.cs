@@ -470,8 +470,21 @@ namespace Ariadne.Collections
         {
             info.AddValue("cmp", _cmp, typeof(IEqualityComparer<TKey>));
             List<KV> list = new List<KV>(Count);
-            foreach(KV pair in EnumerateKVs())
-                list.Add(pair);
+            for(Table table = _table; table != null; table = table.Next)
+            {
+                Record[] records = table.Records;
+                for(int idx = 0; idx != records.Length; ++idx)
+                {
+                    KV kv = records[idx].KeyValue;
+                    if(kv != null && !(kv is TombstoneKV))
+                    {
+                        if(!(kv is PrimeKV))//part-way through being copied to next table
+                            list.Add(kv);
+                        else
+                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
+                    }
+                }
+            }
             KV[] arr = list.ToArray();
             info.AddValue("cKVP", arr.Length);
             info.AddValue("arr", arr);
@@ -859,9 +872,25 @@ namespace Ariadne.Collections
     	public Dictionary<TKey, TValue> ToDictionary()
     	{
     		Dictionary<TKey, TValue> snapshot = new Dictionary<TKey, TValue>(Count, _cmp);
-    		foreach(KV kv in EnumerateKVs())
-    			if(kv.Key != null)
-    				snapshot[kv.Key] = kv.Value;
+            for(Table table = _table; table != null; table = table.Next)
+            {
+                Record[] records = table.Records;
+                for(int idx = 0; idx != records.Length; ++idx)
+                {
+                    KV kv = records[idx].KeyValue;
+                    if(kv != null && !(kv is TombstoneKV))
+                    {
+                        if(!(kv is PrimeKV))//part-way through being copied to next table
+                        {
+                            TKey key = kv.Key;
+                            if(key != null)
+                                snapshot[key] = kv.Value;
+                        }
+                        else
+                            CopySlotsAndCheck(table, idx);
+                    }
+                }
+            }
     		return snapshot;
     	}
     	object ICloneable.Clone()
@@ -875,9 +904,23 @@ namespace Ariadne.Collections
         public ThreadSafeDictionary<TKey, TValue> Clone()
         {
         	ThreadSafeDictionary<TKey, TValue> snapshot = new ThreadSafeDictionary<TKey, TValue>(Count, _cmp);
-        	foreach(KV kv in EnumerateKVs())
-        		snapshot.PutIfMatch(kv, MatchAll.Instance);
-        	return snapshot;
+        	MatchAll matchAll = MatchAll.Instance;
+            for(Table table = _table; table != null; table = table.Next)
+            {
+                Record[] records = table.Records;
+                for(int idx = 0; idx != records.Length; ++idx)
+                {
+                    KV kv = records[idx].KeyValue;
+                    if(kv != null && !(kv is TombstoneKV))
+                    {
+                        if(!(kv is PrimeKV))//part-way through being copied to next table
+                            snapshot.PutIfMatch(kv, matchAll);
+                        else
+                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
+                    }
+                }
+            }
+            return snapshot;
         }
         /// <summary>Gets or sets the value for a particular key.</summary>
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">The key was not present in the dictionary.</exception>
@@ -1442,19 +1485,19 @@ namespace Ariadne.Collections
         }
         /// <summary>Enumerates a <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, and concurrent operations can corrupt its
+        /// state. However, its methods may be called concurrently with other operations on the same dictionary, including
+        /// the use of other <see cref="RemovingEnumerator"/>s.</threadsafety>
         /// <tocexclude/>
-        public sealed class RemovingEnumeration : IEnumerator<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
+        public sealed class RemovingEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
         {
             private readonly ThreadSafeDictionary<TKey, TValue> _dict;
             private Table _table;
             private readonly Counter _size;
             private readonly Func<TKey, TValue, bool> _predicate;
             private int _idx;
-            private int _removed;
             private KV _current;
-            internal RemovingEnumeration(ThreadSafeDictionary<TKey, TValue> dict, Func<TKey, TValue, bool> predicate)
+            internal RemovingEnumerator(ThreadSafeDictionary<TKey, TValue> dict, Func<TKey, TValue, bool> predicate)
             {
                 _size = (_table = (_dict = dict)._table).Size;
                 _predicate = predicate;
@@ -1473,15 +1516,17 @@ namespace Ariadne.Collections
             /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
             public bool MoveNext()
             {
-                while(_table != null)
+                for(;_table != null; _table = _table.Next, _idx = -1)
                 {
                     Record[] records = _table.Records;
-                    for(++_idx; _idx != records.Length; ++_idx)
+                    while(++_idx != records.Length)
                     {
                         KV kv = records[_idx].KeyValue;
+                        if(kv == null || kv is TombstoneKV)
+                            continue;
                         if(kv is PrimeKV)
                             _dict.CopySlotsAndCheck(_table, _idx);
-                        else if(kv != null && !(kv is TombstoneKV) && _predicate(kv.Key, kv.Value))
+                        else if(_predicate(kv.Key, kv.Value))
                         {
                             TombstoneKV tomb = new TombstoneKV(kv.Key);
                             for(;;)
@@ -1491,58 +1536,63 @@ namespace Ariadne.Collections
                                 {
                                     _size.Decrement();
                                     _current = kv;
-                                    ++_removed;
                                     return true;
                                 }
+                                else if(oldKV is TombstoneKV)
+                                    break;
                                 else if(oldKV is PrimeKV)
                                 {
                                     _dict.CopySlotsAndCheck(_table, _idx);
                                     break;
                                 }
-                                else if(oldKV is TombstoneKV || !_predicate(oldKV.Key, oldKV.Value))
+                                else if(!_predicate(oldKV.Key, oldKV.Value))
                                     break;
                                 else
                                     kv = oldKV;
                             }
                         }
                     }
-                    Table next = _table.Next;
-                    if(next == null)
-                        ResizeIfManyRemoved();
-                    _table = next;
                 }
                 return false;
             }
-            //An optimisation, rather than necessary. If we’ve set a lot of records as tombstones,
-            //then we should do well to resize now. Note that it’s safe for us to not call this
-            //so we need not try-finally in internal code. Note also that it is already called if
-            //we reach the end of the enumeration.
-            private void ResizeIfManyRemoved()
-            {
-                if(_table != null && _table.Next == null && (_removed > _table.Capacity >> 4 || _removed > _table.Size >> 2))
-                    _dict.Resize(_table);
-            }
             void IDisposable.Dispose()
             {
-                ResizeIfManyRemoved();
             }
-            void IEnumerator.Reset()
+            /// <summary>
+            /// Resets the enumerator, so it will begin again.
+            /// </summary>
+            public void Reset()
             {
-                throw new NotSupportedException();
+                _table = _dict._table;
+                _idx = -1;
+            }
+        }
+        /// <summary>Enumerates a <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>, returning items that match a predicate,
+        /// and removing them from the dictionary.</summary>
+        /// <threadsafety static="true" instance="true"/>
+        /// <tocexclude/>
+        public struct RemovingEnumeration : IEnumerable<KeyValuePair<TKey, TValue>>
+        {
+            private readonly ThreadSafeDictionary<TKey, TValue> _dict;
+            private readonly Func<TKey, TValue, bool> _predicate;
+            internal RemovingEnumeration(ThreadSafeDictionary<TKey, TValue> dict, Func<TKey, TValue, bool> predicate)
+            {
+                _dict = dict;
+                _predicate = predicate;
             }
             /// <summary>Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator.</summary>
             /// <returns>The enumeration itself.</returns>
-            public RemovingEnumeration GetEnumerator()
+            public RemovingEnumerator GetEnumerator()
             {
-                return this;
+                return new RemovingEnumerator(_dict, _predicate);
             }
             IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
             {
-                return this;
+                return GetEnumerator();
             }
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return this;
+                return GetEnumerator();
             }
         }
         /// <summary>Removes all key-value pairs that match a predicate.</summary>
@@ -1553,20 +1603,22 @@ namespace Ariadne.Collections
         public int Remove(Func<TKey, TValue, bool> predicate)
         {
         	int total = 0;
-        	RemovingEnumeration remover = new RemovingEnumeration(this, predicate);
+        	RemovingEnumerator remover = new RemovingEnumerator(this, predicate);
         	while(remover.MoveNext())
         	    ++total;
         	return total;
         }
-        internal sealed class KVEnumerator : IEnumerator<KV>, IEnumerable<KV>
+        internal struct KVEnumerator
         {
         	private readonly ThreadSafeDictionary<TKey, TValue> _dict;
             private Table _tab;
             private KV _current;
-            private int _idx = -1;
+            private int _idx;
             public KVEnumerator(ThreadSafeDictionary<TKey, TValue> dict)
             {
             	_tab = (_dict = dict)._table;
+            	_idx = -1;
+            	_current = null;
             }
             public KV Current
             {
@@ -1575,11 +1627,6 @@ namespace Ariadne.Collections
                     return _current;
                 }
             }
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
-            public void Dispose(){}
             public bool MoveNext()
             {
                 for(;_tab != null; _tab = _tab.Next, _idx = -1)
@@ -1590,13 +1637,13 @@ namespace Ariadne.Collections
                         KV kv = records[_idx].KeyValue;
                         if(kv != null && !(kv is TombstoneKV))
                         {
-                            if(kv is PrimeKV)//part-way through being copied to next table
+                            if(!(kv is PrimeKV))//part-way through being copied to next table
+                            {
+                                _current = kv;
+                                return true;
+                            }
+                            else
                                 _dict.CopySlotsAndCheck(_tab, _idx);//make sure it’s there when we come to it.
-                        	else
-                        	{
-	                            _current = kv;
-	                            return true;
-                        	}
                         }
                     }
                 }
@@ -1607,30 +1654,14 @@ namespace Ariadne.Collections
             	_tab = _dict._table;
             	_idx = -1;
             }
-            public KVEnumerator GetEnumerator()
-            {
-                return this;
-            }
-            
-            IEnumerator<KV> IEnumerable<KV>.GetEnumerator()
-            {
-                return this;
-            }
-            
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return this;
-            }
         }
         private KVEnumerator EnumerateKVs()
         {
             return new KVEnumerator(this);
         }
         /// <summary>Enumerates a ThreadSafeDictionary&lt;TKey, TValue>.</summary>
-        /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
-        /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
         /// <tocexclude/>
-        public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
+        public class Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
         {
             private KVEnumerator _src;
             internal Enumerator(KVEnumerator src)
@@ -1654,7 +1685,6 @@ namespace Ariadne.Collections
             }
             void IDisposable.Dispose()
             {
-                _src.Dispose();
             }
             /// <summary>Moves to the next item in the enumeration.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
@@ -1754,11 +1784,9 @@ namespace Ariadne.Collections
 	        	snapshot.Values.CopyTo(array, arrayIndex);
 			}
 			/// <summary>Enumerates a value collection.</summary>
-            /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
-            /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
             /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
             /// concurrently with other operations on the same collection.</threadsafety>
-			public struct Enumerator : IEnumerator<TValue>
+			public class Enumerator : IEnumerator<TValue>
 			{
 	            private KVEnumerator _src;
 	            internal Enumerator(KVEnumerator src)
@@ -1782,7 +1810,6 @@ namespace Ariadne.Collections
 	            }
 	            void IDisposable.Dispose()
 	            {
-	                _src.Dispose();
 	            }
 	            /// <summary>Moves to the next item being iterated.</summary>
 	            /// <returns>True if another item is found, false if the end of the collection is reached.</returns>
@@ -1883,11 +1910,9 @@ namespace Ariadne.Collections
 	        	snapshot.Keys.CopyTo(array, arrayIndex);
 			}
 			/// <summary>Enumerates a key collection.</summary>
-            /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
-            /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
             /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
             /// concurrently with other operations on the same collection.</threadsafety>
-			public struct Enumerator : IEnumerator<TKey>
+			public class Enumerator : IEnumerator<TKey>
 			{
 	            private KVEnumerator _src;
 	            internal Enumerator(KVEnumerator src)
@@ -1911,7 +1936,6 @@ namespace Ariadne.Collections
 	            }
 	            void IDisposable.Dispose()
 	            {
-	                _src.Dispose();
 	            }
                 /// <summary>Moves to the next item in the enumeration.</summary>
                 /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
