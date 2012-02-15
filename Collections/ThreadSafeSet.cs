@@ -515,6 +515,10 @@ namespace Ariadne.Collections
         {
             return new AddedEnumeration(this, items);
         }
+        /// <summary>An enumerator that adds to the set as it is enumerated, returning only those items added.</summary>
+        /// <threadsafety static="true" instance="true">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public sealed class AddedEnumerator : IEnumerator<T>
         {
             private readonly ThreadSafeSet<T> _set;
@@ -573,8 +577,7 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>An enumeration that adds to the set as it is enumerated, returning only those items added.</summary>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
         public struct AddedEnumeration : IEnumerable<T>
         {
@@ -914,6 +917,11 @@ namespace Ariadne.Collections
         {
             return new RemovingEnumeration(this, predicate);
         }
+        /// <summary>Enumerates a <see cref="ThreadSafeSet&lt;T>"/>, returning items that match a predicate,
+        /// and removing them from the dictionary.</summary>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
         public class RemovingEnumerator : IEnumerator<T>
         {
             private readonly ThreadSafeSet<T> _set;
@@ -986,6 +994,9 @@ namespace Ariadne.Collections
             void IDisposable.Dispose()
             {
             }
+            /// <summary>
+            /// Resets the enumerator, so it operates upon the entire set again.
+            /// </summary>
             public void Reset()
             {
                 _table = _set._table;
@@ -994,8 +1005,7 @@ namespace Ariadne.Collections
         }
         /// <summary>Enumerates a <see cref="ThreadSafeSet&lt;T>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
         public struct RemovingEnumeration : IEnumerable<T>
         {
