@@ -726,7 +726,7 @@ namespace Ariadne.Collections
                 Promote(table);
         }
         // Copy a bunch of records to the next table.
-        private void HelpCopy(Table table, Record[] records, bool all = false)
+        private void HelpCopy(Table table, Record[] records)
         {
             //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
             //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
@@ -736,19 +736,16 @@ namespace Ariadne.Collections
             if(chunk > 1024)
                 chunk = 1024;
             TombstoneKV deadKey = DeadKey;
-            do
-            {
-                if(table.AllCopied)
-                    return;
-                int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
-                int end = copyIdx + chunk;
-                int workDone = 0;
-                while(copyIdx != end)
-                    if(CopySlot(table, deadKey, ref records[copyIdx++]))
-                        ++workDone;
-                if(table.MarkCopied(workDone))
-                    Promote(table);
-            }while(all);
+            if(table.AllCopied)
+                return;
+            int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
+            int end = copyIdx + chunk;
+            int workDone = 0;
+            while(copyIdx != end)
+                if(CopySlot(table, deadKey, ref records[copyIdx++]))
+                    ++workDone;
+            if(table.MarkCopied(workDone))
+                Promote(table);
         }
         private void Promote(Table table)
         {

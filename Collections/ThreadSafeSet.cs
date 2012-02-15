@@ -1,4 +1,4 @@
-﻿// © 2011 Jon Hanna.
+﻿// © 2011–2012 Jon Hanna.
 // This source code is licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -21,6 +21,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security;
@@ -40,34 +41,27 @@ namespace Ariadne.Collections
         private const int ZERO_HASH = 0x55555555;
         internal class Box
         {
-            public T Value;
+            public readonly T Value;
             public Box(T value)
             {
                 Value = value;
-            }
-            public void FillPrime(PrimeBox box)
-            {
-                box.Value = Value;
             }
             public Box StripPrime()
             {
                 return this is PrimeBox ? new Box(Value) : this;
             }
-            public static readonly TombstoneBox DeadItem = new TombstoneBox();
         }
         internal sealed class PrimeBox : Box
         {
-            public PrimeBox()
-                :base(default(T)){}
+            public PrimeBox(T value)
+                :base(value){}
         }
         internal sealed class TombstoneBox : Box
         {
-            public TombstoneBox()
-                :base(default(T)){}
             public TombstoneBox(T value)
                 :base(value){}
         }
-        [StructLayoutAttribute(LayoutKind.Sequential, Pack=1)]
+        private static readonly TombstoneBox DeadItem = new TombstoneBox(default(T));
         private struct Record
         {
             public int Hash;
@@ -76,7 +70,7 @@ namespace Ariadne.Collections
         private sealed class Table
         {
             public readonly Record[] Records;
-            public volatile Table Next;
+            public Table Next;
             public readonly Counter Size;
             public readonly Counter Slots = new Counter();
             public readonly int Capacity;
@@ -91,15 +85,31 @@ namespace Ariadne.Collections
                 Records = new Record[Capacity = capacity];
                 Mask = capacity - 1;
                 ReprobeLimit = (capacity >> REPROBE_SHIFT) + REPROBE_LOWER_BOUND;
-                if(ReprobeLimit > capacity)
-                    ReprobeLimit = capacity;
                 PrevSize = Size = size;
+            }
+            public bool AllCopied
+            {
+                get
+                {
+                    Debug.Assert(CopyDone <= Capacity);
+                    return CopyDone == Capacity;
+                }
+            }
+            public bool MarkCopied(int cCopied)
+            {
+                Debug.Assert(CopyDone <= Capacity);
+                return cCopied != 0 && Interlocked.Add(ref CopyDone, cCopied) == Capacity;
+            }
+            public bool MarkCopied()
+            {
+                Debug.Assert(CopyDone <= Capacity);
+                return Interlocked.Increment(ref CopyDone) == Capacity;
             }
         }
         
         private Table _table;
         private readonly IEqualityComparer<T> _cmp;
-        private const int DefaultCapacity = 1;
+        private const int DefaultCapacity = 16;
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
@@ -205,74 +215,44 @@ namespace Ariadne.Collections
         }
         private bool Obtain(Table table, T item, int hash, out T storedItem)
         {
-            for(;;)
+            do
             {
-                int idx = hash & table.Mask;
-                int reprobeCount = 0;
-                int maxProbe = table.ReprobeLimit;
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
                 Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash  == 0)// nothing written yet
-                    {
-                        Table next = table.Next;
-                        if(next != null)
-                        {
-                            table = next;
-                            break;
-                        }
-                        storedItem = default(T);
-                        return false;
-                    }
-                    if(curHash == hash)//hash we care about, is it the item we care about?
+                    if(curHash == hash)
                     {
                         Box box = records[idx].Box;
-                        if(box == null)//part-way through write perhaps of what we want, but we're too early. If not, what we want isn't further on.
+                        if(box == null)
+                            break;
+                        T value = box.Value;
+                        if(_cmp.Equals(item, value) && box != DeadItem)
                         {
-                            Table next = table.Next;
-                            if(next != null)
+                            if(!(box is TombstoneBox))
                             {
-                                table = next;
-                                break;
-                            }
-                            storedItem = default(T);
-                            return false;
-                        }
-                        if(_cmp.Equals(item, box.Value))//items match, and this can’t change
-                        {
-                            if(box is PrimeBox)
-                            {
-                                CopySlotsAndCheck(table, new PrimeBox(), idx);
-                                table = table.Next;
-                                break;
-                            }
-                            else if(box is TombstoneBox)
-                            {
-                                storedItem = default(T);
-                                return false;
-                            }
-                            else
-                            {
-                                storedItem = box.Value;
+                                if(box is PrimeBox)
+                                {
+                                    CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
+                                storedItem = value;
                                 return true;
                             }
-                        }
-                    }
-                    if(++reprobeCount >= maxProbe)
-                    {
-                        Table next = table.Next;
-                        if(next == null)
-                        {
                             storedItem = default(T);
                             return false;
                         }
-                        table = next;
-                        break;
                     }
-                    idx = (idx + 1) & table.Mask;
-                }
-            }
+                    else if(curHash == 0 || --reprobes == 0)
+                        break;
+                }while((idx = (idx + 1) & mask) != endIdx);
+            }while((table = table.Next) != null);
+            storedItem = default(T);
+            return false;
         }
         internal Box PutIfMatch(Box box, bool removing, bool emptyOnly)
         {
@@ -280,80 +260,71 @@ namespace Ariadne.Collections
         }
         private Box PutIfMatch(Table table, Box box, int hash, bool removing, bool emptyOnly)
         {
-            Box deadItem = Box.DeadItem;
-        restart:
-            int mask = table.Mask;
-            int idx = hash & mask;
-            int reprobeCount = 0;
-            int maxProbe = table.ReprobeLimit;
-            Record[] records = table.Records;
-            Box curBox;
+            Box deadItem = DeadItem;
             for(;;)
             {
-                int curHash = records[idx].Hash;
-                if(curHash == 0)//nothing written here
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
+                Record[] records = table.Records;
+                Box curBox = null;
+                for(;;)
                 {
-                    if(box is TombstoneBox)
-                        return null;//don’t change anything
-                    if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
-                        curHash = hash;
-                    //now fallthrough to the next check, which we will pass if the above worked
-                    //or if another thread happened to write the same hash we wanted to write
-                }
-                if(curHash == hash)
-                {
-                    //hashes match, do items?
-                    //while retrieving the current
-                    //if we want to write to empty records
-                    //let’s see if we can just write because there’s nothing there...
-                    if(!removing)
+                    int curHash = records[idx].Hash;
+                    if(curHash == 0)
                     {
-                        if((curBox = Interlocked.CompareExchange(ref records[idx].Box, box, null)) == null)
-                        {
-                            table.Slots.Increment();
-                            if(!emptyOnly)
-                                table.Size.Increment();
+                        if(box is TombstoneBox)
                             return null;
-                        }
+                        if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
+                            curHash = hash;
                     }
-                    else
-                        curBox = records[idx].Box;
-                    //okay there’s something with the same hash here, does it have the same item?
-                    if(_cmp.Equals(curBox.Value, box.Value) && curBox != deadItem)
-                        break;
+                    if(curHash == hash)
+                    {
+                        if(!removing)
+                        {
+                            if((curBox = Interlocked.CompareExchange(ref records[idx].Box, box, null)) == null)
+                            {
+                                table.Slots.Increment();
+                                if(!emptyOnly)
+                                    table.Size.Increment();
+                                return null;
+                            }
+                        }
+                        else
+                            curBox = records[idx].Box;
+                        if(curBox == deadItem)
+                            goto restart;
+                        if(_cmp.Equals(curBox.Value, box.Value))
+                           break;
+                    }
+                    else if(--reprobes == 0)
+                    {
+                        Resize(table);
+                        goto restart;
+                    }
+                    else if(records[idx].Box == deadItem)
+                        goto restart;
+                    if((idx = (idx + 1) & mask) == endIdx)
+                    {
+                        Resize(table);
+                        goto restart;
+                    }
                 }
-                else
-                    curBox = records[idx].Box; //just to check for dead records
-                if(curBox == deadItem || ++reprobeCount >= maxProbe)
+    
+                //we have a record with a matching key.
+                if(emptyOnly || (box is TombstoneBox) == (curBox is TombstoneBox))
+                    return curBox;//no change, return that stored.
+                
+                if(table.Next != null)
                 {
-                    Table next = table.Next ?? Resize(table);
-                    //test if we’re putting from a copy
-                    //and don’t do this if that’s
-                    //the case
-                    HelpCopy(table, new PrimeBox(), false);
-                    table = next;
+                    CopySlotsAndCheck(table, idx);
                     goto restart;
                 }
-                idx = (idx + 1) & mask;
-            }
-            //we have a record with a matching key.
-            if((box is TombstoneBox) == (curBox is TombstoneBox))
-                return curBox;//no change, return that stored.
-            
-            if(table.Next != null)
-            {
-                PrimeBox prime = new PrimeBox();
-                CopySlotsAndCheck(table, prime, idx);
-                HelpCopy(table, prime, false);
-                table = table.Next;
-                goto restart;
-            }
-            for(;;)
-            {
-                Box prevBox = Interlocked.CompareExchange(ref records[idx].Box, box, curBox);
-                if(prevBox == curBox)
+                for(;;)
                 {
-                    if(!emptyOnly)
+                    Box prevBox = Interlocked.CompareExchange(ref records[idx].Box, box, curBox);
+                    if(prevBox == curBox)
                     {
                         if(box is TombstoneBox)
                         {
@@ -362,68 +333,65 @@ namespace Ariadne.Collections
                         }
                         else if(prevBox is TombstoneBox)
                             table.Size.Increment();
+                        return prevBox;
                     }
-                    return prevBox;
+                    //we lost the race, another thread set the box.
+                    if(prevBox is PrimeBox)
+                    {
+                        CopySlotsAndCheck(table, idx);
+                        goto restart;
+                    }
+                    else if(prevBox == deadItem)
+                        goto restart;
+                    else if((box is TombstoneBox) == (prevBox is TombstoneBox))
+                        return prevBox;//no change, return that stored.
+                    else
+                        curBox = prevBox;
                 }
-                //we lost the race, another thread set the box.
-                if(prevBox is PrimeBox)
-                {
-                    PrimeBox prime = new PrimeBox();
-                    CopySlotsAndCheck(table, prime, idx);
-                    if(!emptyOnly)
-                        HelpCopy(table, prime, false);
-                    table = table.Next;
-                    goto restart;
-                }
-                else if(prevBox == deadItem)
-                {
-                    table = table.Next;
-                    goto restart;
-                }
-                else if((box is TombstoneBox) == (prevBox is TombstoneBox))
-                    return prevBox;//no change, return that stored.
-                curBox = prevBox;
+            restart:
+                HelpCopy(table, records);
+                table = table.Next;
             }
         }
-        private void CopySlotsAndCheck(Table table, PrimeBox prime, int idx)
+        private void CopySlotsAndCheck(Table table, int idx)
         {
-            if(CopySlot(table, prime, Box.DeadItem, idx))
-                CopySlotAndPromote(table, 1);
+            if(CopySlot(table, DeadItem, ref table.Records[idx]) && table.MarkCopied())
+                Promote(table);
         }
-        private void HelpCopy(Table table, PrimeBox prime, bool all)
+        // Copy a bunch of records to the next table.
+        private void HelpCopy(Table table, Record[] records)
         {
+            //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
+            //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
+            //at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
+            //cache-lines to be invalidated with each write.
             int chunk = table.Capacity;
             if(chunk > 1024)
                 chunk = 1024;
-            Box deadItem = Box.DeadItem;
-            while(table.CopyDone < table.Capacity)
-            {
-                int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
-                int workDone = 0;
-                for(int i = 0; i != chunk; ++i)
-                    if(CopySlot(table, prime, deadItem, copyIdx + i))
-                        ++workDone;
-                if(workDone != 0)
-                    CopySlotAndPromote(table, workDone);
-                if(!all)
-                    return;
-            }
+            TombstoneBox deadItem = DeadItem;
+            if(table.AllCopied)
+                return;
+            int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
+            int end = copyIdx + chunk;
+            int workDone = 0;
+            while(copyIdx != end)
+                if(CopySlot(table, deadItem, ref records[copyIdx++]))
+                    ++workDone;
+            if(table.MarkCopied(workDone))
+                Promote(table);
         }
-        private void CopySlotAndPromote(Table table, int workDone)
+        private void Promote(Table table)
         {
-            if(Interlocked.Add(ref table.CopyDone, workDone) >= table.Capacity && table == _table)
-                while(Interlocked.CompareExchange(ref _table, table.Next, table) == table)
-                {
-                    table = _table;
-                    if(table.CopyDone < table.Capacity)
-                        break;
-                }
+            while(table == _table && Interlocked.CompareExchange(ref _table, table.Next, table) == table && (table = table.Next).AllCopied);
         }
-        private bool CopySlot(Table table, PrimeBox prime, Box deadItem, int idx)
+        private bool CopySlot(Table table, TombstoneBox deadItem, ref Record record)
         {
-            Record[] records = table.Records;
+            return CopySlot(table, deadItem, ref record.Box, record.Hash);
+        }
+        private bool CopySlot(Table table, Box deadItem, ref Box boxRef, int hash)
+        {
             //if unwritten-to we should be able to just mark it as dead.
-            Box box = Interlocked.CompareExchange(ref records[idx].Box, deadItem, null);
+            Box box = Interlocked.CompareExchange(ref boxRef, deadItem, null);
             if(box == null)
                 return true;
             Box oldBox = box;
@@ -431,50 +399,50 @@ namespace Ariadne.Collections
             {
                 if(box is TombstoneBox)
                 {
-                    oldBox = Interlocked.CompareExchange(ref records[idx].Box, deadItem, box);
+                    if(box == deadItem)
+                        return false;
+                    oldBox = Interlocked.CompareExchange(ref boxRef, deadItem, box);
                     if(oldBox == box)
                         return true;
                 }
                 else
                 {
-                    box.FillPrime(prime);
-                    oldBox = Interlocked.CompareExchange(ref records[idx].Box, prime, box);
+                    PrimeBox prime = new PrimeBox(box.Value);
+                    oldBox = Interlocked.CompareExchange(ref boxRef, prime, box);
                     if(box == oldBox)
                     {
-                        if(box is TombstoneBox)
-                            return true;
                         box = prime;
                         break;
                     }
                 }
                 box = oldBox;
             }
-            if(box is TombstoneBox)
-                return false;
-            
-            Box newBox = oldBox.StripPrime();
-            
-            bool copied = PutIfMatch(table.Next, newBox, records[idx].Hash, false, true) == null;
-            
-            while((oldBox = Interlocked.CompareExchange(ref records[idx].Box, deadItem, box)) != box)
+            PutIfMatch(table.Next, oldBox.StripPrime(), hash, false, true);
+            for(;;)
+            {
+                oldBox = Interlocked.CompareExchange(ref boxRef, deadItem, box);
+                if(oldBox == box)
+                    return true;
+                if(oldBox == deadItem)
+                    return false;
                 box = oldBox;
-            
-            return copied;
+            }
         }
-        private static Table Resize(Table tab)
+        private void Resize(Table tab)
         {
+            //Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
+            //but determining just how best to do so requires the consideration of many different cases.
+            if(tab.Next != null)
+                return;
             int sz = tab.Size;
             int cap = tab.Capacity;
-            Table next = tab.Next;
-            if(next != null)
-                return next;
             int newCap;
-            if(sz >= cap * 3 / 4)
-                newCap = sz * 8;
-            else if(sz >= cap / 2)
-                newCap = sz * 4;
-            else if(sz >= cap / 4)
-                newCap = sz * 2;
+            if(sz >= (cap * 3) >> 2)
+                newCap = sz << 3;
+            else if(sz >= cap >> 1)
+                newCap = sz << 2;
+            else if(sz >= cap >> 2)
+                newCap = sz << 1;
             else
                 newCap = sz;
          	if(tab.Slots >= sz << 1)
@@ -482,7 +450,7 @@ namespace Ariadne.Collections
             if(newCap < cap)
                 newCap = cap;
             if(sz == tab.PrevSize)
-                newCap *= 2;
+                newCap <<= 1;
 
             unchecked // binary round-up
             {
@@ -495,26 +463,26 @@ namespace Ariadne.Collections
                 ++newCap;
             }
             
-            int resizers = Interlocked.Increment(ref tab.Resizers);
-            int MB = newCap / 0x40000;
-            if(MB > 0 && resizers > 2)
+            
+            int MB = newCap >> 18;
+            if(MB > 0)
             {
-                if((next = tab.Next) != null)
-                    return next;
-                Thread.SpinWait(20);
-                if((next = tab.Next) != null)
-                    return next;
-                Thread.Sleep(Math.Max(MB * 5 * resizers, 200));
+                int resizers = Interlocked.Increment(ref tab.Resizers);
+                if(resizers > 2)
+                {
+                    if(tab.Next != null)
+                        return;
+                    Thread.SpinWait(20);
+                    if(tab.Next != null)
+                        return;
+                    Thread.Sleep(Math.Max(MB * 5 * resizers, 200));
+                }
             }
             
-            if((next = tab.Next) != null)
-                return next;
+            if(tab.Next != null)
+                return;
             
-            next = new Table(newCap, tab.Size);
-
-            #pragma warning disable 420 // CompareExchange has its own volatility guarantees
-            return Interlocked.CompareExchange(ref tab.Next, next, null) ?? next;
-			#pragma warning restore 420
+            Interlocked.CompareExchange(ref tab.Next, new Table(newCap, tab.Size), null);
         }
         /// <summary>Returns an estimate of the current number of items in the set.</summary>
         public int Count
@@ -545,35 +513,17 @@ namespace Ariadne.Collections
         /// <remarks>The returned enumerable is lazily executed, and items are only added to the set as it is enumerated.</remarks>
         public AddedEnumeration FilterAdd(IEnumerable<T> items)
         {
-            return new AddedEnumeration(this, items.GetEnumerator());
+            return new AddedEnumeration(this, items);
         }
-        /// <summary>An enumeration that adds to the set as it is enumerated, returning only those items added.</summary>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
-        /// <tocexclude/>
-        public sealed class AddedEnumeration : IEnumerable<T>, IEnumerator<T>
+        public sealed class AddedEnumerator : IEnumerator<T>
         {
-            private ThreadSafeSet<T> _set;
-            private IEnumerator<T> _srcEnumerator;
+            private readonly ThreadSafeSet<T> _set;
+            private readonly IEnumerator<T> _srcEnumerator;
             private T _current;
-            internal AddedEnumeration(ThreadSafeSet<T> _set, IEnumerator<T> _srcEnumerator)
+            internal AddedEnumerator(ThreadSafeSet<T> tset, IEnumerator<T> srcEnumerator)
             {
-                this._set = _set;
-                this._srcEnumerator = _srcEnumerator;
-            }
-            /// <summary>Returns an enumerator that iterates through the collection.</summary>
-            /// <returns>The enumerator.</returns>
-            public AddedEnumeration GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return this;
+                _set = tset;
+                _srcEnumerator = srcEnumerator;
             }
             /// <summary>Returns the current item.</summary>
             public T Current
@@ -582,7 +532,7 @@ namespace Ariadne.Collections
             }
             object IEnumerator.Current
             {
-                get { return this; }
+                get { return _current; }
             }
             /// <summary>Disposes of the enumeration, doing any necessary clean-up operations.</summary>
             public void Dispose()
@@ -620,6 +570,34 @@ namespace Ariadne.Collections
                 {
                     throw new NotSupportedException(Strings.Resetting_Not_Supported_By_Source);
                 }
+            }
+        }
+        /// <summary>An enumeration that adds to the set as it is enumerated, returning only those items added.</summary>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
+        public struct AddedEnumeration : IEnumerable<T>
+        {
+            private readonly ThreadSafeSet<T> _set;
+            private readonly IEnumerable<T> _srcEnumerable;
+            internal AddedEnumeration(ThreadSafeSet<T> tset, IEnumerable<T> srcEnumerable)
+            {
+                _set = tset;
+                _srcEnumerable = srcEnumerable;
+            }
+            /// <summary>Returns an enumerator that iterates through the collection.</summary>
+            /// <returns>The enumerator.</returns>
+            public AddedEnumerator GetEnumerator()
+            {
+                return new AddedEnumerator(_set, _srcEnumerable.GetEnumerator());
+            }
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
         /// <summary>Attempts to add a collection of items to the set, returning the number added.</summary>
@@ -936,21 +914,15 @@ namespace Ariadne.Collections
         {
             return new RemovingEnumeration(this, predicate);
         }
-        /// <summary>Enumerates a <see cref="ThreadSafeSet&lt;T>"/>, returning items that match a predicate,
-        /// and removing them from the dictionary.</summary>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
-        /// <tocexclude/>
-        public sealed class RemovingEnumeration : IEnumerator<T>, IEnumerable<T>
+        public class RemovingEnumerator : IEnumerator<T>
         {
             private readonly ThreadSafeSet<T> _set;
             private Table _table;
             private readonly Counter _size;
             private readonly Func<T, bool> _predicate;
             private int _idx;
-            private int _removed;
-            private Box _current;
-            internal RemovingEnumeration(ThreadSafeSet<T> lfSet, Func<T, bool> predicate)
+            private T _current;
+            internal RemovingEnumerator(ThreadSafeSet<T> lfSet, Func<T, bool> predicate)
             {
                 _size = (_table = (_set = lfSet)._table).Size;
                 _predicate = predicate;
@@ -959,86 +931,94 @@ namespace Ariadne.Collections
             /// <summary>The current item being enumerated.</summary>
             public T Current
             {
-                get { return _current.Value; }
+                get { return _current; }
             }
             object IEnumerator.Current
             {
-                get { return _current.Value; }
+                get { return _current; }
             }
             /// <summary>Moves to the next item being enumerated.</summary>
             /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
             public bool MoveNext()
             {
-                while(_table != null)
+                for(; _table != null; _table = _table.Next)
                 {
                     Record[] records = _table.Records;
-                    for(++_idx; _idx != records.Length; ++_idx)
+                    while(++_idx != records.Length)
                     {
                         Box box = records[_idx].Box;
+                        if(box == null || box is TombstoneBox)
+                            continue;
                         if(box is PrimeBox)
-                            _set.CopySlotsAndCheck(_table, new PrimeBox(), _idx);
-                        else if(box != null && !(box is TombstoneBox) && _predicate(box.Value))
+                            _set.CopySlotsAndCheck(_table, _idx);
+                        else
                         {
-                            TombstoneBox tomb = new TombstoneBox(box.Value);
-                            for(;;)
+                            T value = box.Value;
+                            if(_predicate(value))
                             {
-                                Box oldBox = Interlocked.CompareExchange(ref records[_idx].Box, tomb, box);
-                                if(oldBox == box)
+                                TombstoneBox tomb = new TombstoneBox(value);
+                                for(;;)
                                 {
-                                    _size.Decrement();
-                                    _current = box;
-                                    ++_removed;
-                                    return true;
-                                }
-                                else if(oldBox is PrimeBox)
-                                {
-                                    _set.CopySlotsAndCheck(_table, new PrimeBox(), _idx);
-                                    break;
-                                }
-                                else if(oldBox is TombstoneBox || !_predicate(oldBox.Value))
-                                    break;
-                                else
+                                    Box oldBox = Interlocked.CompareExchange(ref records[_idx].Box, tomb, box);
+                                    if(oldBox == box)
+                                    {
+                                        _size.Decrement();
+                                        _current = value;
+                                        return true;
+                                    }
+                                    else if(oldBox is TombstoneBox)
+                                        break;
+                                    else if(oldBox is PrimeBox)
+                                    {
+                                        _set.CopySlotsAndCheck(_table, _idx);
+                                        break;
+                                    }
+                                    else if(!_predicate(value = oldBox.Value))
+                                        break;
                                     box = oldBox;
+                                }
                             }
                         }
                     }
-                    Table next = _table.Next;
-                    if(next != null)
-                        ResizeIfManyRemoved();
-                    _table = next;
                 }
                 return false;
             }
-            //An optimisation, rather than necessary. If we’ve set a lot of records as tombstones,
-            //then we should do well to resize now. Note that it’s safe for us to not call this
-            //so we need not try-finally in internal code. Note also that it is already called if
-            //we reach the end of the enumeration.
-            private void ResizeIfManyRemoved()
-            {
-                if(_table != null && _table.Next == null && (_removed > _table.Capacity >> 4 || _removed > _table.Size >> 2))
-                    ThreadSafeSet<T>.Resize(_table);
-            }
             void IDisposable.Dispose()
             {
-                ResizeIfManyRemoved();
             }
-            void IEnumerator.Reset()
+            public void Reset()
             {
-                throw new NotSupportedException();
+                _table = _set._table;
+                _idx = -1;
+            }
+        }
+        /// <summary>Enumerates a <see cref="ThreadSafeSet&lt;T>"/>, returning items that match a predicate,
+        /// and removing them from the dictionary.</summary>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
+        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <tocexclude/>
+        public struct RemovingEnumeration : IEnumerable<T>
+        {
+            private readonly ThreadSafeSet<T> _set;
+            private readonly Func<T, bool> _predicate;
+            internal RemovingEnumeration(ThreadSafeSet<T> lfSet, Func<T, bool> predicate)
+            {
+                _set = lfSet;
+                _predicate = predicate;
             }
             /// <summary>Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator.</summary>
             /// <returns>The enumeration itself.</returns>
-            public RemovingEnumeration GetEnumerator()
+            public RemovingEnumerator GetEnumerator()
             {
-                return this;
+                return new RemovingEnumerator(_set, _predicate);
             }
             IEnumerator<T> IEnumerable<T>.GetEnumerator()
             {
-                return this;
+                return GetEnumerator();
             }
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return this;
+                return GetEnumerator();
             }
         }
         /// <summary>Removes all items that match a predicate.</summary>
@@ -1049,48 +1029,27 @@ namespace Ariadne.Collections
         public int Remove(Func<T, bool> predicate)
         {
             int total = 0;
-            RemovingEnumeration remover = new RemovingEnumeration(this, predicate);
+            RemovingEnumerator remover = new RemovingEnumerator(this, predicate);
             while(remover.MoveNext())
                 ++total;
             return total;
         }
-        internal class BoxEnumerator : IEnumerable<Box>, IEnumerator<Box>
+        internal struct BoxEnumerator
         {
             private readonly ThreadSafeSet<T> _set;
             private Table _tab;
             private Box _current;
-            private int _idx = -1;
+            private int _idx;
             public BoxEnumerator(ThreadSafeSet<T> lfhs)
             {
                 _tab = (_set = lfhs)._table;
-            }
-            public BoxEnumerator GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator<Box> IEnumerable<Box>.GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return this;
+                _current = null;
+                _idx = -1;
             }
             public Box Current
             {
                 get { return _current; }
             }
-            
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
-            
-            void IDisposable.Dispose()
-            {
-                //
-            }
-            
             public bool MoveNext()
             {
                 for(; _tab != null; _tab = _tab.Next, _idx = -1)
@@ -1102,7 +1061,7 @@ namespace Ariadne.Collections
                         if(box != null && !(box is TombstoneBox))
                         {
                             if(box is PrimeBox)//part-way through being copied to next table
-                                _set.CopySlotsAndCheck(_tab, new PrimeBox(), _idx);//make sure it’s there when we come to it.
+                                _set.CopySlotsAndCheck(_tab, _idx);//make sure it’s there when we come to it.
                             else
                             {
                                 _current = box;
@@ -1113,7 +1072,6 @@ namespace Ariadne.Collections
                 }
                 return false;
             }
-            
             public void Reset()
             {
                 _tab = _set._table;
@@ -1121,11 +1079,9 @@ namespace Ariadne.Collections
             }
         }
         /// <summary>Enumerates a ThreadSafeSet&lt;T>.</summary>
-        /// <remarks>The use of a value type for <see cref="System.Collections.Generic.List&lt;T>.Enumerator"/> has drawn some criticism.
-        /// Note that this does not apply here, as the state that changes with enumeration is not maintained by the structure itself.</remarks>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
-        public struct Enumerator : IEnumerator<T>
+        public class Enumerator : IEnumerator<T>
         {
             private BoxEnumerator _src;
             internal Enumerator(BoxEnumerator src)
@@ -1181,9 +1137,22 @@ namespace Ariadne.Collections
         /// <returns>The <see cref="ThreadSafeSet&lt;T>"/>.</returns>
         public ThreadSafeSet<T> Clone()
         {
-            ThreadSafeSet<T> copy = new ThreadSafeSet<T>(Capacity, _cmp);
-            foreach(Box box in EnumerateBoxes())
-                copy.PutIfMatch(box, false, false);
+            ThreadSafeSet<T> copy = new ThreadSafeSet<T>(Count, _cmp);
+            for(Table table = _table; table != null; table = table.Next)
+            {
+                Record[] records = table.Records;
+                for(int idx = 0; idx != records.Length; ++idx)
+                {
+                    Box box = records[idx].Box;
+                    if(box != null && !(box is TombstoneBox))
+                    {
+                        if(box is PrimeBox)//part-way through being copied to next table
+                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
+                        else
+                            copy.PutIfMatch(box, false, false);
+                    }
+                }
+            }
             return copy;
         }
         object ICloneable.Clone()
@@ -1197,7 +1166,23 @@ namespace Ariadne.Collections
         /// could be inconsistent in terms of an application’s use of the values.</remarks>
         public HashSet<T> ToHashSet()
         {
-            return new HashSet<T>(this, _cmp);
+            HashSet<T> hs = new HashSet<T>(_cmp);
+            for(Table table = _table; table != null; table = table.Next)
+            {
+                Record[] records = table.Records;
+                for(int idx = 0; idx != records.Length; ++idx)
+                {
+                    Box box = records[idx].Box;
+                    if(box != null && !(box is TombstoneBox))
+                    {
+                        if(box is PrimeBox)//part-way through being copied to next table
+                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
+                        else
+                            hs.Add(box.Value);
+                    }
+                }
+            }
+            return hs;
         }
         /// <summary>Returns a <see cref="List&lt;T>"/> with the same contents as
         /// the lock-free set.</summary>
@@ -1251,7 +1236,7 @@ namespace Ariadne.Collections
                     {
                         if(curBox is PrimeBox)
                         {
-                            CopySlotsAndCheck(table, new PrimeBox(), idx);
+                            CopySlotsAndCheck(table, idx);
                         }
                         else
                             for(;;)
@@ -1264,6 +1249,11 @@ namespace Ariadne.Collections
                                 }
                                 if(prevBox is TombstoneBox)
                                     break;
+                                if(curBox is PrimeBox)
+                                {
+                                    CopySlotsAndCheck(table, idx);
+                                    break;
+                                }
                                 curBox = prevBox;
                             }
                     }
