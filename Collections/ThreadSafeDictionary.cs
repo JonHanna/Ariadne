@@ -371,6 +371,37 @@ namespace Ariadne.Collections
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
         public ThreadSafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
             :this(collection, EqualityComparer<TKey>.Default){}
+        private struct Producer
+        {
+            private Func<TKey, TValue, TValue> _updater;
+            private Func<TKey, TValue> _factory;
+            private TValue _value;
+            public Producer(Func<TKey, TValue, TValue> updater, Func<TKey, TValue> factory)
+            {
+                _updater = updater;
+                _factory = factory;
+                _value = default(TValue);
+            }
+            public Producer(Func<TKey, TValue, TValue> updater, TValue value)
+            {
+                _updater = updater;
+                _factory = null;
+                _value = value;
+            }
+            public TValue Produce(TKey key, TValue value)
+            {
+                return _updater(key, value);
+            }
+            public TValue Produce(TKey key)
+            {
+                if(_factory != null)
+                {
+                    _value = _factory(key);
+                    _factory = null;
+                }
+                return _value;
+            }
+        }
         private static Func<TKey, TValue, bool, TValue> ProducerFromUpdaterAndValue(Func<TKey, TValue, TValue> updater, TValue value)
         {
             return (TKey key, TValue curValue, bool factoryMode) =>
@@ -612,7 +643,7 @@ namespace Ariadne.Collections
                 table = table.Next;
             }
         }
-        private bool PutIfMatch<VM>(KV pair, VM valCmp, Func<TKey, TValue, bool, TValue> producer, out KV replaced) where VM : ValueMatcher
+        private bool PutIfMatch<VM>(KV pair, VM valCmp, Producer producer, out KV replaced) where VM : ValueMatcher
         {
             //Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
             //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
@@ -648,7 +679,7 @@ namespace Ariadne.Collections
                         //let’s see if we can just write because there’s nothing there...
                         if((curPair = records[idx].KeyValue) == null)
                         {
-                            pair.Value = producer(pair.Key, default(TValue), true);
+                            pair.Value = producer.Produce(pair.Key);
                             if((curPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, null)) == null)
                             {
                                 table.Slots.Increment();
@@ -693,8 +724,7 @@ namespace Ariadne.Collections
                         return false;
                     }
                     
-                    bool factoryMode = curPair is TombstoneKV;
-                    pair.Value = producer(pair.Key, factoryMode ? default(TValue) : curPair.Value, factoryMode);
+                    pair.Value = curPair is TombstoneKV ? producer.Produce(pair.Key) : producer.Produce(pair.Key, curPair.Value);
                     
                     KV prevPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, curPair);
                     if(prevPair == curPair)
@@ -1472,7 +1502,7 @@ namespace Ariadne.Collections
         {
             KV pair = new KV(key, addValue);
             KV old;
-            PutIfMatch(pair, MatchAll.Instance, ProducerFromUpdaterAndValue(updater, addValue), out old);
+            PutIfMatch(pair, MatchAll.Instance, new Producer(updater, addValue), out old);
             previous = old == null ? default(TValue) : old.Value;
             return pair.Value;
         }
@@ -1509,7 +1539,7 @@ namespace Ariadne.Collections
         {
             KV pair = new KV(key, default(TValue));
             KV old;
-            PutIfMatch(pair, MatchAll.Instance, ProducerFromUpdaterAndFactory(updater, factory), out old);
+            PutIfMatch(pair, MatchAll.Instance, new Producer(updater, factory), out old);
             previous = old == null ? default(TValue) : old.Value;
             return pair.Value;
         }
