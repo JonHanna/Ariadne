@@ -230,7 +230,7 @@ namespace Ariadne.NUnitTests.QueueTests
         public void ResetDeEnum()
         {
             var queue = new LLQueue<int>(Enumerable.Range(0, 100));
-            var en = queue.DequeueAll();
+            var en = queue.DequeueAll().GetEnumerator();
             while(en.MoveNext() && en.Current < 50);
             en.Reset();
             int cmp = 51;
@@ -241,7 +241,7 @@ namespace Ariadne.NUnitTests.QueueTests
         [ExpectedException(typeof(NotSupportedException))]
         public void ResetAtDeEnum()
         {
-            ((IEnumerator)new LLQueue<int>().AtomicDequeueAll()).Reset();
+            ((IEnumerator)new LLQueue<int>().AtomicDequeueAll().GetEnumerator()).Reset();
         }
     }
     [TestFixture]

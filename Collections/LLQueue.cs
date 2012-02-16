@@ -153,45 +153,50 @@ namespace Ariadne.Collections
         {
             _head.Item = default(T);
         }
-        /// <summary>An enumeration &amp; enumerator of items that were removed from the queue as an atomic operation.</summary>
+        /// <summary>An enumeration of items that were removed from the queue as an atomic operation.</summary>
+        /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
+        /// <threadsafety static="true" instance="true"/>
+        /// <tocexclude/>
+        public struct AtDequeuEnumerable : IEnumerable<T>
+        {
+            private readonly SinglyLinkedNode<T> _start;
+            private readonly SinglyLinkedNode<T> _end;
+            internal AtDequeuEnumerable(LLQueue<T> queue)
+            {
+                SinglyLinkedNode<T> head;
+                SinglyLinkedNode<T> tail;
+                while(Interlocked.CompareExchange(ref queue._head, tail = queue._tail, head = queue._head) != head);
+                _start = head;
+                _end = tail;
+            }
+            /// <summary>Returns an enumerator that iterates through the collection.</summary>
+            /// <returns>An <see cref="AtDequeuEnumerator"/>.</returns>
+            public AtDequeuEnumerator GetEnumerator()
+            {
+                return new AtDequeuEnumerator(_start, _end);
+            }
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+        /// <summary>An enumerator of items that were removed from the queue as an atomic operation.</summary>
         /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
         /// <tocexclude/>
-        public sealed class AtDequeuEnumerator : IEnumerable<T>, IEnumerator<T>
+        public sealed class AtDequeuEnumerator : IEnumerator<T>
         {
             private SinglyLinkedNode<T> _node;
-            private SinglyLinkedNode<T> _end;
-            internal AtDequeuEnumerator(LLQueue<T> queue)
+            private readonly SinglyLinkedNode<T> _end;
+            internal AtDequeuEnumerator(SinglyLinkedNode<T> start, SinglyLinkedNode<T> end)
             {
-                SinglyLinkedNode<T> head = queue._head;
-                for(;;)
-                {
-                    SinglyLinkedNode<T> tail = queue._tail;
-                    SinglyLinkedNode<T> oldHead = Interlocked.CompareExchange(ref queue._head, tail, head);
-                    if(oldHead == head)
-                    {
-                        _node = head;
-                        _end = tail;
-                        return;
-                    }
-                    else
-                        head = oldHead;
-                }
-            }
-            /// <summary>Returns the enumeration itself, as it is also its own enumerator.</summary>
-            /// <returns>The enumeration itself.</returns>
-            public AtDequeuEnumerator GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return this;
+                _node = start;
+                _end = end;
             }
             /// <summary>Returns the current item.</summary>
             public T Current
@@ -220,12 +225,38 @@ namespace Ariadne.Collections
                 throw new NotSupportedException();
             }
         }
-        /// <summary>An enumeration &amp; enumerator of items that are removed from the queue as the enumeration is processed</summary>
+        /// <summary>An enumeration of items that are removed from the queue as the enumeration is processed</summary>
+        /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
+        /// <threadsafety static="true" instance="true"/>
+        /// <tocexclude/>
+        public struct DequeuEnumerable : IEnumerable<T>
+        {
+            private readonly LLQueue<T> _queue;
+            internal DequeuEnumerable(LLQueue<T> queue)
+            {
+                _queue = queue;
+            }
+            /// <summary>Returns an enumerator that iterates through the enumaration, dequeuing items as it returns them.</summary>
+            /// <returns>An <see cref="DequeuEnumerator"/>.</returns>
+            public DequeuEnumerator GetEnumerator()
+            {
+                return new DequeuEnumerator(_queue);
+            }
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+        /// <summary>An enumerator of items that are removed from the queue as the enumeration is processed</summary>
         /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
         /// <tocexclude/>
-        public sealed class DequeuEnumerator : IEnumerable<T>, IEnumerator<T>
+        public sealed class DequeuEnumerator : IEnumerator<T>
         {
             private readonly LLQueue<T> _queue;
             private T _current;
@@ -260,20 +291,6 @@ namespace Ariadne.Collections
             public void Reset()
             {
                 //nop
-            }
-            /// <summary>Returns the enumeration itself, as it is also its own enumerator.</summary>
-            /// <returns>The enumeration itself.</returns>
-            public DequeuEnumerator GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return this;
-            }
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return this;
             }
         }
         /// <summary>An enumerator that enumerates through the queue, without removing them.</summary>
@@ -346,15 +363,15 @@ namespace Ariadne.Collections
         /// <remarks>The operation is not atomic and will interleave with other dequeue operations, and can
         /// return items enqueued after the method was called. Use <see cref="AtomicDequeueAll"/> if you
         /// want to clear the queue as a single atomic operation.</remarks>
-        public DequeuEnumerator DequeueAll()
+        public DequeuEnumerable DequeueAll()
         {
-            return new DequeuEnumerator(this);
+            return new DequeuEnumerable(this);
         }
         /// <summary>Clears the queue as an atomic operation, and returns an enumeration of the items so-removed.</summary>
         /// <returns>A <see cref="AtDequeuEnumerator"/> that enumerates through the items removed.</returns>
-        public AtDequeuEnumerator AtomicDequeueAll()
+        public AtDequeuEnumerable AtomicDequeueAll()
         {
-            return new AtDequeuEnumerator(this);
+            return new AtDequeuEnumerable(this);
         }
         /// <summary>Returns the count of the queue.</summary>
         /// <remarks>The operation is O(n), and counts from the start of the queue at the time the property is called,
