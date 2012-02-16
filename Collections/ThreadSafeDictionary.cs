@@ -36,6 +36,7 @@ namespace Ariadne.Collections
         private const int REPROBE_LOWER_BOUND = 6;
         private const int REPROBE_SHIFT = 6;
         private const int ZERO_HASH = 0x55555555;
+        private const int COPY_CHUNK = 1024;
         
 // The dictionary is implemented as an open-addressed hash-table with linear re-probing and
 // lazy deletion.
@@ -120,6 +121,7 @@ namespace Ariadne.Collections
         }
         internal static readonly TombstoneKV DeadKey = new TombstoneKV(default(TKey));
         // Marks the record as part-way copied to the next table.
+        [SerializableAttribute]
         internal sealed class PrimeKV : KV
         {
             public PrimeKV(TKey key, TValue value)
@@ -360,8 +362,10 @@ namespace Ariadne.Collections
         public ThreadSafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
         	:this(EstimateNecessaryCapacity(collection), comparer)
         {
+            Table table = _table;
         	foreach(KeyValuePair<TKey, TValue> kvp in collection)
-        		this[kvp.Key] = kvp.Value;
+        	    table = PutSingleThreaded(table, kvp, Hash(kvp.Key), true);
+            _table = table;
         }
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
@@ -410,21 +414,17 @@ namespace Ariadne.Collections
         {
             info.AddValue("cmp", _cmp, typeof(IEqualityComparer<TKey>));
             List<KV> list = new List<KV>(Count);
-            for(Table table = _table; table != null; table = table.Next)
+            Table table = _table;
+            do
             {
                 Record[] records = table.Records;
                 for(int idx = 0; idx != records.Length; ++idx)
                 {
                     KV kv = records[idx].KeyValue;
                     if(kv != null && !(kv is TombstoneKV))
-                    {
-                        if(!(kv is PrimeKV))//part-way through being copied to next table
-                            list.Add(kv);
-                        else
-                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
-                    }
+                        list.Add(kv.StripPrime());
                 }
-            }
+            }while((table = table.Next) != null);
             KV[] arr = list.ToArray();
             info.AddValue("cKVP", arr.Length);
             info.AddValue("arr", arr);
@@ -433,8 +433,13 @@ namespace Ariadne.Collections
             :this(info.GetInt32("cKVP"), (IEqualityComparer<TKey>)info.GetValue("cmp", typeof(IEqualityComparer<TKey>)))
         {
             KV[] arr = (KV[])info.GetValue("arr", typeof(KV[]));
+            Table table = _table;
             for(int i = 0; i != arr.Length; ++i)
-                this[arr[i].Key] = arr[i].Value;
+            {
+                KV kv = arr[i];
+                table = PutSingleThreaded(table, kv, Hash(kv.Key), true);
+            }
+            _table = table;
         }
         // Try to get a value from a table. If necessary, move to the next table. 
         private bool Obtain(Table table, TKey key, int hash, out TValue value)
@@ -453,35 +458,26 @@ namespace Ariadne.Collections
                     {
                         KV pair = records[idx].KeyValue;
                         if(pair == null)//part-way through write perhaps of what we want, but we're too early. If not, what we want isn't further on.
-                            break;
+                        {
+                            goto notfound;
+                        }
                         if(_cmp.Equals(key, pair.Key) && pair != DeadKey)//key’s match, and this can’t change.
                         {
-                            if(!(pair is TombstoneKV))
-                            {
-                                if(pair is PrimeKV)
-                                {
-                                    // A resize-copy is part-way through. Let’s make sure it completes before hitting that
-                                    // other table (we do this rather than trust the value we found, because the next table
-                                    // could have a more recently-written value).
-                                    CopySlotsAndCheck(table, idx);
-                                	// Note that Click has reading operations help the resize operation.
-                                	// Avoiding it here is not so much to optimise for the read operation’s speed (though it will)
-                                    // as it is to reduce the chances of a purely read-only operation throwing an OutOfMemoryException
-                                	// in heavily memory-constrained scenarios. Since reading wouldn’t conceptually add to
-                                	// memory use, this could be surprising to users.
-                                    break;
-                                }
-                                value = pair.Value;
-                                return true;
-                            }
-                            value = default(TValue);
-                            return false;
+                            if(pair is TombstoneKV)
+                                goto notfound;
+                            value = pair.Value;
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                    {
+                        goto notfound;
+                    }
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             value = default(TValue);
             return false;
         }
@@ -495,13 +491,15 @@ namespace Ariadne.Collections
         // to the next table.
         private bool PutIfMatch<VM>(KV pair, VM valCmp, out KV replaced) where VM : ValueMatcher
         {
+            return PutIfMatch(_table, Hash(pair.Key), pair, valCmp, out replaced);
+        }
+        private bool PutIfMatch<VM>(Table table, int hash, KV pair, VM valCmp, out KV replaced) where VM : ValueMatcher
+        {
             //Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
             //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
             //essentially this is doing tail-call optimisation by hand, the compiler could do this, but
             //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
-            Table table = _table;
-            int hash = Hash(pair.Key);
-            KV deadKey = DeadKey;
+            TombstoneKV deadKey = DeadKey;
             for(;;)
             {
                 int mask = table.Mask;
@@ -549,9 +547,7 @@ namespace Ariadne.Collections
                             }
                         }
                         //okay there’s something with the same hash here, does it have the same key?
-                        if(curPair == deadKey)
-                            goto restart;
-                        if(_cmp.Equals(curPair.Key, pair.Key))
+                        if(_cmp.Equals(curPair.Key, pair.Key) && curPair != deadKey)
                             break;
                     }
                     else if(--reprobes == 0)
@@ -559,8 +555,6 @@ namespace Ariadne.Collections
                         Resize(table);
                         goto restart;
                     }
-                    else if(records[idx].KeyValue == deadKey)
-                        goto restart;
                     if((idx = (idx + 1) & mask) == endIdx)
                     {
                         Resize(table);
@@ -614,7 +608,7 @@ namespace Ariadne.Collections
                         curPair = prevPair;
                 }
             restart:
-                HelpCopy(table, records);
+                HelpCopy(table, records, deadKey);
                 table = table.Next;
             }
         }
@@ -626,7 +620,7 @@ namespace Ariadne.Collections
             //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
             Table table = _table;
             int hash = Hash(pair.Key);
-            KV deadKey = DeadKey;
+            TombstoneKV deadKey = DeadKey;
             for(;;)
             {
                 int mask = table.Mask;
@@ -652,21 +646,19 @@ namespace Ariadne.Collections
                         //while retrieving the current
                         //if we want to write to empty records
                         //let’s see if we can just write because there’s nothing there...
-                        if(records[idx].KeyValue == null)
-                            pair.Value = producer(pair.Key, default(TValue), true);
-                        if((curPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, null)) == null)
+                        if((curPair = records[idx].KeyValue) == null)
                         {
-                            table.Slots.Increment();
-                            table.Size.Increment();
-                            replaced = null;
-                            return true;
+                            pair.Value = producer(pair.Key, default(TValue), true);
+                            if((curPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, null)) == null)
+                            {
+                                table.Slots.Increment();
+                                table.Size.Increment();
+                                replaced = null;
+                                return true;
+                            }
                         }
                         //okay there’s something with the same hash here, does it have the same key?
-                        if(curPair == deadKey)
-                        {
-                            goto restart;
-                        }
-                        if(_cmp.Equals(curPair.Key, pair.Key))
+                        if(_cmp.Equals(curPair.Key, pair.Key) && curPair != deadKey)
                             break;
                     }
                     else if(--reprobes == 0)
@@ -674,8 +666,6 @@ namespace Ariadne.Collections
                         Resize(table);
                         goto restart;
                     }
-                    else if(records[idx].KeyValue == deadKey)
-                        goto restart;
                     if((idx = (idx + 1) & mask) == endIdx)
                     {
                         Resize(table);
@@ -727,7 +717,7 @@ namespace Ariadne.Collections
                         curPair = prevPair;
                 }
             restart:
-                HelpCopy(table, records);
+                HelpCopy(table, records, deadKey);
                 table = table.Next;
             }
         }
@@ -739,7 +729,7 @@ namespace Ariadne.Collections
             //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
             Table table = _table;
             int hash = Hash(key);
-            KV deadKey = DeadKey;
+            TombstoneKV deadKey = DeadKey;
             KV pair = null;
             for(;;)
             {
@@ -841,13 +831,13 @@ namespace Ariadne.Collections
                         curPair = prevPair;
                 }
             restart:
-                HelpCopy(table, records);
+                HelpCopy(table, records, deadKey);
                 table = table.Next;
             }
         }
         private void PutIfEmpty(Table table, KV pair, int hash)
         {
-            KV deadKey = DeadKey;
+            TombstoneKV deadKey = DeadKey;
             for(;;)
             {
                 int mask = table.Mask;
@@ -884,8 +874,67 @@ namespace Ariadne.Collections
                         break;
                     }
                 }
-                HelpCopy(table, records);
+                HelpCopy(table, records, deadKey);
                 table = table.Next;
+            }
+        }
+        private Table PutSingleThreaded(Table table, KV pair, int hash, bool incSize)
+        {
+            for(;;)
+            {
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
+                Record[] records = table.Records;
+                Table next;
+                for(;;)
+                {
+                    int curHash = records[idx].Hash;
+                    if(curHash == 0)//nothing written here
+                    {
+                        records[idx].Hash = hash;
+                        records[idx].KeyValue = pair;
+                        table.Slots.Increment();
+                        if(incSize)
+                            table.Size.Increment();
+                        return table;
+                    }
+                    else if(curHash == hash)
+                    {
+                        //hashes match, do keys?
+                        //while retrieving the current
+                        //if we want to write to empty records
+                        //let’s see if we can just write because there’s nothing there...
+                        //okay there’s something with the same hash here, does it have the same key?
+                        if(_cmp.Equals(records[idx].KeyValue.Key, pair.Key))
+                        {
+                            records[idx].KeyValue = pair;
+                            return table;
+                        }
+                    }
+                    else if(--reprobes == 0)
+                    {
+                        int newCap = table.Capacity << 1;
+                        if(newCap < (1 << REPROBE_SHIFT))
+                            newCap = 1 << REPROBE_SHIFT;
+                        next = new Table(newCap, table.Size);
+                        break;
+                    }
+                    if((idx = (idx + 1) & mask) == endIdx)
+                    {
+                        next = new Table(table.Capacity << 1, table.Size);
+                        break;
+                    }
+                }
+                for(idx = 0; idx != records.Length; ++idx)
+                {
+                    Record record = records[idx];
+                    int h = record.Hash;
+                    if(h != 0)
+                        PutSingleThreaded(next, record.KeyValue, h, false);
+                }
+                table = next;
             }
         }
         // Copies a record to the next table, and checks if there should be a promotion.
@@ -895,30 +944,85 @@ namespace Ariadne.Collections
                 Promote(table);
         }
         // Copy a bunch of records to the next table.
-        private void HelpCopy(Table table, Record[] records)
+        private void HelpCopy(Table table, Record[] records, TombstoneKV deadKey)
         {
             //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
             //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
             //at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
             //cache-lines to be invalidated with each write.
-            int chunk = table.Capacity;
-            if(chunk > 1024)
-                chunk = 1024;
-            TombstoneKV deadKey = DeadKey;
-            if(table.AllCopied)
-                return;
-            int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
-            int end = copyIdx + chunk;
-            int workDone = 0;
-            while(copyIdx != end)
-                if(CopySlot(table, deadKey, ref records[copyIdx++]))
-                    ++workDone;
-            if(table.MarkCopied(workDone))
+            int cap = table.Capacity;
+            if(cap > COPY_CHUNK)
+                HelpCopyLarge(table, records, deadKey, cap);
+            else
+                HelpCopySmall(table, records, deadKey);
+        }
+        private void HelpCopyLarge(Table table, Record[] records, TombstoneKV deadKey, int capacity)
+        {
+            int copyIdx = Interlocked.Add(ref table.CopyIdx, COPY_CHUNK);
+            if(table != _table || table.Next.Next != null || copyIdx > capacity << 1)
+                HelpCopyLargeAll(table, records, deadKey, capacity, copyIdx);
+            else
+                HelpCopyLargeSome(table, records, deadKey, capacity, copyIdx);
+        }
+        private void HelpCopyLargeAll(Table table, Record[] records, TombstoneKV deadKey, int capacity, int copyIdx)
+        {
+            copyIdx &= capacity - 1;
+            int final = copyIdx == 0 ? capacity : copyIdx;
+            while(!table.AllCopied)
+            {
+                int end = copyIdx + COPY_CHUNK;
+                int workDone = 0;
+                while(copyIdx != end)
+                    if(CopySlot(table, deadKey, ref records[copyIdx++]))
+                        ++workDone;
+                if(copyIdx == final || table.MarkCopied(workDone))
+                {
+                    Promote(table);
+                    break;
+                }
+                if(copyIdx == capacity)
+                    copyIdx = 0;
+            }
+        }
+        private void HelpCopyLargeSome(Table table, Record[] records, TombstoneKV deadKey, int capacity, int copyIdx)
+        {
+            if(!table.AllCopied)
+            {
+                copyIdx &= (capacity - 1);
+                int end = copyIdx + COPY_CHUNK;
+                int workDone = 0;
+                while(copyIdx != end)
+                    if(CopySlot(table, deadKey, ref records[copyIdx++]))
+                        ++workDone;
+                if(table.MarkCopied(workDone))
+                    Promote(table);
+            }
+        }
+        private void HelpCopySmall(Table table, Record[] records, TombstoneKV deadKey)
+        {
+            if(!table.AllCopied)
+            {
+                for(int idx = 0; idx != records.Length; ++idx)
+                    CopySlot(table, deadKey, ref records[idx]);
+                table.MarkCopied(records.Length);
                 Promote(table);
+            }
         }
         private void Promote(Table table)
         {
-            while(table == _table && Interlocked.CompareExchange(ref _table, table.Next, table) == table && (table = table.Next).AllCopied);
+            while(table != _table)
+            {
+                Table tab = _table;
+                while(tab.Next != table)
+                {
+                    tab = tab.Next;
+                    if(tab == null)
+                        return;
+                }
+                if(Interlocked.CompareExchange(ref tab.Next, table.Next, table) == table)
+                    return;
+            }
+            Interlocked.CompareExchange(ref _table, table.Next, table);
         }
         private bool CopySlot(Table table, TombstoneKV deadKey, ref Record record)
         {
@@ -927,10 +1031,13 @@ namespace Ariadne.Collections
         private bool CopySlot(Table table, TombstoneKV deadKey, ref KV keyValue, int hash)
         {
             //if unwritten-to we should be able to just mark it as dead.
-            KV kv = Interlocked.CompareExchange(ref keyValue, deadKey, null);
-            if(kv  == null)
-                return true;
-            KV oldKV = kv;
+            KV kv = keyValue;
+            if(kv == null)
+                kv = Interlocked.CompareExchange(ref keyValue, deadKey, null);
+            return kv == null || CopySlot(table, deadKey, ref keyValue, hash, kv, kv);
+        }
+        private bool CopySlot(Table table, TombstoneKV deadKey, ref KV keyValue, int hash, KV kv, KV oldKV)
+        {
             while(!(kv is PrimeKV))
             {
             	if(kv is TombstoneKV)
@@ -1038,7 +1145,8 @@ namespace Ariadne.Collections
     	public Dictionary<TKey, TValue> ToDictionary()
     	{
     		Dictionary<TKey, TValue> snapshot = new Dictionary<TKey, TValue>(Count, _cmp);
-            for(Table table = _table; table != null; table = table.Next)
+    		Table table = _table;
+            do
             {
                 Record[] records = table.Records;
                 for(int idx = 0; idx != records.Length; ++idx)
@@ -1046,17 +1154,12 @@ namespace Ariadne.Collections
                     KV kv = records[idx].KeyValue;
                     if(kv != null && !(kv is TombstoneKV))
                     {
-                        if(!(kv is PrimeKV))//part-way through being copied to next table
-                        {
-                            TKey key = kv.Key;
-                            if(key != null)
-                                snapshot[key] = kv.Value;
-                        }
-                        else
-                            CopySlotsAndCheck(table, idx);
+                        TKey key = kv.Key;
+                        if(key != null)
+                            snapshot[key] = kv.Value;
                     }
                 }
-            }
+            }while((table = table.Next) != null);
     		return snapshot;
     	}
     	object ICloneable.Clone()
@@ -1070,22 +1173,20 @@ namespace Ariadne.Collections
         public ThreadSafeDictionary<TKey, TValue> Clone()
         {
         	ThreadSafeDictionary<TKey, TValue> snapshot = new ThreadSafeDictionary<TKey, TValue>(Count, _cmp);
-        	MatchAll matchAll = MatchAll.Instance;
-            for(Table table = _table; table != null; table = table.Next)
+        	Table snTab = snapshot._table;
+        	Table table = _table;
+            do
             {
                 Record[] records = table.Records;
                 for(int idx = 0; idx != records.Length; ++idx)
                 {
-                    KV kv = records[idx].KeyValue;
+                    Record record = records[idx];
+                    KV kv = record.KeyValue;
                     if(kv != null && !(kv is TombstoneKV))
-                    {
-                        if(!(kv is PrimeKV))//part-way through being copied to next table
-                            snapshot.PutIfMatch(kv, matchAll);
-                        else
-                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
-                    }
+                        snTab = snapshot.PutSingleThreaded(snTab, kv.StripPrime(), record.Hash, true);
                 }
-            }
+            }while((table = table.Next) != null);
+            snapshot._table = snTab;
             return snapshot;
         }
         /// <summary>Gets or sets the value for a particular key.</summary>
