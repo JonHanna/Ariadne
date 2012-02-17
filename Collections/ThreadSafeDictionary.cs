@@ -277,6 +277,10 @@ namespace Ariadne.Collections
                     return CopyDone == Capacity;
                 }
             }
+            public void MarkAllCopied()
+            {
+                CopyDone = Capacity;
+            }
             public bool MarkCopied(int cCopied)
             {
                 Debug.Assert(CopyDone <= Capacity);
@@ -1020,7 +1024,7 @@ namespace Ariadne.Collections
             {
                 for(int idx = 0; idx != records.Length; ++idx)
                     CopySlot(table, deadKey, ref records[idx]);
-                table.MarkCopied(records.Length);
+                table.MarkAllCopied();
                 Promote(table);
             }
         }
