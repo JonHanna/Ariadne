@@ -39,6 +39,7 @@ namespace Ariadne.Collections
         private const int REPROBE_LOWER_BOUND = 5;
         private const int REPROBE_SHIFT = 5;
         private const int ZERO_HASH = 0x55555555;
+        private const int COPY_CHUNK = 1024;
         internal class Box
         {
             public readonly T Value;
@@ -179,8 +180,10 @@ namespace Ariadne.Collections
         public ThreadSafeSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
             :this(EstimateNecessaryCapacity(collection), comparer)
         {
+            Table table = _table;
             foreach(T item in collection)
-                Add(item);
+                table = PutSingleThreaded(table, new Box(item), Hash(item), true);
+            _table = table;
         }
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
@@ -198,7 +201,14 @@ namespace Ariadne.Collections
         private ThreadSafeSet(SerializationInfo info, StreamingContext context)
             :this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
         {
-            AddRange((T[])info.GetValue("arr", typeof(T[])));
+            T[] arr = (T[])info.GetValue("arr", typeof(T[]));
+            Table table = _table;
+            for(int i = 0; i != arr.Length; ++i)
+            {
+                T item = arr[i];
+                table = PutSingleThreaded(table, new Box(item), Hash(item), true);
+            }
+            _table = table;
         }
         private int Hash(T item)
         {
@@ -229,38 +239,33 @@ namespace Ariadne.Collections
                     {
                         Box box = records[idx].Box;
                         if(box == null)
-                            break;
+                            goto notfound;
                         T value = box.Value;
                         if(_cmp.Equals(item, value) && box != DeadItem)
                         {
-                            if(!(box is TombstoneBox))
-                            {
-                                if(box is PrimeBox)
-                                {
-                                    CopySlotsAndCheck(table, idx);
-                                    break;
-                                }
-                                storedItem = value;
-                                return true;
-                            }
-                            storedItem = default(T);
-                            return false;
+                            if(box is TombstoneBox)
+                                goto notfound;
+                            storedItem = value;
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                        break;
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             storedItem = default(T);
             return false;
         }
-        internal Box PutIfMatch(Box box, bool removing, bool emptyOnly)
+        internal Box PutIfMatch(Box box)
         {
-            return PutIfMatch(_table, box, Hash(box.Value), removing, emptyOnly);
+            return PutIfMatch(_table, box, Hash(box.Value));
         }
-        private Box PutIfMatch(Table table, Box box, int hash, bool removing, bool emptyOnly)
+        private Box PutIfMatch(Table table, Box box, int hash)
         {
-            Box deadItem = DeadItem;
+            TombstoneBox deadItem = DeadItem;
             for(;;)
             {
                 int mask = table.Mask;
@@ -281,21 +286,19 @@ namespace Ariadne.Collections
                     }
                     if(curHash == hash)
                     {
-                        if(!removing)
+                        curBox = records[idx].Box;
+                        if(curBox == null)
                         {
+                            if(box is TombstoneBox)
+                                return null;
                             if((curBox = Interlocked.CompareExchange(ref records[idx].Box, box, null)) == null)
                             {
                                 table.Slots.Increment();
-                                if(!emptyOnly)
-                                    table.Size.Increment();
+                                table.Size.Increment();
                                 return null;
                             }
                         }
-                        else
-                            curBox = records[idx].Box;
-                        if(curBox == deadItem)
-                            goto restart;
-                        if(_cmp.Equals(curBox.Value, box.Value))
+                        if(_cmp.Equals(curBox.Value, box.Value) && curBox != deadItem)
                            break;
                     }
                     else if(--reprobes == 0)
@@ -303,8 +306,6 @@ namespace Ariadne.Collections
                         Resize(table);
                         goto restart;
                     }
-                    else if(records[idx].Box == deadItem)
-                        goto restart;
                     if((idx = (idx + 1) & mask) == endIdx)
                     {
                         Resize(table);
@@ -312,10 +313,6 @@ namespace Ariadne.Collections
                     }
                 }
     
-                //we have a record with a matching key.
-                if(emptyOnly || (box is TombstoneBox) == (curBox is TombstoneBox))
-                    return curBox;//no change, return that stored.
-                
                 if(table.Next != null)
                 {
                     CopySlotsAndCheck(table, idx);
@@ -323,6 +320,10 @@ namespace Ariadne.Collections
                 }
                 for(;;)
                 {
+                    //we have a record with a matching key.
+                    if((box is TombstoneBox) == (curBox is TombstoneBox))
+                        return curBox;//no change, return that stored.
+                    
                     Box prevBox = Interlocked.CompareExchange(ref records[idx].Box, box, curBox);
                     if(prevBox == curBox)
                     {
@@ -336,21 +337,119 @@ namespace Ariadne.Collections
                         return prevBox;
                     }
                     //we lost the race, another thread set the box.
-                    if(prevBox is PrimeBox)
+                    if(prevBox == deadItem)
+                        break;
+                    else if(prevBox is PrimeBox)
                     {
                         CopySlotsAndCheck(table, idx);
-                        goto restart;
+                        break;
                     }
-                    else if(prevBox == deadItem)
-                        goto restart;
-                    else if((box is TombstoneBox) == (prevBox is TombstoneBox))
-                        return prevBox;//no change, return that stored.
                     else
                         curBox = prevBox;
                 }
             restart:
-                HelpCopy(table, records);
+                HelpCopy(table, records, deadItem);
                 table = table.Next;
+            }
+        }
+        private void PutIfEmpty(Table table, Box box, int hash)
+        {
+            TombstoneBox deadItem = DeadItem;
+            for(;;)
+            {
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
+                Record[] records = table.Records;
+                for(;;)
+                {
+                    int curHash = records[idx].Hash;
+                    if((curHash == 0 && Interlocked.CompareExchange(ref records[idx].Hash, hash, 0) == 0) || curHash == hash)
+                    {
+                        Box curBox = records[idx].Box;
+                        if(curBox == null && (curBox = Interlocked.CompareExchange(ref records[idx].Box, box, null)) == null)
+                        {
+                            table.Slots.Increment();
+                            return;
+                        }
+                        else if(_cmp.Equals(curBox.Value, box.Value))
+                            return;
+                    }
+                    else if(--reprobes == 0)
+                    {
+                        Resize(table);
+                        break;
+                    }
+                    else if(records[idx].Box == deadItem)
+                        break;
+                    if((idx = (idx + 1) & mask) == endIdx)
+                    {
+                        Resize(table);
+                        break;
+                    }
+                }
+                HelpCopy(table, records, deadItem);
+                table = table.Next;
+            }
+        }
+        private Table PutSingleThreaded(Table table, Box box, int hash, bool incSize)
+        {
+            for(;;)
+            {
+                int mask = table.Mask;
+                int idx = hash & mask;
+                int endIdx = idx;
+                int reprobes = table.ReprobeLimit;
+                Record[] records = table.Records;
+                Table next;
+                for(;;)
+                {
+                    int curHash = records[idx].Hash;
+                    if(curHash == 0)//nothing written here
+                    {
+                        records[idx].Hash = hash;
+                        records[idx].Box = box;
+                        table.Slots.Increment();
+                        if(incSize)
+                            table.Size.Increment();
+                        return table;
+                    }
+                    else if(curHash == hash)
+                    {
+                        //hashes match, do keys?
+                        //while retrieving the current
+                        //if we want to write to empty records
+                        //let’s see if we can just write because there’s nothing there...
+                        //okay there’s something with the same hash here, does it have the same key?
+                        if(_cmp.Equals(records[idx].Box.Value, box.Value))
+                        {
+                            records[idx].Box = box;
+                            return table;
+                        }
+                    }
+                    else if(--reprobes == 0)
+                    {
+                        int newCap = table.Capacity << 1;
+                        if(newCap < (1 << REPROBE_SHIFT))
+                            newCap = 1 << REPROBE_SHIFT;
+                        next = new Table(newCap, table.Size);
+                        break;
+                    }
+                    if((idx = (idx + 1) & mask) == endIdx)
+                    {
+                        next = new Table(table.Capacity << 1, table.Size);
+                        break;
+                    }
+                }
+                for(idx = 0; idx != records.Length; ++idx)
+                {
+                    Record record = records[idx];
+                    int h = record.Hash;
+                    if(h != 0)
+                        PutSingleThreaded(next, record.Box, h, false);
+                }
+                table = next;
             }
         }
         private void CopySlotsAndCheck(Table table, int idx)
@@ -359,42 +458,101 @@ namespace Ariadne.Collections
                 Promote(table);
         }
         // Copy a bunch of records to the next table.
-        private void HelpCopy(Table table, Record[] records)
+        // Copy a bunch of records to the next table.
+        private void HelpCopy(Table table, Record[] records, TombstoneBox deadItem)
         {
             //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
             //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
             //at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
             //cache-lines to be invalidated with each write.
-            int chunk = table.Capacity;
-            if(chunk > 1024)
-                chunk = 1024;
-            TombstoneBox deadItem = DeadItem;
-            if(table.AllCopied)
-                return;
-            int copyIdx = Interlocked.Add(ref table.CopyIdx, chunk) & table.Mask;
-            int end = copyIdx + chunk;
-            int workDone = 0;
-            while(copyIdx != end)
-                if(CopySlot(table, deadItem, ref records[copyIdx++]))
-                    ++workDone;
-            if(table.MarkCopied(workDone))
+            int cap = table.Capacity;
+            if(cap > COPY_CHUNK)
+                HelpCopyLarge(table, records, deadItem, cap);
+            else
+                HelpCopySmall(table, records, deadItem);
+        }
+        private void HelpCopyLarge(Table table, Record[] records, TombstoneBox deadItem, int capacity)
+        {
+            int copyIdx = Interlocked.Add(ref table.CopyIdx, COPY_CHUNK);
+            if(table != _table || table.Next.Next != null || copyIdx > capacity << 1)
+                HelpCopyLargeAll(table, records, deadItem, capacity, copyIdx);
+            else
+                HelpCopyLargeSome(table, records, deadItem, capacity, copyIdx);
+        }
+        private void HelpCopyLargeAll(Table table, Record[] records, TombstoneBox deadItem, int capacity, int copyIdx)
+        {
+            copyIdx &= capacity - 1;
+            int final = copyIdx == 0 ? capacity : copyIdx;
+            while(!table.AllCopied)
+            {
+                int end = copyIdx + COPY_CHUNK;
+                int workDone = 0;
+                while(copyIdx != end)
+                    if(CopySlot(table, deadItem, ref records[copyIdx++]))
+                        ++workDone;
+                if(copyIdx == final || table.MarkCopied(workDone))
+                {
+                    Promote(table);
+                    break;
+                }
+                if(copyIdx == capacity)
+                    copyIdx = 0;
+            }
+        }
+        private void HelpCopyLargeSome(Table table, Record[] records, TombstoneBox deadItem, int capacity, int copyIdx)
+        {
+            if(!table.AllCopied)
+            {
+                copyIdx &= (capacity - 1);
+                int end = copyIdx + COPY_CHUNK;
+                int workDone = 0;
+                while(copyIdx != end)
+                    if(CopySlot(table, deadItem, ref records[copyIdx++]))
+                        ++workDone;
+                if(table.MarkCopied(workDone))
+                    Promote(table);
+            }
+        }
+        private void HelpCopySmall(Table table, Record[] records, TombstoneBox deadKey)
+        {
+            if(!table.AllCopied)
+            {
+                for(int idx = 0; idx != records.Length; ++idx)
+                    CopySlot(table, deadKey, ref records[idx]);
+                table.MarkCopied(records.Length);
                 Promote(table);
+            }
         }
         private void Promote(Table table)
         {
-            while(table == _table && Interlocked.CompareExchange(ref _table, table.Next, table) == table && (table = table.Next).AllCopied);
+            while(table != _table)
+            {
+                Table tab = _table;
+                while(tab.Next != table)
+                {
+                    tab = tab.Next;
+                    if(tab == null)
+                        return;
+                }
+                if(Interlocked.CompareExchange(ref tab.Next, table.Next, table) == table)
+                    return;
+            }
+            Interlocked.CompareExchange(ref _table, table.Next, table);
         }
         private bool CopySlot(Table table, TombstoneBox deadItem, ref Record record)
         {
             return CopySlot(table, deadItem, ref record.Box, record.Hash);
         }
-        private bool CopySlot(Table table, Box deadItem, ref Box boxRef, int hash)
+        private bool CopySlot(Table table, TombstoneBox deadItem, ref Box boxRef, int hash)
         {
             //if unwritten-to we should be able to just mark it as dead.
-            Box box = Interlocked.CompareExchange(ref boxRef, deadItem, null);
+            Box box = boxRef;
             if(box == null)
-                return true;
-            Box oldBox = box;
+                box = Interlocked.CompareExchange(ref boxRef, deadItem, null);
+            return box == null || CopySlot(table, deadItem, ref boxRef, hash, box, box);
+        }
+        private bool CopySlot(Table table, Box deadItem, ref Box boxRef, int hash, Box box, Box oldBox)
+        {
             while(!(box is PrimeBox))
             {
                 if(box is TombstoneBox)
@@ -417,7 +575,7 @@ namespace Ariadne.Collections
                 }
                 box = oldBox;
             }
-            PutIfMatch(table.Next, oldBox.StripPrime(), hash, false, true);
+            PutIfEmpty(table.Next, oldBox.StripPrime(), hash);
             for(;;)
             {
                 oldBox = Interlocked.CompareExchange(ref boxRef, deadItem, box);
@@ -504,7 +662,7 @@ namespace Ariadne.Collections
         /// <returns>True if the item was added, false if a matching item was already present.</returns>
         public bool Add(T item)
         {
-            Box prev = PutIfMatch(new Box(item), false, false);
+            Box prev = PutIfMatch(new Box(item));
             return prev != null || !(prev is TombstoneBox);
         }
         /// <summary>Attempts to add a collection of items to the set, returning those which were added.</summary>
@@ -898,7 +1056,7 @@ namespace Ariadne.Collections
         /// <returns>True if an item was removed, false if no matching item was found.</returns>
         public bool Remove(T item, out T removed)
         {
-            Box prev = PutIfMatch(new TombstoneBox(item), true, false);
+            Box prev = PutIfMatch(new TombstoneBox(item));
             if(prev == null || prev is TombstoneBox)
             {
                 removed = default(T);
@@ -1148,21 +1306,19 @@ namespace Ariadne.Collections
         public ThreadSafeSet<T> Clone()
         {
             ThreadSafeSet<T> copy = new ThreadSafeSet<T>(Count, _cmp);
+            Table copyTab = copy._table;
             for(Table table = _table; table != null; table = table.Next)
             {
                 Record[] records = table.Records;
                 for(int idx = 0; idx != records.Length; ++idx)
                 {
-                    Box box = records[idx].Box;
+                    Record record = records[idx];
+                    Box box = record.Box;
                     if(box != null && !(box is TombstoneBox))
-                    {
-                        if(box is PrimeBox)//part-way through being copied to next table
-                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
-                        else
-                            copy.PutIfMatch(box, false, false);
-                    }
+                        copyTab = PutSingleThreaded(copyTab, box.StripPrime(), record.Hash, true);
                 }
             }
+            copy._table = copyTab;
             return copy;
         }
         object ICloneable.Clone()
@@ -1313,7 +1469,7 @@ namespace Ariadne.Collections
         /// only valid for reference types.</remarks>
         public static T FindOrStore<T>(this ThreadSafeSet<T> tset, T item) where T : class
         {
-            ThreadSafeSet<T>.Box found = tset.PutIfMatch(new ThreadSafeSet<T>.Box(item), false, false);
+            ThreadSafeSet<T>.Box found = tset.PutIfMatch(new ThreadSafeSet<T>.Box(item));
             return found == null || found is ThreadSafeSet<T>.TombstoneBox ? item : found.Value;
         }
     }

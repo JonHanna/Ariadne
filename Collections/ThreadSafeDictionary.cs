@@ -617,10 +617,7 @@ namespace Ariadne.Collections
                     if(prevPair == curPair)
                     {
                         if(pair is TombstoneKV)
-                        {
-                        	if(!(prevPair is TombstoneKV))
-                                table.Size.Decrement();
-                        }
+                            table.Size.Decrement();
                         else if(prevPair is TombstoneKV)
                             table.Size.Increment();
                         replaced = prevPair;
@@ -887,7 +884,7 @@ namespace Ariadne.Collections
                             return;
                         }
                         else if(curPair == deadKey)
-                            break;
+                            throw new Exception("test");
                         else if(_cmp.Equals(curPair.Key, pair.Key))//already here!
                             return;
                     }
@@ -1213,7 +1210,7 @@ namespace Ariadne.Collections
                     Record record = records[idx];
                     KV kv = record.KeyValue;
                     if(kv != null && !(kv is TombstoneKV))
-                        snTab = snapshot.PutSingleThreaded(snTab, kv.StripPrime(), record.Hash, true);
+                        snTab = PutSingleThreaded(snTab, kv.StripPrime(), record.Hash, true);
                 }
             }while((table = table.Next) != null);
             snapshot._table = snTab;
