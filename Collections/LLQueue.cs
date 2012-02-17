@@ -85,8 +85,33 @@ namespace Ariadne.Collections
         public void EnqueueRange(IEnumerable<T> collection)
         {
             Validation.NullCheck(collection, "collection");
-            foreach(T item in collection)
-                Enqueue(item);
+            SinglyLinkedNode<T> start;
+            SinglyLinkedNode<T> end;
+            using(IEnumerator<T> en = collection.GetEnumerator())
+            {
+                if(!en.MoveNext())
+                    return;
+                start = end = new SinglyLinkedNode<T>(en.Current);
+                while(en.MoveNext())
+                    end = end.Next = new SinglyLinkedNode<T>(en.Current);
+            }
+            for(;;)
+            {
+                SinglyLinkedNode<T> curTail = _tail;
+                if(Interlocked.CompareExchange(ref curTail.Next, start, null) == null)
+                {
+                    for(;;)
+                    {
+                        SinglyLinkedNode<T> newTail = Interlocked.CompareExchange(ref _tail, end, curTail);
+                        if(newTail == curTail || newTail.Next == null)
+                            return;
+                        end = newTail;
+                        for(SinglyLinkedNode<T> next = end.Next; next != null; next = (end = next).Next);
+                    }
+                }
+                else
+                    Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);
+            }
         }
         /// <summary>Attempts to remove an item from the start of the queue.</summary>
         /// <param name="item">The item dequeued if successful.</param>
