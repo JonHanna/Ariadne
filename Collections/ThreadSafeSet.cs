@@ -49,13 +49,18 @@ namespace Ariadne.Collections
             }
             public Box StripPrime()
             {
-                return this is PrimeBox ? new Box(Value) : this;
+                PrimeBox prime = this as PrimeBox;
+                return prime == null ? this : prime.Original;
             }
         }
         internal sealed class PrimeBox : Box
         {
-            public PrimeBox(T value)
-                :base(value){}
+            public readonly Box Original;
+            public PrimeBox(Box box)
+                :base(box.Value)
+            {
+                Original = box;
+            }
         }
         internal sealed class TombstoneBox : Box
         {
@@ -219,11 +224,11 @@ namespace Ariadne.Collections
             int givenHash = _cmp.GetHashCode(item);
             return givenHash == 0 ? ZERO_HASH : givenHash;
         }
-        internal bool Obtain(T item, out T storedItem)
+        internal Box Obtain(T item)
         {
-            return Obtain(_table, item, Hash(item), out storedItem);
+            return Obtain(_table, item, Hash(item));
         }
-        private bool Obtain(Table table, T item, int hash, out T storedItem)
+        private Box Obtain(Table table, T item, int hash)
         {
             do
             {
@@ -239,25 +244,18 @@ namespace Ariadne.Collections
                     {
                         Box box = records[idx].Box;
                         if(box == null)
-                            goto notfound;
+                            return null;
                         T value = box.Value;
                         if(_cmp.Equals(item, value) && box != DeadItem)
-                        {
-                            if(box is TombstoneBox)
-                                goto notfound;
-                            storedItem = value;
-                            return true;
-                        }
+                            return box is TombstoneBox ? null : box;
                     }
                     else if(curHash == 0)
-                        break;
+                        return null;
                     else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
-        notfound:
-            storedItem = default(T);
-            return false;
+            return null;
         }
         internal Box PutIfMatch(Box box)
         {
@@ -565,7 +563,7 @@ namespace Ariadne.Collections
                 }
                 else
                 {
-                    PrimeBox prime = new PrimeBox(box.Value);
+                    PrimeBox prime = new PrimeBox(box);
                     oldBox = Interlocked.CompareExchange(ref boxRef, prime, box);
                     if(box == oldBox)
                     {
@@ -1016,8 +1014,7 @@ namespace Ariadne.Collections
         /// <returns>True if the item is found, false otherwise.</returns>
         public bool Contains(T item)
         {
-            T found;
-            return Obtain(item, out found);
+            return Obtain(item) != null;
         }
         /// <summary>Copies the contents of the set to an array.</summary>
         /// <param name="array">The array to copy to.</param>
@@ -1452,8 +1449,8 @@ namespace Ariadne.Collections
         /// only valid for reference types.</remarks>
         public static T Find<T>(this ThreadSafeSet<T> tset, T item) where T : class
         {
-            T found;
-            return tset.Obtain(item, out found) ? found : default(T);
+            ThreadSafeSet<T>.Box box = tset.Obtain(item);
+            return box == null ? null : box.Value;
         }
         /// <summary>Retrieves a reference to the specified item, adding it if necessary.</summary>
         /// <typeparam name="T">The type of the items in the set.</typeparam>

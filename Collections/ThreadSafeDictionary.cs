@@ -107,7 +107,8 @@ namespace Ariadne.Collections
             // a KV that is definitely not a prime
             public KV StripPrime()
             {
-            	return this is PrimeKV ? new KV(Key, Value) : this;
+                PrimeKV prime = this as PrimeKV;
+                return prime == null ? this : prime.Original;
             }
             // A dead record. Any relevant record is in the next table.
             public static implicit operator KV(KeyValuePair<TKey, TValue> kvp)
@@ -124,8 +125,12 @@ namespace Ariadne.Collections
         [SerializableAttribute]
         internal sealed class PrimeKV : KV
         {
-            public PrimeKV(TKey key, TValue value)
-                :base(key, value){}
+            public readonly KV Original;
+            public PrimeKV(KV kv)
+                :base(kv.Key, kv.Value)
+            {
+                Original = kv;
+            }
         }
         // There used to be a value here, but it was deleted. We can write to this
         // record again if the key is to be inserted again. Otherwise the key stays
@@ -489,21 +494,17 @@ namespace Ariadne.Collections
                     {
                         KV pair = records[idx].KeyValue;
                         if(pair == null)//part-way through write perhaps of what we want, but we're too early. If not, what we want isn't further on.
-                        {
                             goto notfound;
-                        }
                         if(_cmp.Equals(key, pair.Key) && pair != DeadKey)//key’s match, and this can’t change.
                         {
                             if(pair is TombstoneKV)
                                 goto notfound;
-                            value = pair.Value;
+                            value = pair.StripPrime().Value;
                             return true;
                         }
                     }
                     else if(curHash == 0)
-                    {
                         goto notfound;
-                    }
                     else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
@@ -862,9 +863,8 @@ namespace Ariadne.Collections
                 table = table.Next;
             }
         }
-        private void PutIfEmpty(Table table, KV pair, int hash)
+        private void PutIfEmpty(Table table, TombstoneKV deadKey, KV pair, int hash)
         {
-            TombstoneKV deadKey = DeadKey;
             for(;;)
             {
                 int mask = table.Mask;
@@ -872,7 +872,7 @@ namespace Ariadne.Collections
                 int endIdx = idx;
                 int reprobes = table.ReprobeLimit;
                 Record[] records = table.Records;
-                for(;;)
+                do
                 {
                     int curHash = records[idx].Hash;
                     if((curHash == 0 && Interlocked.CompareExchange(ref records[idx].Hash, hash, 0) == 0) || curHash == hash)
@@ -883,24 +883,13 @@ namespace Ariadne.Collections
                             table.Slots.Increment();
                             return;
                         }
-                        else if(curPair == deadKey)
-                            throw new Exception("test");
                         else if(_cmp.Equals(curPair.Key, pair.Key))//already here!
                             return;
                     }
                     else if(--reprobes == 0)
-                    {
-                        Resize(table);
                         break;
-                    }
-                    else if(records[idx].KeyValue == deadKey)
-                        break;
-                    if((idx = (idx + 1) & mask) == endIdx)
-                    {
-                        Resize(table);
-                        break;
-                    }
-                }
+                }while((idx = (idx + 1) & mask) != endIdx);
+                Resize(table);
                 HelpCopy(table, records, deadKey);
                 table = table.Next;
             }
@@ -1077,7 +1066,7 @@ namespace Ariadne.Collections
             	}
             	else
             	{
-            	    PrimeKV prime = new PrimeKV(kv.Key, kv.Value);
+            	    PrimeKV prime = new PrimeKV(kv);
 	                oldKV = Interlocked.CompareExchange(ref keyValue, prime, kv);
 	                if(kv == oldKV)
 	                {
@@ -1087,7 +1076,7 @@ namespace Ariadne.Collections
             	}
                 kv = oldKV;
             }
-            PutIfEmpty(table.Next, oldKV.StripPrime(), hash);
+            PutIfEmpty(table.Next, deadKey, oldKV.StripPrime(), hash);
             for(;;)
             {
                 oldKV = Interlocked.CompareExchange(ref keyValue, deadKey, kv);

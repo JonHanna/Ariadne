@@ -43,27 +43,22 @@ namespace Ariadne.Collections
                     {
                         var pair = records[idx].KeyValue;
                         if(pair == null)
-                            break;
+                            goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
-                            if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
-                            {
-                                if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
-                                {
-                                    dict.CopySlotsAndCheck(table, idx);
-                                    break;
-                                }
-                                result = Interlocked.Increment(ref pair.Value);
-                                return true;
-                            }
-                            result = 0;
-                            return false;
+                            if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
+                                goto notfound;
+                            result = Interlocked.Increment(ref pair.StripPrime().Value);
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                        goto notfound;
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             result = 0;
             return false;
         }
@@ -111,27 +106,22 @@ namespace Ariadne.Collections
                     {
                         var pair = records[idx].KeyValue;
                         if(pair == null)
-                            break;
+                            goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
-                            if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
-                            {
-                                if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
-                                {
-                                    dict.CopySlotsAndCheck(table, idx);
-                                    break;
-                                }
-                                result = Interlocked.Increment(ref pair.Value);
-                                return true;
-                            }
-                            result = 0;
-                            return false;
+                            if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
+                                goto notfound;
+                            result = Interlocked.Increment(ref pair.StripPrime().Value);
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                        goto notfound;
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             result = 0;
             return false;
         }
@@ -179,27 +169,22 @@ namespace Ariadne.Collections
                     {
                         var pair = records[idx].KeyValue;
                         if(pair == null)
-                            break;
+                            goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
-                            if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
-                            {
-                                if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
-                                {
-                                    dict.CopySlotsAndCheck(table, idx);
-                                    break;
-                                }
-                                result = Interlocked.Decrement(ref pair.Value);
-                                return true;
-                            }
-                            result = 0;
-                            return false;
+                            if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
+                                goto notfound;
+                            result = Interlocked.Decrement(ref pair.StripPrime().Value);
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                        goto notfound;
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             result = 0;
             return false;
         }
@@ -247,27 +232,22 @@ namespace Ariadne.Collections
                     {
                         var pair = records[idx].KeyValue;
                         if(pair == null)
-                            break;
+                            goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
-                            if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
-                            {
-                                if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
-                                {
-                                    dict.CopySlotsAndCheck(table, idx);
-                                    break;
-                                }
-                                result = Interlocked.Decrement(ref pair.Value);
-                                return true;
-                            }
-                            result = 0;
-                            return false;
+                            if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
+                                goto notfound;
+                            result = Interlocked.Decrement(ref pair.StripPrime().Value);
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                        goto notfound;
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             result = 0;
             return false;
         }
@@ -315,27 +295,22 @@ namespace Ariadne.Collections
                     {
                         var pair = records[idx].KeyValue;
                         if(pair == null)
-                            break;
+                            goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
-                            if(!(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV))
-                            {
-                                if(pair is ThreadSafeDictionary<TKey, long>.PrimeKV)
-                                {
-                                    dict.CopySlotsAndCheck(table, idx);
-                                    break;
-                                }
-                                result = Interlocked.Add(ref pair.Value, addend);
-                                return true;
-                            }
-                            result = 0;
-                            return false;
+                            if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
+                                goto notfound;
+                            result = Interlocked.Add(ref pair.StripPrime().Value, addend);
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                        goto notfound;
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             result = 0;
             return false;
         }
@@ -387,27 +362,22 @@ namespace Ariadne.Collections
                     {
                         var pair = records[idx].KeyValue;
                         if(pair == null)
-                            break;
+                            goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
-                            if(!(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV))
-                            {
-                                if(pair is ThreadSafeDictionary<TKey, int>.PrimeKV)
-                                {
-                                    dict.CopySlotsAndCheck(table, idx);
-                                    break;
-                                }
-                                result = Interlocked.Add(ref pair.Value, addend);
-                                return true;
-                            }
-                            result = 0;
-                            return false;
+                            if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
+                                goto notfound;
+                            result = Interlocked.Add(ref pair.StripPrime().Value, addend);
+                            return true;
                         }
                     }
-                    else if(curHash == 0 || --reprobes == 0)
+                    else if(curHash == 0)
+                        goto notfound;
+                    else if(--reprobes == 0)
                         break;
                 }while((idx = (idx + 1) & mask) != endIdx);
             }while((table = table.Next) != null);
+        notfound:
             result = 0;
             return false;
         }
