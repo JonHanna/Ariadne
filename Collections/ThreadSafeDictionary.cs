@@ -411,33 +411,6 @@ namespace Ariadne.Collections
                 return _value;
             }
         }
-        private static Func<TKey, TValue, bool, TValue> ProducerFromUpdaterAndValue(Func<TKey, TValue, TValue> updater, TValue value)
-        {
-            return (TKey key, TValue curValue, bool factoryMode) =>
-            {
-                if(factoryMode)
-                    return value;
-                return updater(key, curValue);
-            };
-        }
-        private static Func<TKey, TValue, bool, TValue> ProducerFromUpdaterAndFactory(Func<TKey, TValue, TValue> updater, Func<TKey, TValue> factory)
-        {
-            bool factoryCalled = false;
-            TValue cachedFromFactory = default(TValue);
-            return (TKey key, TValue value, bool factoryMode) =>
-            {
-                if(factoryMode)
-                {
-                    if(!factoryCalled)
-                    {
-                        cachedFromFactory = factory(key);
-                        factoryCalled  = true;
-                    }
-                    return cachedFromFactory;
-                }
-                return updater(key, value);
-            };
-        }
         internal int Hash(TKey key)
         {
             //We must prohibit the value of zero in order to be sure that when we encounter a
