@@ -44,12 +44,17 @@ namespace Ariadne.Collections
                         var pair = records[idx].KeyValue;
                         if(pair == null)
                             goto notfound;
-                        if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
+                        if(dict._cmp.Equals(key, pair.Key))
                         {
-                            if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
-                                goto notfound;
-                            result = Interlocked.Increment(ref pair.StripPrime().Value);
-                            return true;
+                            if(pair != ThreadSafeDictionary<TKey, int>.DeadKey)
+                            {
+                                if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
+                                    goto notfound;
+                                result = Interlocked.Increment(ref pair.StripPrime().Value);
+                                return true;
+                            }
+                            if(!key.Equals(default(TKey)))
+                                break;
                         }
                     }
                     else if(curHash == 0)
@@ -109,10 +114,15 @@ namespace Ariadne.Collections
                             goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
-                            if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
-                                goto notfound;
-                            result = Interlocked.Increment(ref pair.StripPrime().Value);
-                            return true;
+                            if(pair != ThreadSafeDictionary<TKey, long>.DeadKey)
+                            {
+                                if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
+                                    goto notfound;
+                                result = Interlocked.Increment(ref pair.StripPrime().Value);
+                                return true;
+                            }
+                            if(!key.Equals(default(TKey)))
+                                break;
                         }
                     }
                     else if(curHash == 0)
@@ -172,10 +182,15 @@ namespace Ariadne.Collections
                             goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
-                            if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
-                                goto notfound;
-                            result = Interlocked.Decrement(ref pair.StripPrime().Value);
-                            return true;
+                            if(pair != ThreadSafeDictionary<TKey, int>.DeadKey)
+                            {
+                                if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
+                                    goto notfound;
+                                result = Interlocked.Decrement(ref pair.StripPrime().Value);
+                                return true;
+                            }
+                            if(!key.Equals(default(TKey)))
+                                break;
                         }
                     }
                     else if(curHash == 0)
@@ -235,10 +250,15 @@ namespace Ariadne.Collections
                             goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
-                            if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
-                                goto notfound;
-                            result = Interlocked.Decrement(ref pair.StripPrime().Value);
-                            return true;
+                            if(pair != ThreadSafeDictionary<TKey, long>.DeadKey)
+                            {
+                                if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
+                                    goto notfound;
+                                result = Interlocked.Decrement(ref pair.StripPrime().Value);
+                                return true;
+                            }
+                            if(!key.Equals(default(TKey)))
+                                break;
                         }
                     }
                     else if(curHash == 0)
@@ -298,10 +318,15 @@ namespace Ariadne.Collections
                             goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, long>.DeadKey)
                         {
-                            if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
-                                goto notfound;
-                            result = Interlocked.Add(ref pair.StripPrime().Value, addend);
-                            return true;
+                            if(pair != ThreadSafeDictionary<TKey, long>.DeadKey)
+                            {
+                                if(pair is ThreadSafeDictionary<TKey, long>.TombstoneKV)
+                                    goto notfound;
+                                result = Interlocked.Add(ref pair.StripPrime().Value, addend);
+                                return true;
+                            }
+                            if(!key.Equals(default(TKey)))
+                                break;
                         }
                     }
                     else if(curHash == 0)
@@ -365,10 +390,15 @@ namespace Ariadne.Collections
                             goto notfound;
                         if(dict._cmp.Equals(key, pair.Key) && pair != ThreadSafeDictionary<TKey, int>.DeadKey)
                         {
-                            if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
-                                goto notfound;
-                            result = Interlocked.Add(ref pair.StripPrime().Value, addend);
-                            return true;
+                            if(pair != ThreadSafeDictionary<TKey, int>.DeadKey)
+                            {
+                                if(pair is ThreadSafeDictionary<TKey, int>.TombstoneKV)
+                                    goto notfound;
+                                result = Interlocked.Add(ref pair.StripPrime().Value, addend);
+                                return true;
+                            }
+                            if(!key.Equals(default(TKey)))
+                                break;
                         }
                     }
                     else if(curHash == 0)

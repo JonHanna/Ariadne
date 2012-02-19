@@ -313,7 +313,7 @@ namespace Ariadne.Collections
     
                 if(table.Next != null)
                 {
-                    CopySlotsAndCheck(table, idx);
+                    CopySlotsAndCheck(table, deadItem, idx);
                     goto restart;
                 }
                 for(;;)
@@ -339,7 +339,7 @@ namespace Ariadne.Collections
                         break;
                     else if(prevBox is PrimeBox)
                     {
-                        CopySlotsAndCheck(table, idx);
+                        CopySlotsAndCheck(table, deadItem, idx);
                         break;
                     }
                     else
@@ -371,7 +371,7 @@ namespace Ariadne.Collections
                             table.Slots.Increment();
                             return;
                         }
-                        else if(_cmp.Equals(curBox.Value, box.Value))
+                        else if(_cmp.Equals(curBox.Value, box.Value) && curBox != deadItem)
                             return;
                     }
                     else if(--reprobes == 0)
@@ -450,9 +450,9 @@ namespace Ariadne.Collections
                 table = next;
             }
         }
-        private void CopySlotsAndCheck(Table table, int idx)
+        private void CopySlotsAndCheck(Table table, TombstoneBox deadItem, int idx)
         {
-            if(CopySlot(table, DeadItem, ref table.Records[idx]) && table.MarkCopied())
+            if(CopySlot(table, deadItem, ref table.Records[idx]) && table.MarkCopied())
                 Promote(table);
         }
         // Copy a bunch of records to the next table.
@@ -539,15 +539,8 @@ namespace Ariadne.Collections
         }
         private bool CopySlot(Table table, TombstoneBox deadItem, ref Record record)
         {
-            return CopySlot(table, deadItem, ref record.Box, record.Hash);
-        }
-        private bool CopySlot(Table table, TombstoneBox deadItem, ref Box boxRef, int hash)
-        {
-            //if unwritten-to we should be able to just mark it as dead.
-            Box box = boxRef;
-            if(box == null)
-                box = Interlocked.CompareExchange(ref boxRef, deadItem, null);
-            return box == null || CopySlot(table, deadItem, ref boxRef, hash, box, box);
+            Box box = Interlocked.CompareExchange(ref record.Box, deadItem, null);
+            return box == null || CopySlot(table, deadItem, ref record.Box, record.Hash, box, box);
         }
         private bool CopySlot(Table table, Box deadItem, ref Box boxRef, int hash, Box box, Box oldBox)
         {
@@ -1104,6 +1097,7 @@ namespace Ariadne.Collections
             /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
             public bool MoveNext()
             {
+                TombstoneBox deadItem = DeadItem;
                 for(; _table != null; _table = _table.Next)
                 {
                     Record[] records = _table.Records;
@@ -1113,7 +1107,7 @@ namespace Ariadne.Collections
                         if(box == null || box is TombstoneBox)
                             continue;
                         if(box is PrimeBox)
-                            _set.CopySlotsAndCheck(_table, _idx);
+                            _set.CopySlotsAndCheck(_table, deadItem, _idx);
                         else
                         {
                             T value = box.Value;
@@ -1133,7 +1127,7 @@ namespace Ariadne.Collections
                                         break;
                                     else if(oldBox is PrimeBox)
                                     {
-                                        _set.CopySlotsAndCheck(_table, _idx);
+                                        _set.CopySlotsAndCheck(_table, deadItem, _idx);
                                         break;
                                     }
                                     else if(!_predicate(value = oldBox.Value))
@@ -1226,7 +1220,7 @@ namespace Ariadne.Collections
                         if(box != null && !(box is TombstoneBox))
                         {
                             if(box is PrimeBox)//part-way through being copied to next table
-                                _set.CopySlotsAndCheck(_tab, _idx);//make sure it’s there when we come to it.
+                                _set.CopySlotsAndCheck(_tab, DeadItem, _idx);//make sure it’s there when we come to it.
                             else
                             {
                                 _current = box;
@@ -1339,7 +1333,7 @@ namespace Ariadne.Collections
                     if(box != null && !(box is TombstoneBox))
                     {
                         if(box is PrimeBox)//part-way through being copied to next table
-                            CopySlotsAndCheck(table, idx);//make sure it’s there when we come to it.
+                            CopySlotsAndCheck(table, DeadItem, idx);//make sure it’s there when we come to it.
                         else
                             hs.Add(box.Value);
                     }
@@ -1389,6 +1383,7 @@ namespace Ariadne.Collections
         /// <remarks>The item returned is arbitrarily determined, with no guaranteed ordering.</remarks>
         public bool TryTake(out T item)
         {
+            TombstoneBox deadItem = DeadItem;
             for(Table table = _table; table != null; table = table.Next)
             {
                 Record[] records = table.Records;
@@ -1399,7 +1394,7 @@ namespace Ariadne.Collections
                     {
                         if(curBox is PrimeBox)
                         {
-                            CopySlotsAndCheck(table, idx);
+                            CopySlotsAndCheck(table, deadItem, idx);
                         }
                         else
                             for(;;)
@@ -1414,7 +1409,7 @@ namespace Ariadne.Collections
                                     break;
                                 if(curBox is PrimeBox)
                                 {
-                                    CopySlotsAndCheck(table, idx);
+                                    CopySlotsAndCheck(table, deadItem, idx);
                                     break;
                                 }
                                 curBox = prevBox;

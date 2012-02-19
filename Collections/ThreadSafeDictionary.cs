@@ -499,12 +499,18 @@ namespace Ariadne.Collections
                         KV pair = records[idx].KeyValue;
                         if(pair == null)//part-way through write perhaps of what we want, but we're too early. If not, what we want isn't further on.
                             goto notfound;
-                        if(_cmp.Equals(key, pair.Key) && pair != DeadKey)//key’s match, and this can’t change.
+                        if(_cmp.Equals(key, pair.Key))//key’s match, and this can’t change.
                         {
-                            if(pair is TombstoneKV)
+                            if(!(pair is TombstoneKV))
+                            {
+                                value = pair.StripPrime().Value;
+                                return true;
+                            }
+                            if(pair != DeadKey)
                                 goto notfound;
-                            value = pair.StripPrime().Value;
-                            return true;
+                            if(key.Equals(default(TKey)))//if the key is the default value (null or zero) then we can't be sure it won't be later.
+                                continue;
+                            break;
                         }
                     }
                     else if(curHash == 0)
@@ -583,8 +589,13 @@ namespace Ariadne.Collections
                             }
                         }
                         //okay there’s something with the same hash here, does it have the same key?
-                        if(_cmp.Equals(curPair.Key, pair.Key) && curPair != deadKey)
-                            break;
+                        if(_cmp.Equals(curPair.Key, pair.Key))
+                        {
+                            if(curPair != deadKey)
+                                break;
+                            if(!pair.Key.Equals(default(TKey)))
+                                goto restart;
+                        }
                     }
                     else if(--reprobes == 0)
                     {
@@ -604,7 +615,7 @@ namespace Ariadne.Collections
                 //should look to the next table - and then we write there.
                 if(table.Next != null)
                 {
-                    CopySlotsAndCheck(table, idx);
+                    CopySlotsAndCheck(table, deadKey, idx);
                     goto restart;
                 }
                 
@@ -634,7 +645,7 @@ namespace Ariadne.Collections
                         break;
                     else if(prevPair is PrimeKV)
                     {
-                        CopySlotsAndCheck(table, idx);
+                        CopySlotsAndCheck(table, deadKey, idx);
                         break;
                     }
                     else
@@ -664,16 +675,8 @@ namespace Ariadne.Collections
                 KV curPair = null;
                 for(;;)
                 {
-                    int curHash = records[idx].Hash;
-                    if(curHash == 0)//nothing written here
-                    {
-                        if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
-                            curHash = hash;
-                        //now fallthrough to the next check, which we will pass if the above worked
-                        //or if another thread happened to write the same hash we wanted to write
-                        //(hence our doing curHash = hash in the failure case)
-                    }
-                    if(curHash == hash)
+                    int curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0);
+                    if(curHash == 0 || curHash == hash)
                     {
                         //hashes match, do keys?
                         //while retrieving the current
@@ -691,8 +694,13 @@ namespace Ariadne.Collections
                             }
                         }
                         //okay there’s something with the same hash here, does it have the same key?
-                        if(_cmp.Equals(curPair.Key, pair.Key) && curPair != deadKey)
-                            break;
+                        if(_cmp.Equals(curPair.Key, pair.Key))
+                        {
+                            if(curPair != deadKey)
+                                break;
+                            if(!pair.Key.Equals(default(TKey)))
+                                goto restart;
+                        }
                     }
                     else if(--reprobes == 0)
                     {
@@ -712,7 +720,7 @@ namespace Ariadne.Collections
                 //should look to the next table - and then we write there.
                 if(table.Next != null)
                 {
-                    CopySlotsAndCheck(table, idx);
+                    CopySlotsAndCheck(table, deadKey, idx);
                     goto restart;
                 }
                 
@@ -742,7 +750,7 @@ namespace Ariadne.Collections
                         break;
                     else if(prevPair is PrimeKV)
                     {
-                        CopySlotsAndCheck(table, idx);
+                        CopySlotsAndCheck(table, deadKey, idx);
                         break;
                     }
                     else
@@ -773,16 +781,8 @@ namespace Ariadne.Collections
                 KV curPair = null;
                 for(;;)
                 {
-                    int curHash = records[idx].Hash;
-                    if(curHash == 0)//nothing written here
-                    {
-                        if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
-                            curHash = hash;
-                        //now fallthrough to the next check, which we will pass if the above worked
-                        //or if another thread happened to write the same hash we wanted to write
-                        //(hence our doing curHash = hash in the failure case)
-                    }
-                    if(curHash == hash)
+                    int curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0);
+                    if(curHash == 0 || curHash == hash)
                     {
                         //hashes match, do keys?
                         //while retrieving the current
@@ -800,20 +800,19 @@ namespace Ariadne.Collections
                             }
                         }
                         //okay there’s something with the same hash here, does it have the same key?
-                        if(curPair == deadKey)
-                        {
-                            goto restart;
-                        }
                         if(_cmp.Equals(curPair.Key, key))
-                            break;
+                        {
+                            if(curPair != deadKey)
+                                break;
+                            if(!pair.Key.Equals(default(TKey)))
+                                goto restart;
+                        }
                     }
                     else if(--reprobes == 0)
                     {
                         Resize(table);
                         goto restart;
                     }
-                    else if(records[idx].KeyValue == deadKey)
-                        goto restart;
                     if((idx = (idx + 1) & mask) == endIdx)
                     {
                         Resize(table);
@@ -827,7 +826,7 @@ namespace Ariadne.Collections
                 //should look to the next table - and then we write there.
                 if(table.Next != null)
                 {
-                    CopySlotsAndCheck(table, idx);
+                    CopySlotsAndCheck(table, deadKey, idx);
                     goto restart;
                 }
                 
@@ -878,16 +877,16 @@ namespace Ariadne.Collections
                 Record[] records = table.Records;
                 do
                 {
-                    int curHash = records[idx].Hash;
-                    if((curHash == 0 && Interlocked.CompareExchange(ref records[idx].Hash, hash, 0) == 0) || curHash == hash)
+                    int curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0);
+                    if(curHash == 0 || curHash == hash)
                     {
-                        KV curPair = records[idx].KeyValue;
-                        if(curPair == null && (curPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, null)) == null)
+                        KV curPair = Interlocked.CompareExchange(ref records[idx].KeyValue, pair, null);
+                        if(curPair == null)
                         {
                             table.Slots.Increment();
                             return;
                         }
-                        else if(_cmp.Equals(curPair.Key, pair.Key))//already here!
+                        else if(_cmp.Equals(curPair.Key, pair.Key) && curPair != deadKey)
                             return;
                     }
                     else if(--reprobes == 0)
@@ -958,9 +957,9 @@ namespace Ariadne.Collections
             }
         }
         // Copies a record to the next table, and checks if there should be a promotion.
-        internal void CopySlotsAndCheck(Table table, int idx)
+        internal void CopySlotsAndCheck(Table table, TombstoneKV deadKey, int idx)
         {
-            if(CopySlot(table, DeadKey, ref table.Records[idx]) && table.MarkCopied())
+            if(CopySlot(table, deadKey, ref table.Records[idx]) && table.MarkCopied())
                 Promote(table);
         }
         // Copy a bunch of records to the next table.
@@ -1046,15 +1045,8 @@ namespace Ariadne.Collections
         }
         private bool CopySlot(Table table, TombstoneKV deadKey, ref Record record)
         {
-            return CopySlot(table, deadKey, ref record.KeyValue, record.Hash);
-        }
-        private bool CopySlot(Table table, TombstoneKV deadKey, ref KV keyValue, int hash)
-        {
-            //if unwritten-to we should be able to just mark it as dead.
-            KV kv = keyValue;
-            if(kv == null)
-                kv = Interlocked.CompareExchange(ref keyValue, deadKey, null);
-            return kv == null || CopySlot(table, deadKey, ref keyValue, hash, kv, kv);
+            KV kv = Interlocked.CompareExchange(ref record.KeyValue, deadKey, null);
+            return kv == null || CopySlot(table, deadKey, ref record.KeyValue, record.Hash, kv, kv);
         }
         private bool CopySlot(Table table, TombstoneKV deadKey, ref KV keyValue, int hash, KV kv, KV oldKV)
         {
@@ -1812,7 +1804,7 @@ namespace Ariadne.Collections
                         if(kv == null || kv is TombstoneKV)
                             continue;
                         if(kv is PrimeKV)
-                            _dict.CopySlotsAndCheck(_table, _idx);
+                            _dict.CopySlotsAndCheck(_table, DeadKey, _idx);
                         else if(_predicate(kv.Key, kv.Value))
                         {
                             TombstoneKV tomb = new TombstoneKV(kv.Key);
@@ -1829,7 +1821,7 @@ namespace Ariadne.Collections
                                     break;
                                 else if(oldKV is PrimeKV)
                                 {
-                                    _dict.CopySlotsAndCheck(_table, _idx);
+                                    _dict.CopySlotsAndCheck(_table, DeadKey, _idx);
                                     break;
                                 }
                                 else if(!_predicate(oldKV.Key, oldKV.Value))
@@ -1930,7 +1922,7 @@ namespace Ariadne.Collections
                                 return true;
                             }
                             else
-                                _dict.CopySlotsAndCheck(_tab, _idx);//make sure it’s there when we come to it.
+                                _dict.CopySlotsAndCheck(_tab, DeadKey, _idx);//make sure it’s there when we come to it.
                         }
                     }
                 }
