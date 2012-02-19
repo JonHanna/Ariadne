@@ -56,7 +56,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\DictionaryExtensions.cs" />
     <Compile Include="Collections\LLQueue.cs" />
     <Compile Include="Collections\LLStack.cs" />
     <Compile Include="Collections\ThreadSafeDictionary.cs" />

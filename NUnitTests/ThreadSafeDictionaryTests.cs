@@ -824,42 +824,6 @@ namespace Ariadne.NUnitTests
                     Interlocked.Increment(ref FinalCount);
                 }
         	}
-        	[Test]
-        	public void IncrementDecrementPlus()
-        	{
-        	    var dict = new ThreadSafeDictionary<int, int>();
-        	    dict.Add(42, 93);
-        	    Assert.AreEqual(94, dict.Increment(42));
-        	    Assert.AreEqual(94, dict[42]);
-        	    Assert.AreEqual(93, dict.Decrement(42));
-        	    Assert.AreEqual(93, dict[42]);
-        	    Assert.AreEqual(7, dict.Plus(42, -86));
-        	    Assert.AreEqual(7, dict[42]);
-        	    int ret;
-        	    Assert.IsFalse(dict.Increment(2, out ret));
-        	    Assert.IsFalse(dict.Decrement(2, out ret));
-        	    Assert.IsFalse(dict.Plus(2, 57, out ret));
-        	    dict.Remove(42);
-        	    Assert.IsFalse(dict.Increment(2, out ret));
-        	    Assert.IsFalse(dict.Decrement(2, out ret));
-        	    Assert.IsFalse(dict.Plus(2, 57, out ret));
-        	    var ldict = new ThreadSafeDictionary<int, long>();
-        	    ldict.Add(42, 93);
-        	    Assert.AreEqual(94, ldict.Increment(42));
-        	    Assert.AreEqual(94, ldict[42]);
-        	    Assert.AreEqual(93, ldict.Decrement(42));
-        	    Assert.AreEqual(93, ldict[42]);
-        	    Assert.AreEqual(7, ldict.Plus(42, -86));
-        	    Assert.AreEqual(7, ldict[42]);
-        	    long lret;
-        	    Assert.IsFalse(ldict.Increment(2, out lret));
-        	    Assert.IsFalse(ldict.Decrement(2, out lret));
-        	    Assert.IsFalse(ldict.Plus(2, 57, out lret));
-        	    ldict.Remove(42);
-        	    Assert.IsFalse(ldict.Increment(2, out lret));
-        	    Assert.IsFalse(ldict.Decrement(2, out lret));
-        	    Assert.IsFalse(ldict.Plus(2, 57, out lret));
-        	}
         }
         namespace MultiThreaded
         {
