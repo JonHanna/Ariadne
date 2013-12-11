@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-# SharpDevelop 4.1.0.8000
+# SharpDevelop 4.3
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ariadne", "Ariadne.csproj", "{95CAF4E7-ADA0-471F-9930-C0F252D92368}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ariadne.NUnitTests", "NUnitTests\Ariadne.NUnitTests.csproj", "{EB067243-E345-48FE-ADDE-CD066FA7CA04}"
@@ -26,6 +26,10 @@ Global
 		{EB067243-E345-48FE-ADDE-CD066FA7CA04}.Release|Any CPU.ActiveCfg = Release|x86
 		{EB067243-E345-48FE-ADDE-CD066FA7CA04}.Release|x86.Build.0 = Release|x86
 		{EB067243-E345-48FE-ADDE-CD066FA7CA04}.Release|x86.ActiveCfg = Release|x86
+		{95CAF4E7-ADA0-471F-9930-C0F252D92368}.Debug|x86.Build.0 = Debug|Any CPU
+		{95CAF4E7-ADA0-471F-9930-C0F252D92368}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{95CAF4E7-ADA0-471F-9930-C0F252D92368}.Release|x86.Build.0 = Release|Any CPU
+		{95CAF4E7-ADA0-471F-9930-C0F252D92368}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Test\Test.csproj
