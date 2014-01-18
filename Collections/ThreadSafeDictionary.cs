@@ -16,11 +16,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
+using SpookilySharp;
 
 namespace Ariadne.Collections
 {
@@ -252,7 +252,7 @@ namespace Ariadne.Collections
         internal sealed class Table
         {
             public readonly Record[] Records;
-            public volatile Table Next;
+            public Table Next;
             public readonly Counter Size;
             public readonly Counter Slots = new Counter();
             public readonly int Capacity;
@@ -294,6 +294,7 @@ namespace Ariadne.Collections
         }
         
         internal Table _table;
+        private readonly IEqualityComparer<TKey> _cmpSerialise;//TODO: Remove when serialisation of Well-Distr. improved
         internal readonly IEqualityComparer<TKey> _cmp;
         private const int DefaultCapacity = 16;
         private static readonly IEqualityComparer<TValue> DefaultValCmp = EqualityComparer<TValue>.Default;
@@ -325,7 +326,7 @@ namespace Ariadne.Collections
             	}
 
                 _table = new Table(capacity, new Counter());
-                _cmp = comparer;
+                _cmp = (_cmpSerialise = comparer).WellDistributed();
             }
             else
                 throw new ArgumentOutOfRangeException("capacity");
@@ -425,7 +426,7 @@ namespace Ariadne.Collections
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("cmp", _cmp, typeof(IEqualityComparer<TKey>));
+            info.AddValue("cmp", _cmpSerialise, typeof(IEqualityComparer<TKey>));
             List<KV> list = new List<KV>(Count);
             Table table = _table;
             do
@@ -1187,14 +1188,7 @@ namespace Ariadne.Collections
             }
             set
             {
-                try
-                {
-                    PutIfMatch(new KV(key, value), MatchAll.Instance);
-                }
-                catch(Exception e)
-                {
-                    string test = "1323";
-                }
+                PutIfMatch(new KV(key, value), MatchAll.Instance);
             }
         }
         /// <summary>Returns the collection of keys in the system.</summary>

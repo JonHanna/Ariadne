@@ -11,3 +11,6 @@
 /NUnitTests/test-results
 /Ariadne.shfbproj_Jon
 /Help
+*.nupkg
+/packages/**/*
+!/packages/repositories.config

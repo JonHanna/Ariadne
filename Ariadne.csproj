@@ -50,10 +50,13 @@
     <DocumentationFile>bin\Release\Ariadne.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    <Reference Include="Mnemosyne">
+      <HintPath>packages\Mnemosyne.1.0.0.1\lib\Mnemosyne.dll</HintPath>
     </Reference>
+    <Reference Include="SpookilySharp">
+      <HintPath>packages\SpookilySharp.1.1.5127\lib\net40\SpookilySharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\LLQueue.cs" />
@@ -84,6 +87,7 @@
     <None Include="doc\Ariadne.content" />
     <None Include="doc\atomicity.aml" />
     <None Include="EUPL-1.1.txt" />
+    <None Include="packages.config" />
     <None Include="README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

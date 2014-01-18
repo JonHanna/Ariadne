@@ -27,6 +27,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
+using SpookilySharp;
 
 namespace Ariadne.Collections
 {
@@ -114,6 +115,7 @@ namespace Ariadne.Collections
         }
         
         private Table _table;
+        private readonly IEqualityComparer<T> _cmpSerialise;//TODO: Remove when serialisation of Well-Distr. improved
         private readonly IEqualityComparer<T> _cmp;
         private const int DefaultCapacity = 16;
         /// <summary>Creates a new lock-free set.</summary>
@@ -141,7 +143,7 @@ namespace Ariadne.Collections
             	}
                 	
                 _table = new Table(capacity, new Counter());
-                _cmp = comparer;
+                _cmp = (_cmpSerialise = comparer).WellDistributed();
             }
             else
                 throw new ArgumentOutOfRangeException("capacity");
@@ -198,7 +200,7 @@ namespace Ariadne.Collections
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("cmp", _cmp, typeof(IEqualityComparer<T>));
+            info.AddValue("cmp", _cmpSerialise, typeof(IEqualityComparer<T>));
             T[] arr = ToArray();
             info.AddValue("arr", arr);
             info.AddValue("c", arr.Length);
