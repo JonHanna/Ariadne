@@ -162,6 +162,8 @@ namespace Ariadne.NUnitTests
     	[Test]
     	public void EqualityComparer()
     	{
+            if(!StringComparer.InvariantCultureIgnoreCase.Equals("Weißbier", "WEISSBIER"))
+                Assert.Ignore("Bugs in Mono make this test irrelevant. When the bug is fixed, this test will run.");
     		var hs = new ThreadSafeSet<string>(StringComparer.InvariantCultureIgnoreCase);
     		hs.Add("Weißbier");
     		Assert.IsTrue(hs.Contains("WEISSBIER"));

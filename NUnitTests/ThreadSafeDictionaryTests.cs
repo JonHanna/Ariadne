@@ -216,6 +216,8 @@ namespace Ariadne.NUnitTests
         	[Test]
         	public void EqualityComparer()
         	{
+                if(!StringComparer.InvariantCultureIgnoreCase.Equals("Weißbier", "WEISSBIER"))
+                    Assert.Ignore("Bugs in Mono make this test irrelevant. When the bug is fixed, this test will run.");
         		var dict = new ThreadSafeDictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
         		dict.Add("Weißbier", 93);
         		Assert.AreEqual(dict["WEISSBIER"], 93);
@@ -867,7 +869,8 @@ namespace Ariadne.NUnitTests
             		return true;
             	}
         		protected IntPtr _affinity;
-        		private IntPtr _startingAffinity;
+                private readonly IntPtr _startingAffinity;
+                private readonly bool SkipForAffinity;
         		protected Thread[] _threads;
         		protected object[] _params;
         		protected int CoreCount;
@@ -877,8 +880,18 @@ namespace Ariadne.NUnitTests
         			for(int aff = (int)_affinity; aff != 0; aff >>= 1)
         				if((aff & 1) != 0)
         					CoreCount++;
+                    if(CoreCount == 0)
+                    {
+                        SkipForAffinity = NeedsAffinityAccess;
+                        CoreCount = Environment.ProcessorCount;
+                    }
         			FillSourceData();
         		}
+                protected abstract bool NeedsAffinityAccess { get; }
+                private void SkipIfCantChangeAffinity()
+                {
+                    Assert.Ignore("This test needs to change the processor affinity, which the current framework version does not allow");
+                }
         		protected abstract void SetupThreads();
         		[SetUp]
         		public void SetUp()
@@ -910,6 +923,7 @@ namespace Ariadne.NUnitTests
         		[Test]
         		public void MultiWriteSame()
         		{
+                    SkipIfCantChangeAffinity();
         			var dict = new ThreadSafeDictionary<string, string>();
         			for(int i = 0; i != _threads.Length; ++i)
         			{
@@ -934,6 +948,7 @@ namespace Ariadne.NUnitTests
         		[Test]
         		public void MultiWriteParts()
         		{
+                    SkipIfCantChangeAffinity();
         			var dict = new ThreadSafeDictionary<string, string>();
         			for(int i = 0; i != _threads.Length; ++i)
         			{
@@ -948,6 +963,7 @@ namespace Ariadne.NUnitTests
         		[Test]
         		public void RemoveSomeAsWeGo()
         		{
+                    SkipIfCantChangeAffinity();
         			unchecked
         			{
         				var dict = new ThreadSafeDictionary<int, int>();
@@ -989,6 +1005,7 @@ namespace Ariadne.NUnitTests
         		[Test]
         		public void RacingWrite()
         		{
+                    SkipIfCantChangeAffinity();
         		    var dict = new ThreadSafeDictionary<int, int>();
     		        for(int i = 0; i != _threads.Length; ++i)
     		        {
@@ -1017,6 +1034,10 @@ namespace Ariadne.NUnitTests
         		{
         			_threads = new Thread[CoreCount * 16];
         		}
+                protected override bool NeedsAffinityAccess
+                {
+                    get { return false; }
+                }
         	}
         	[TestFixture]
         	public class OnePerCore : MultiThreadTests
@@ -1025,6 +1046,10 @@ namespace Ariadne.NUnitTests
         		{
         			_threads = new Thread[CoreCount];
         		}
+                protected override bool NeedsAffinityAccess
+                {
+                    get { return false; }
+                }
         	}
         	[TestFixture]
         	public class OneCore : MultiThreadTests
@@ -1045,6 +1070,10 @@ namespace Ariadne.NUnitTests
         			}
         			_threads = new Thread[16];
         		}
+                protected override bool NeedsAffinityAccess
+                {
+                    get { return true; }
+                }
         	}
         	//With current implementations, hyperthreaded cores will be given every
         	//other core from the set of virtual processors, hence masking with
@@ -1067,6 +1096,10 @@ namespace Ariadne.NUnitTests
         			}
         			_threads = new Thread[8 * CoreCount];
         		}
+                protected override bool NeedsAffinityAccess
+                {
+                    get { return true; }
+                }
         	}
         	[TestFixture]
         	public class NoHyperThreadingOnePerCore : MultiThreadTests
@@ -1085,6 +1118,10 @@ namespace Ariadne.NUnitTests
         			}
         			_threads = new Thread[CoreCount / 2];
         		}
+                protected override bool NeedsAffinityAccess
+                {
+                    get { return false; }
+                }
         	}
         }
     }

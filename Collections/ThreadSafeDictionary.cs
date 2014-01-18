@@ -252,7 +252,7 @@ namespace Ariadne.Collections
         internal sealed class Table
         {
             public readonly Record[] Records;
-            public Table Next;
+            public volatile Table Next;
             public readonly Counter Size;
             public readonly Counter Slots = new Counter();
             public readonly int Capacity;
@@ -1187,7 +1187,14 @@ namespace Ariadne.Collections
             }
             set
             {
-                PutIfMatch(new KV(key, value), MatchAll.Instance);
+                try
+                {
+                    PutIfMatch(new KV(key, value), MatchAll.Instance);
+                }
+                catch(Exception e)
+                {
+                    string test = "1323";
+                }
             }
         }
         /// <summary>Returns the collection of keys in the system.</summary>
