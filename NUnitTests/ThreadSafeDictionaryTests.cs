@@ -890,7 +890,8 @@ namespace Ariadne.NUnitTests
                 protected abstract bool NeedsAffinityAccess { get; }
                 private void SkipIfCantChangeAffinity()
                 {
-                    Assert.Ignore("This test needs to change the processor affinity, which the current framework version does not allow");
+                    if(SkipForAffinity)
+                        Assert.Ignore("This test needs to change the processor affinity, which the current framework version does not allow");
                 }
         		protected abstract void SetupThreads();
         		[SetUp]
