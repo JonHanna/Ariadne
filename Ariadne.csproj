@@ -63,7 +63,6 @@
     <Compile Include="Collections\LLStack.cs" />
     <Compile Include="Collections\ThreadSafeDictionary.cs" />
     <Compile Include="Collections\ThreadSafeSet.cs" />
-    <Compile Include="Collections\ReferenceEqualityComparer.cs" />
     <Compile Include="Counter.cs" />
     <Compile Include="ThreadSafeAtomizer.cs" />
     <Compile Include="Pool.cs" />

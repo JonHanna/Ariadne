@@ -55,7 +55,6 @@
     <Compile Include="ThreadSafeSetTests.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="QueueTests.cs" />
-    <Compile Include="ReferenceEqualityComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ariadne.csproj">
