@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -31,11 +31,18 @@
     <OutputPath>bin\Debug</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <ConsolePause>false</ConsolePause>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG</DefineConstants>
+    <DebugType>Full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <ConsolePause>false</ConsolePause>
+    <Optimize>true</Optimize>
+    <DocumentationFile>bin\Release\Ariadne.xml</DocumentationFile>
+    <DebugType>None</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
@@ -67,15 +74,8 @@
     <Compile Include="ThreadSafeAtomizer.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="SharedInt.cs" />
-    <Compile Include="AssemblyInfo.cs">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="InternalHelpers.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="doc" />
-    <Folder Include="Collections" />
-    <Folder Include="Resources" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\resources.resx">
@@ -90,4 +90,20 @@
     <None Include="README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <TextStylePolicy inheritsSet="null" scope="text/x-csharp" />
+          <CSharpFormattingPolicy IndentSwitchBody="True" SimplePropertyFormatting="ForceNewLine" AutoPropertyFormatting="ForceOneLine" IndentPreprocessorDirectives="False" AnonymousMethodBraceStyle="NextLine" PropertyBraceStyle="NextLine" PropertyGetBraceStyle="NextLine" PropertySetBraceStyle="NextLine" SimpleGetBlockFormatting="ForceOneLine" SimpleSetBlockFormatting="ForceOneLine" EventBraceStyle="NextLine" EventAddBraceStyle="NextLine" EventRemoveBraceStyle="NextLine" StatementBraceStyle="NextLine" ElseNewLinePlacement="NewLine" CatchNewLinePlacement="NewLine" FinallyNewLinePlacement="NewLine" BeforeMethodDeclarationParentheses="False" BeforeMethodCallParentheses="False" BeforeConstructorDeclarationParentheses="False" BeforeIndexerDeclarationBracket="False" BeforeDelegateDeclarationParentheses="False" AfterDelegateDeclarationParameterComma="True" NewParentheses="False" IfParentheses="False" WhileParentheses="False" ForParentheses="False" ForeachParentheses="False" CatchParentheses="False" SwitchParentheses="False" LockParentheses="False" UsingParentheses="False" SpaceAroundUnsafeArrowOperator="True" SpacesBeforeBrackets="False" BlankLinesBeforeUsings="1" BlankLinesAroundRegion="0" BlankLinesInsideRegion="0" MethodCallArgumentWrapping="WrapIfTooLong" NewLineAferMethodCallOpenParentheses="NewLine" MethodCallClosingParenthesesOnNewLine="SameLine" MethodDeclarationParameterWrapping="WrapIfTooLong" NewLineAferMethodDeclarationOpenParentheses="NewLine" MethodDeclarationClosingParenthesesOnNewLine="SameLine" AlignToFirstMethodDeclarationParameter="False" IndexerDeclarationParameterWrapping="WrapIfTooLong" NewLineAferIndexerDeclarationOpenBracket="NewLine" IndexerDeclarationClosingBracketOnNewLine="SameLine" AlignToFirstIndexerDeclarationParameter="False" IndexerArgumentWrapping="WrapIfTooLong" NewLineAferIndexerOpenBracket="NewLine" IndexerClosingBracketOnNewLine="SameLine" inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
+          <TextStylePolicy FileWidth="120" NoTabsAfterNonTabs="True" EolMarker="Unix" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
+          <TextStylePolicy inheritsSet="null" scope="application/xml" />
+          <XmlFormattingPolicy inheritsSet="Mono" inheritsScope="application/xml" scope="application/xml">
+            <DefaultFormat ContentIndentString="    " AttributesIndentString="    " />
+          </XmlFormattingPolicy>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

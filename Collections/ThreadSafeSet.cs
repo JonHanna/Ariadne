@@ -1,18 +1,11 @@
 ﻿// © 2011–2012 Jon Hanna.
-// This source code is licensed under the EUPL, Version 1.1 only (the “Licence”).
+// Licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
 // <http://joinup.ec.europa.eu/software/page/eupl/licence-eupl>
 // A copy is also distributed with this source code.
 // Unless required by applicable law or agreed to in writing, software distributed under the
 // Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
-
-// A compiled binary is available from <http://hackcraft.github.com/Ariadne/> which if
-// unmodified, may be used without restriction. (This dual-licensing is to provide a clear
-// answer to the question of whether using the library in an application counts as creating
-// a derivative work).
-
-
 
 // The algorithm here is a simplification of that used for the ThreadSafeDictionary class,
 // but excluding the work necessary to handle the value part of key-value pairs.
