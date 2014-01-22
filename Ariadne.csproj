@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -26,6 +26,7 @@
     <FileAlignment>4096</FileAlignment>
     <WarningLevel>4</WarningLevel>
     <StartAction>Project</StartAction>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
@@ -35,6 +36,7 @@
     <Optimize>false</Optimize>
     <DefineConstants>DEBUG</DefineConstants>
     <DebugType>Full</DebugType>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release</OutputPath>
@@ -43,6 +45,7 @@
     <Optimize>true</Optimize>
     <DocumentationFile>bin\Release\Ariadne.xml</DocumentationFile>
     <DebugType>None</DebugType>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
@@ -61,7 +64,7 @@
       <HintPath>packages\Mnemosyne.1.0.0.1\lib\Mnemosyne.dll</HintPath>
     </Reference>
     <Reference Include="SpookilySharp">
-      <HintPath>packages\SpookilySharp.1.1.5127\lib\net40\SpookilySharp.dll</HintPath>
+      <HintPath>packages\SpookilySharp.1.1.5128\lib\net40\SpookilySharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
