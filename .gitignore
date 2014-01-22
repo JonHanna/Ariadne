@@ -8,7 +8,7 @@ bin
 PartCover
 test-results
 /Ariadne.shfbproj_*
-/Help
+Help
 *.nupkg
 /packages/**/*
 !/packages/repositories.config

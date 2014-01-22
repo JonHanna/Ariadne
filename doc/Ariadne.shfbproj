@@ -15,8 +15,8 @@ sources-->
     <OutputPath>.\Help\</OutputPath>
     <HtmlHelpName>Ariadne</HtmlHelpName>
     <DocumentationSources>
-      <DocumentationSource sourceFile="bin\Release\Ariadne.dll" />
-      <DocumentationSource sourceFile="bin\Release\Ariadne.xml" />
+      <DocumentationSource sourceFile="..\Ariadne\bin\Release\Ariadne.dll" />
+      <DocumentationSource sourceFile="..\Ariadne\bin\Release\Ariadne.xml" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, MSHelpViewer, Website</HelpFileFormat>
     <CopyrightHref>https://joinup.ec.europa.eu/software/page/eupl</CopyrightHref>
@@ -61,13 +61,10 @@ common platform types that may appear.-->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' " />
   <ItemGroup>
-    <None Include="doc\atomicity.aml" />
+    <None Include="atomicity.aml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="doc\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ContentLayout Include="doc\Ariadne.content" />
+    <ContentLayout Include="Ariadne.content" />
   </ItemGroup>
   <!--Import the SHFB build targets-->
   <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
