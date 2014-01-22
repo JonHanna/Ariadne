@@ -77,7 +77,6 @@
     <Compile Include="Counter.cs" />
     <Compile Include="SinglyLinkedNode.cs" />
     <Compile Include="Strings.cs" />
-    <Compile Include="ThreadSafeAtomizer.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="SharedInt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
