@@ -18,8 +18,8 @@ using System.Threading;
 
 namespace Ariadne.Collections
 {
-    //This stack is mostly for completion or for use in other classes in the library, considering that
-    //the 4.0 FCL already has a lock-free stack.
+    // This stack is mostly for completion or for use in other classes in the library, considering that
+    // the 4.0 FCL already has a lock-free stack.
     
     /// <summary>A lock-free type-safe stack. This class is included mainly for completion, to allow for
     /// adoption to framework versions prior to the introduction of <see cref="ConcurrentStack&lt;T>"/>
@@ -43,7 +43,9 @@ namespace Ariadne.Collections
                 Push(item);
         }
         private LLStack(SerializationInfo info, StreamingContext context)
-            :this((T[])info.GetValue("arr", typeof(T[]))){}
+            : this((T[])info.GetValue("arr", typeof(T[])))
+        {
+        }
         [SecurityCritical]
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
@@ -181,7 +183,7 @@ namespace Ariadne.Collections
             }
             void IDisposable.Dispose()
             {
-                //nop
+                // nop
             }
             /// <summary>Moves through the enumeration to the next item.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
@@ -230,14 +232,14 @@ namespace Ariadne.Collections
             }
             void IDisposable.Dispose()
             {
-                //nop
+                // nop
             }
             /// <summary>Resets the enumeration.</summary>
             /// <remarks>Since the class refers to the live state of the stack, this is a non-operation
             /// as the enumeration is always attempting to pop from the front of the stack.</remarks>
             public void Reset()
             {
-                //nop
+                // nop
             }
             /// <summary>Returns the enumeration itself, as it is also its own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
@@ -291,7 +293,7 @@ namespace Ariadne.Collections
             }
             void IDisposable.Dispose()
             {
-                //nop
+                // nop
             }
             /// <summary>Resets the enumeration to the current top of the stack.</summary>
             public void Reset()
@@ -420,7 +422,7 @@ namespace Ariadne.Collections
         public void CopyTo(T[] array, int arrayIndex)
         {
             Validation.CopyTo(array, arrayIndex);
-        	ToList().CopyTo(array, arrayIndex);
+            ToList().CopyTo(array, arrayIndex);
         }
         bool ICollection<T>.Remove(T item)
         {
@@ -428,7 +430,7 @@ namespace Ariadne.Collections
         }
         object ICollection.SyncRoot
         {
-            get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
+            get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
         }
         bool ICollection.IsSynchronized
         {
@@ -452,7 +454,7 @@ namespace Ariadne.Collections
         void ICollection.CopyTo(Array array, int index)
         {
             Validation.CopyTo(array, index);
-        	((ICollection)ToList()).CopyTo(array, index);
+            ((ICollection)ToList()).CopyTo(array, index);
         }
     }
 }

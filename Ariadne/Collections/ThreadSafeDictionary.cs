@@ -122,7 +122,7 @@ namespace Ariadne.Collections
         {
             public readonly KV Original;
             public PrimeKV(KV kv)
-                :base(kv.Key, kv.Value)
+                : base(kv.Key, kv.Value)
             {
                 Original = kv;
             }
@@ -132,8 +132,10 @@ namespace Ariadne.Collections
         // stored until the next resize, when it will not be copied over.
         internal sealed class TombstoneKV : KV
         {
-        	public TombstoneKV(TKey key)
-        		:base(key, default(TValue)){}
+            public TombstoneKV(TKey key)
+                : base(key, default(TValue))
+            {
+            }
         }
         private abstract class ValueMatcher
         {
@@ -142,7 +144,9 @@ namespace Ariadne.Collections
         }
         private sealed class MatchAll : ValueMatcher
         {
-            private MatchAll(){}
+            private MatchAll()
+            {
+            }
             public override bool MatchTombstone
             {
                 get { return true; }
@@ -209,7 +213,9 @@ namespace Ariadne.Collections
         }
         private sealed class MatchDead : ValueMatcher
         {
-            private MatchDead(){}
+            private MatchDead()
+            {
+            }
             public override bool MatchTombstone
             {
                 get { return true; }
@@ -222,7 +228,9 @@ namespace Ariadne.Collections
         }
         private sealed class MatchLive : ValueMatcher
         {
-            private MatchLive(){}
+            private MatchLive()
+            {
+            }
             public override bool MatchTombstone
             {
                 get { return false; }
@@ -300,25 +308,25 @@ namespace Ariadne.Collections
         {
             if(capacity >= 0 && capacity <= 0x40000000)
             {
-            	Validation.NullCheck(comparer, "comparer");
-            	if(capacity == 0)
-            		capacity = DefaultCapacity;
-            	else
-            	{
-            	    // A classic hash-table trade-off. The (debated) advantages
-            	    // of prime-number sized tables vs. the speed of masking rather
-            	    // than modding. We go for the latter.
-    	            unchecked // binary round-up
-    	            {
-    	                --capacity;
-    	                capacity |= (capacity >> 1);
-    	                capacity |= (capacity >> 2);
-    	                capacity |= (capacity >> 4);
-    	                capacity |= (capacity >> 8);
-    	                capacity |= (capacity >> 16);
-    	                ++capacity;
-    	            }
-            	}
+                Validation.NullCheck(comparer, "comparer");
+                if(capacity == 0)
+                    capacity = DefaultCapacity;
+                else
+                {
+                    // A classic hash-table trade-off. The (debated) advantages
+                    // of prime-number sized tables vs. the speed of masking rather
+                    // than modding. We go for the latter.
+                    unchecked // binary round-up
+                    {
+                        --capacity;
+                        capacity |= (capacity >> 1);
+                        capacity |= (capacity >> 2);
+                        capacity |= (capacity >> 4);
+                        capacity |= (capacity >> 8);
+                        capacity |= (capacity >> 16);
+                        ++capacity;
+                    }
+                }
 
                 _table = new Table(capacity, new Counter());
                 _cmp = (_cmpSerialise = comparer).WellDistributed();
@@ -329,53 +337,61 @@ namespace Ariadne.Collections
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="capacity">The initial capactiy of the dictionary</param>
         public ThreadSafeDictionary(int capacity)
-            :this(capacity, EqualityComparer<TKey>.Default){}
+            : this(capacity, EqualityComparer<TKey>.Default)
+        {
+        }
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public ThreadSafeDictionary(IEqualityComparer<TKey> comparer)
-            :this(DefaultCapacity, comparer){}
+            : this(DefaultCapacity, comparer)
+        {
+        }
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         public ThreadSafeDictionary()
-            :this(DefaultCapacity){}
+            : this(DefaultCapacity)
+        {
+        }
         private static int EstimateNecessaryCapacity(IEnumerable<KeyValuePair<TKey, TValue>> collection)
         {
             // we want to avoid pointless re-sizes if we can tell what size the source collection is, (though in
             // worse cases it could be a million items!), but can only do so for some collection types.
-        	if(collection != null)
-        	{
-            	try
-            	{
-                	ICollection<KeyValuePair<TKey, TValue>> colKVP = collection as ICollection<KeyValuePair<TKey, TValue>>;
-                	if(colKVP != null)
-                	    return Math.Min(colKVP.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
-                	ICollection col = collection as ICollection;
-                	if(col != null)
-                	    return Math.Min(col.Count, 1024);
-            	}
-            	catch
-            	{
-            	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
-            	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
-            	}
-            	return DefaultCapacity;
-        	}
-    	    throw new ArgumentNullException("collection", Strings.Dict_Null_Source_Collection);
+            if(collection != null)
+            {
+                try
+                {
+                    ICollection<KeyValuePair<TKey, TValue>> colKVP = collection as ICollection<KeyValuePair<TKey, TValue>>;
+                    if(colKVP != null)
+                        return Math.Min(colKVP.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
+                    ICollection col = collection as ICollection;
+                    if(col != null)
+                        return Math.Min(col.Count, 1024);
+                }
+                catch
+                {
+                    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
+                    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
+                }
+                return DefaultCapacity;
+            }
+            throw new ArgumentNullException("collection", Strings.DictNullSourceCollection);
         }
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the keys.</param>
         public ThreadSafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
-        	:this(EstimateNecessaryCapacity(collection), comparer)
+            : this(EstimateNecessaryCapacity(collection), comparer)
         {
             Table table = _table;
-        	foreach(KeyValuePair<TKey, TValue> kvp in collection)
-        	    table = PutSingleThreaded(table, kvp, Hash(kvp.Key), true);
+            foreach(KeyValuePair<TKey, TValue> kvp in collection)
+                table = PutSingleThreaded(table, kvp, Hash(kvp.Key), true);
             _table = table;
         }
         /// <summary>Constructs a new ThreadSafeDictionary.</summary>
         /// <param name="collection">A collection from which the dictionary will be filled.</param>
         public ThreadSafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
-            :this(collection, EqualityComparer<TKey>.Default){}
+            : this(collection, EqualityComparer<TKey>.Default)
+        {
+        }
         private struct Producer
         {
             private Func<TKey, TValue, TValue> _updater;
@@ -409,11 +425,11 @@ namespace Ariadne.Collections
         }
         internal int Hash(TKey key)
         {
-            //We must prohibit the value of zero in order to be sure that when we encounter a
-            //zero, that the hash has not been written.
-            //We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
-            //users of the class to fix the effects of poor hash algorithms. Let’s not penalise great
-            //hashes with more work and potentially even make good hashes less good.
+            // We must prohibit the value of zero in order to be sure that when we encounter a
+            // zero, that the hash has not been written.
+            // We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
+            // users of the class to fix the effects of poor hash algorithms. Let’s not penalise great
+            // hashes with more work and potentially even make good hashes less good.
             int givenHash = _cmp.GetHashCode(key);
             return givenHash == 0 ? ZERO_HASH : givenHash;
         }
@@ -439,7 +455,7 @@ namespace Ariadne.Collections
             info.AddValue("arr", arr);
         }
         private ThreadSafeDictionary(SerializationInfo info, StreamingContext context)
-            :this(info.GetInt32("cKVP"), (IEqualityComparer<TKey>)info.GetValue("cmp", typeof(IEqualityComparer<TKey>)))
+            : this(info.GetInt32("cKVP"), (IEqualityComparer<TKey>)info.GetValue("cmp", typeof(IEqualityComparer<TKey>)))
         {
             KV[] arr = (KV[])info.GetValue("arr", typeof(KV[]));
             Table table = _table;
@@ -506,10 +522,10 @@ namespace Ariadne.Collections
         }
         private bool PutIfMatch<VM>(Table table, int hash, KV pair, VM valCmp, out KV replaced) where VM : ValueMatcher
         {
-            //Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
-            //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
-            //essentially this is doing tail-call optimisation by hand, the compiler could do this, but
-            //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
+            // Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
+            // Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
+            // essentially this is doing tail-call optimisation by hand, the compiler could do this, but
+            // measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
             TombstoneKV deadKey = DeadKey;
             for(;;)
             {
@@ -531,16 +547,16 @@ namespace Ariadne.Collections
                         }
                         if((curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0)) == 0)
                             curHash = hash;
-                        //now fallthrough to the next check, which we will pass if the above worked
-                        //or if another thread happened to write the same hash we wanted to write
+                        // now fallthrough to the next check, which we will pass if the above worked
+                        // or if another thread happened to write the same hash we wanted to write
                         //(hence our doing curHash = hash in the failure case)
                     }
                     if(curHash == hash)
                     {
-                        //hashes match, do keys?
-                        //while retrieving the current
-                        //if we want to write to empty records
-                        //let’s see if we can just write because there’s nothing there...
+                        // hashes match, do keys?
+                        // while retrieving the current
+                        // if we want to write to empty records
+                        // let’s see if we can just write because there’s nothing there...
                         curPair = records[idx].KeyValue;
                         if(curPair == null)
                         {
@@ -557,7 +573,7 @@ namespace Ariadne.Collections
                                 return true;
                             }
                         }
-                        //okay there’s something with the same hash here, does it have the same key?
+                        // okay there’s something with the same hash here, does it have the same key?
                         if(_cmp.Equals(curPair.Key, pair.Key))
                         {
                             if(curPair != deadKey)
@@ -577,11 +593,11 @@ namespace Ariadne.Collections
                         goto restart;
                     }
                 }
-                //we have a record with a matching key.
+                // we have a record with a matching key.
     
-                //If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
-                //current record is copied over - so that any reader won’t end up finding the previous value and not realise it
-                //should look to the next table - and then we write there.
+                // If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
+                // current record is copied over - so that any reader won’t end up finding the previous value and not realise it
+                // should look to the next table - and then we write there.
                 if(table.Next != null)
                 {
                     CopySlotsAndCheck(table, deadKey, idx);
@@ -590,8 +606,8 @@ namespace Ariadne.Collections
                 
                 for(;;)
                 {
-                    //if we don’t match the conditions in which we want to overwrite a value
-                    //then we just return the current value, and change nothing.
+                    // if we don’t match the conditions in which we want to overwrite a value
+                    // then we just return the current value, and change nothing.
                     if(curPair is TombstoneKV ?  !valCmp.MatchTombstone : !valCmp.MatchValue(curPair.Value))
                     {
                         replaced = curPair;
@@ -609,7 +625,7 @@ namespace Ariadne.Collections
                         return true;
                     }
                     
-                    //we lost the race, another thread set the pair.
+                    // we lost the race, another thread set the pair.
                     if(prevPair == deadKey)
                         break;
                     else if(prevPair is PrimeKV)
@@ -627,10 +643,10 @@ namespace Ariadne.Collections
         }
         private bool PutIfMatch<VM>(KV pair, VM valCmp, Producer producer, out KV replaced) where VM : ValueMatcher
         {
-            //Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
-            //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
-            //essentially this is doing tail-call optimisation by hand, the compiler could do this, but
-            //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
+            // Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
+            // Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
+            // essentially this is doing tail-call optimisation by hand, the compiler could do this, but
+            // measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
             Table table = _table;
             int hash = Hash(pair.Key);
             TombstoneKV deadKey = DeadKey;
@@ -647,10 +663,10 @@ namespace Ariadne.Collections
                     int curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0);
                     if(curHash == 0 || curHash == hash)
                     {
-                        //hashes match, do keys?
-                        //while retrieving the current
-                        //if we want to write to empty records
-                        //let’s see if we can just write because there’s nothing there...
+                        // hashes match, do keys?
+                        // while retrieving the current
+                        // if we want to write to empty records
+                        // let’s see if we can just write because there’s nothing there...
                         if((curPair = records[idx].KeyValue) == null)
                         {
                             pair.Value = producer.Produce(pair.Key);
@@ -662,7 +678,7 @@ namespace Ariadne.Collections
                                 return true;
                             }
                         }
-                        //okay there’s something with the same hash here, does it have the same key?
+                        // okay there’s something with the same hash here, does it have the same key?
                         if(_cmp.Equals(curPair.Key, pair.Key))
                         {
                             if(curPair != deadKey)
@@ -682,11 +698,11 @@ namespace Ariadne.Collections
                         goto restart;
                     }
                 }
-                //we have a record with a matching key.
+                // we have a record with a matching key.
                 
-                //If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
-                //current record is copied over - so that any reader won’t end up finding the previous value and not realise it
-                //should look to the next table - and then we write there.
+                // If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
+                // current record is copied over - so that any reader won’t end up finding the previous value and not realise it
+                // should look to the next table - and then we write there.
                 if(table.Next != null)
                 {
                     CopySlotsAndCheck(table, deadKey, idx);
@@ -695,8 +711,8 @@ namespace Ariadne.Collections
                 
                 for(;;)
                 {
-                    //if we don’t match the conditions in which we want to overwrite a value
-                    //then we just return the current value, and change nothing.
+                    // if we don’t match the conditions in which we want to overwrite a value
+                    // then we just return the current value, and change nothing.
                     if(!(curPair is TombstoneKV) && !valCmp.MatchValue(curPair.Value))
                     {
                         replaced = curPair;
@@ -714,7 +730,7 @@ namespace Ariadne.Collections
                         return true;
                     }
                     
-                    //we lost the race, another thread set the pair.
+                    // we lost the race, another thread set the pair.
                     if(prevPair == deadKey)
                         break;
                     else if(prevPair is PrimeKV)
@@ -732,10 +748,10 @@ namespace Ariadne.Collections
         }
         private bool PutIfMatch(TKey key, Func<TKey, TValue> factory, out KV replaced)
         {
-            //Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
-            //Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
-            //essentially this is doing tail-call optimisation by hand, the compiler could do this, but
-            //measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
+            // Restart with next table by goto-ing to "restart" label. Just as flame-bait for people quoting
+            // Dijkstra (well, that and it avoids recursion with a measurable performance improvement -
+            // essentially this is doing tail-call optimisation by hand, the compiler could do this, but
+            // measurements suggest it doesn’t, or we wouldn’t witness any speed increase).
             Table table = _table;
             int hash = Hash(key);
             TombstoneKV deadKey = DeadKey;
@@ -753,10 +769,10 @@ namespace Ariadne.Collections
                     int curHash = Interlocked.CompareExchange(ref records[idx].Hash, hash, 0);
                     if(curHash == 0 || curHash == hash)
                     {
-                        //hashes match, do keys?
-                        //while retrieving the current
-                        //if we want to write to empty records
-                        //let’s see if we can just write because there’s nothing there...
+                        // hashes match, do keys?
+                        // while retrieving the current
+                        // if we want to write to empty records
+                        // let’s see if we can just write because there’s nothing there...
                         if((curPair = records[idx].KeyValue) == null)
                         {
                             pair = new KV(key, factory(key));
@@ -768,7 +784,7 @@ namespace Ariadne.Collections
                                 return true;
                             }
                         }
-                        //okay there’s something with the same hash here, does it have the same key?
+                        // okay there’s something with the same hash here, does it have the same key?
                         if(_cmp.Equals(curPair.Key, key))
                         {
                             if(curPair != deadKey)
@@ -788,11 +804,11 @@ namespace Ariadne.Collections
                         goto restart;
                     }
                 }
-                //we have a record with a matching key.
+                // we have a record with a matching key.
                 
-                //If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
-                //current record is copied over - so that any reader won’t end up finding the previous value and not realise it
-                //should look to the next table - and then we write there.
+                // If there’s a resize in progress then we want to ultimately write to the final table. First we make sure that the
+                // current record is copied over - so that any reader won’t end up finding the previous value and not realise it
+                // should look to the next table - and then we write there.
                 if(table.Next != null)
                 {
                     CopySlotsAndCheck(table, deadKey, idx);
@@ -819,7 +835,7 @@ namespace Ariadne.Collections
                         return true;
                     }
                     
-                    //we lost the race, another thread set the pair.
+                    // we lost the race, another thread set the pair.
                     if(prevPair == deadKey)
                         break;
                     else if(!(prevPair is TombstoneKV))
@@ -890,11 +906,11 @@ namespace Ariadne.Collections
                     }
                     else if(curHash == hash)
                     {
-                        //hashes match, do keys?
-                        //while retrieving the current
-                        //if we want to write to empty records
-                        //let’s see if we can just write because there’s nothing there...
-                        //okay there’s something with the same hash here, does it have the same key?
+                        // hashes match, do keys?
+                        // while retrieving the current
+                        // if we want to write to empty records
+                        // let’s see if we can just write because there’s nothing there...
+                        // okay there’s something with the same hash here, does it have the same key?
                         if(_cmp.Equals(records[idx].KeyValue.Key, pair.Key))
                         {
                             records[idx].KeyValue = pair;
@@ -934,10 +950,10 @@ namespace Ariadne.Collections
         // Copy a bunch of records to the next table.
         private void HelpCopy(Table table, Record[] records, TombstoneKV deadKey)
         {
-            //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
-            //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
-            //at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
-            //cache-lines to be invalidated with each write.
+            // Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
+            // result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
+            // at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
+            // cache-lines to be invalidated with each write.
             int cap = table.Capacity;
             if(cap > COPY_CHUNK)
                 HelpCopyLarge(table, records, deadKey, cap);
@@ -1021,24 +1037,24 @@ namespace Ariadne.Collections
         {
             while(!(kv is PrimeKV))
             {
-            	if(kv is TombstoneKV)
-            	{
+                if(kv is TombstoneKV)
+                {
                     if(kv == deadKey)
                         return false;
-            		oldKV = Interlocked.CompareExchange(ref keyValue, deadKey, kv);
-            		if(oldKV == kv)
-            			return true;
-            	}
-            	else
-            	{
-            	    PrimeKV prime = new PrimeKV(kv);
-	                oldKV = Interlocked.CompareExchange(ref keyValue, prime, kv);
-	                if(kv == oldKV)
-	                {
-	                    kv = prime;
-	                    break;
-	                }
-            	}
+                    oldKV = Interlocked.CompareExchange(ref keyValue, deadKey, kv);
+                    if(oldKV == kv)
+                        return true;
+                }
+                else
+                {
+                    PrimeKV prime = new PrimeKV(kv);
+                    oldKV = Interlocked.CompareExchange(ref keyValue, prime, kv);
+                    if(kv == oldKV)
+                    {
+                        kv = prime;
+                        break;
+                    }
+                }
                 kv = oldKV;
             }
             PutIfEmpty(table.Next, deadKey, oldKV.StripPrime(), hash);
@@ -1054,8 +1070,8 @@ namespace Ariadne.Collections
         }
         private void Resize(Table tab)
         {
-            //Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
-            //but determining just how best to do so requires the consideration of many different cases.
+            // Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
+            // but determining just how best to do so requires the consideration of many different cases.
             if(tab.Next != null)
                 return;
             int sz = tab.Size;
@@ -1069,7 +1085,7 @@ namespace Ariadne.Collections
                 newCap = sz << 1;
             else
                 newCap = sz;
-         	if(tab.Slots >= sz << 1)
+             if(tab.Slots >= sz << 1)
                 newCap = cap << 1;
             if(newCap < cap)
                 newCap = cap;
@@ -1112,10 +1128,10 @@ namespace Ariadne.Collections
         /// <remarks>If the dictionary is in the midst of a resize, the capacity it is resizing to is returned, ignoring other internal storage in use.</remarks>
         public int Capacity
         {
-        	get
-        	{
-        		return _table.Capacity;
-        	}
+            get
+            {
+                return _table.Capacity;
+            }
         }
         /// <summary>Creates an <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/> that is
         /// a copy of the current contents.</summary>
@@ -1123,10 +1139,10 @@ namespace Ariadne.Collections
         /// could be inconsistent in terms of an application’s use of the values.
         /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
         /// <returns>The <see cref="System.Collections.Generic.IDictionary&lt;TKey, TValue>"/>.</returns>
-    	public Dictionary<TKey, TValue> ToDictionary()
-    	{
-    		Dictionary<TKey, TValue> snapshot = new Dictionary<TKey, TValue>(Count, _cmp);
-    		Table table = _table;
+        public Dictionary<TKey, TValue> ToDictionary()
+        {
+            Dictionary<TKey, TValue> snapshot = new Dictionary<TKey, TValue>(Count, _cmp);
+            Table table = _table;
             do
             {
                 Record[] records = table.Records;
@@ -1141,21 +1157,21 @@ namespace Ariadne.Collections
                     }
                 }
             }while((table = table.Next) != null);
-    		return snapshot;
-    	}
-    	object ICloneable.Clone()
-    	{
-    	    return Clone();
-    	}
-    	/// <summary>Returns a copy of the current dictionary.</summary>
+            return snapshot;
+        }
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+        /// <summary>Returns a copy of the current dictionary.</summary>
         /// <remarks>Because this operation does not lock, the resulting dictionary’s contents
         /// could be inconsistent in terms of an application’s use of the values.</remarks>
         /// <returns>The <see cref="ThreadSafeDictionary&lt;TKey, TValue>"/>.</returns>
         public ThreadSafeDictionary<TKey, TValue> Clone()
         {
-        	ThreadSafeDictionary<TKey, TValue> snapshot = new ThreadSafeDictionary<TKey, TValue>(Count, _cmp);
-        	Table snTab = snapshot._table;
-        	Table table = _table;
+            ThreadSafeDictionary<TKey, TValue> snapshot = new ThreadSafeDictionary<TKey, TValue>(Count, _cmp);
+            Table snTab = snapshot._table;
+            Table table = _table;
             do
             {
                 Record[] records = table.Records;
@@ -1194,17 +1210,17 @@ namespace Ariadne.Collections
         }
         ICollection<TKey> IDictionary<TKey, TValue>.Keys
         {
-        	get { return Keys; }
+            get { return Keys; }
         }
         /// <summary>Returns the collection of values in the system.</summary>
         /// <remarks>This is a live collection, which changes with changes to the dictionary.</remarks>
         public ValueCollection Values
         {
-        	get { return new ValueCollection(this); }
+            get { return new ValueCollection(this); }
         }
         ICollection<TValue> IDictionary<TKey, TValue>.Values
         {
-        	get { return Values; }
+            get { return Values; }
         }
         /// <summary>Returns an estimate of the current number of items in the dictionary.</summary>
         public int Count
@@ -1236,7 +1252,7 @@ namespace Ariadne.Collections
         {
             if(TryAdd(key, value))
                 return;
-            throw new ArgumentException(Strings.Dict_Same_Key, "key");
+            throw new ArgumentException(Strings.DictSameKey, "key");
         }
         /// <summary>Attempts to add the specified key and value into the dictionary.</summary>
         /// <param name="key">The key to add.</param>
@@ -1641,15 +1657,15 @@ namespace Ariadne.Collections
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             Validation.CopyTo(array, arrayIndex);
-        	Dictionary<TKey, TValue> snapshot = ToDictionary();
-        	TValue valForNull;
-        	if(!typeof(TKey).IsValueType && TryGetValue(default(TKey), out valForNull))
-        	{
-	        	if(arrayIndex + snapshot.Count + 1 > array.Length)
-	        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
-	        	array[arrayIndex++] = new KeyValuePair<TKey, TValue>(default(TKey), valForNull);
-        	}
-        	((ICollection<KeyValuePair<TKey, TValue>>)snapshot).CopyTo(array, arrayIndex);
+            Dictionary<TKey, TValue> snapshot = ToDictionary();
+            TValue valForNull;
+            if(!typeof(TKey).IsValueType && TryGetValue(default(TKey), out valForNull))
+            {
+                if(arrayIndex + snapshot.Count + 1 > array.Length)
+                    throw new ArgumentException(Strings.CopyToArrayTooSmall);
+                array[arrayIndex++] = new KeyValuePair<TKey, TValue>(default(TKey), valForNull);
+            }
+            ((ICollection<KeyValuePair<TKey, TValue>>)snapshot).CopyTo(array, arrayIndex);
         }
         /// <summary>Removes an item from the collection.</summary>
         /// <param name="item">The item to remove</param>
@@ -1710,7 +1726,7 @@ namespace Ariadne.Collections
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public bool Remove(TKey key, TValue cmpValue, out TValue removed)
         {
-        	return Remove(key, cmpValue, DefaultValCmp, out removed);
+            return Remove(key, cmpValue, DefaultValCmp, out removed);
         }
         /// <summary>Removes a <see cref="System.Collections.Generic.KeyValuePair&lt;TKey,TValue>"/> from the collection.</summary>
         /// <param name="item">The item to remove</param>
@@ -1850,23 +1866,23 @@ namespace Ariadne.Collections
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public int Remove(Func<TKey, TValue, bool> predicate)
         {
-        	int total = 0;
-        	RemovingEnumerator remover = new RemovingEnumerator(this, predicate);
-        	while(remover.MoveNext())
-        	    ++total;
-        	return total;
+            int total = 0;
+            RemovingEnumerator remover = new RemovingEnumerator(this, predicate);
+            while(remover.MoveNext())
+                ++total;
+            return total;
         }
         internal struct KVEnumerator
         {
-        	private readonly ThreadSafeDictionary<TKey, TValue> _dict;
+            private readonly ThreadSafeDictionary<TKey, TValue> _dict;
             private Table _tab;
             private KV _current;
             private int _idx;
             public KVEnumerator(ThreadSafeDictionary<TKey, TValue> dict)
             {
-            	_tab = (_dict = dict)._table;
-            	_idx = -1;
-            	_current = null;
+                _tab = (_dict = dict)._table;
+                _idx = -1;
+                _current = null;
             }
             public KV Current
             {
@@ -1899,8 +1915,8 @@ namespace Ariadne.Collections
             }
             public void Reset()
             {
-            	_tab = _dict._table;
-            	_idx = -1;
+                _tab = _dict._table;
+                _idx = -1;
             }
         }
         private KVEnumerator EnumerateKVs()
@@ -1976,41 +1992,41 @@ namespace Ariadne.Collections
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
-	    public struct ValueCollection : ICollection<TValue>, ICollection
-	    {
-	    	private readonly ThreadSafeDictionary<TKey, TValue> _dict;
-	    	internal ValueCollection(ThreadSafeDictionary<TKey, TValue> dict)
-	    	{
-	    		_dict = dict;
-	    	}
-	    	/// <summary>The number of items in the collection.</summary>
-			public int Count
-			{
-				get { return _dict.Count; }
-			}
-			bool ICollection<TValue>.IsReadOnly
-			{
-				get { return true; }
-			}
-			/// <summary>Tests the collection for the presence of an item.</summary>
-			/// <param name="item">The item to search for.</param>
-			/// <param name="cmp">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> to use in comparing
-			/// items found with that sought.</param>
-			/// <returns>True if a matching item  was found, false otherwise.</returns>
-			public bool Contains(TValue item, IEqualityComparer<TValue> cmp)
-			{
-				foreach(TValue val in this)
-					if(cmp.Equals(item, val))
-						return true;
-				return false;
-			}
-			/// <summary>Tests the collection for the presence of an item.</summary>
-			/// <param name="item">The item to search for.</param>
-			/// <returns>True if a matching item  was found, false otherwise.</returns>
-			public bool Contains(TValue item)
-			{
-				return Contains(item, DefaultValCmp);
-			}
+        public struct ValueCollection : ICollection<TValue>, ICollection
+        {
+            private readonly ThreadSafeDictionary<TKey, TValue> _dict;
+            internal ValueCollection(ThreadSafeDictionary<TKey, TValue> dict)
+            {
+                _dict = dict;
+            }
+            /// <summary>The number of items in the collection.</summary>
+            public int Count
+            {
+                get { return _dict.Count; }
+            }
+            bool ICollection<TValue>.IsReadOnly
+            {
+                get { return true; }
+            }
+            /// <summary>Tests the collection for the presence of an item.</summary>
+            /// <param name="item">The item to search for.</param>
+            /// <param name="cmp">An <see cref="System.Collections.Generic.IEqualityComparer&lt;T>"/> to use in comparing
+            /// items found with that sought.</param>
+            /// <returns>True if a matching item  was found, false otherwise.</returns>
+            public bool Contains(TValue item, IEqualityComparer<TValue> cmp)
+            {
+                foreach(TValue val in this)
+                    if(cmp.Equals(item, val))
+                        return true;
+                return false;
+            }
+            /// <summary>Tests the collection for the presence of an item.</summary>
+            /// <param name="item">The item to search for.</param>
+            /// <returns>True if a matching item  was found, false otherwise.</returns>
+            public bool Contains(TValue item)
+            {
+                return Contains(item, DefaultValCmp);
+            }
             /// <summary>Copies the contents of the collection to an array.</summary>
             /// <param name="array">The array to copy to.</param>
             /// <param name="arrayIndex">The index within the array to start copying from</param>
@@ -2018,89 +2034,89 @@ namespace Ariadne.Collections
             /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
             /// <exception cref="System.ArgumentException"/>The number of items in the collection was
             /// too great to copy into the array at the index given.
-			public void CopyTo(TValue[] array, int arrayIndex)
-			{
-			    Validation.CopyTo(array, arrayIndex);
-	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
-	        	TValue valForNull;
-	        	if(!typeof(TKey).IsValueType && _dict.TryGetValue(default(TKey), out valForNull))
-	        	{
-		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
-		        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
-		        	array[arrayIndex++] = valForNull;
-	        	}
-	        	snapshot.Values.CopyTo(array, arrayIndex);
-			}
-			/// <summary>Enumerates a value collection.</summary>
+            public void CopyTo(TValue[] array, int arrayIndex)
+            {
+                Validation.CopyTo(array, arrayIndex);
+                Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
+                TValue valForNull;
+                if(!typeof(TKey).IsValueType && _dict.TryGetValue(default(TKey), out valForNull))
+                {
+                    if(arrayIndex + snapshot.Count + 1 > array.Length)
+                        throw new ArgumentException(Strings.CopyToArrayTooSmall);
+                    array[arrayIndex++] = valForNull;
+                }
+                snapshot.Values.CopyTo(array, arrayIndex);
+            }
+            /// <summary>Enumerates a value collection.</summary>
             /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
             /// concurrently with other operations on the same collection.</threadsafety>
-			public class Enumerator : IEnumerator<TValue>
-			{
-	            private KVEnumerator _src;
-	            internal Enumerator(KVEnumerator src)
-	            {
-	                _src = src;
-	            }
-	            /// <summary>Returns the current value being enumerated.</summary>
-	            public TValue Current
-	            {
-	                get
-	                {
-	                    return _src.Current.Value;
-	                }
-	            }
-	            object IEnumerator.Current
-	            {
-	                get
-	                {
-	                    return Current;
-	                }
-	            }
-	            void IDisposable.Dispose()
-	            {
-	            }
-	            /// <summary>Moves to the next item being iterated.</summary>
-	            /// <returns>True if another item is found, false if the end of the collection is reached.</returns>
-	            public bool MoveNext()
-	            {
-	                return _src.MoveNext();
-	            }
-	            /// <summary>Reset the enumeration.</summary>
-	            public void Reset()
-	            {
-	                _src.Reset();
-	            }
-			}
-			/// <summary>Returns an enumerator that iterates through the collection.</summary>
-			/// <returns>The <see cref="Enumerator"/> that performs the iteration.</returns>
-			public Enumerator GetEnumerator()
-			{
-				return new Enumerator(_dict.EnumerateKVs());
-			}
-			IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
-			{
-			    return GetEnumerator();
-			}
-			IEnumerator IEnumerable.GetEnumerator()
-			{
-				return GetEnumerator();
-			}
-			void ICollection<TValue>.Add(TValue item)
-			{
-				throw new NotSupportedException();
-			}
-			void ICollection<TValue>.Clear()
-			{
-				throw new NotSupportedException();
-			}
-			bool ICollection<TValue>.Remove(TValue item)
-			{
-				throw new NotSupportedException();
-			}
+            public class Enumerator : IEnumerator<TValue>
+            {
+                private KVEnumerator _src;
+                internal Enumerator(KVEnumerator src)
+                {
+                    _src = src;
+                }
+                /// <summary>Returns the current value being enumerated.</summary>
+                public TValue Current
+                {
+                    get
+                    {
+                        return _src.Current.Value;
+                    }
+                }
+                object IEnumerator.Current
+                {
+                    get
+                    {
+                        return Current;
+                    }
+                }
+                void IDisposable.Dispose()
+                {
+                }
+                /// <summary>Moves to the next item being iterated.</summary>
+                /// <returns>True if another item is found, false if the end of the collection is reached.</returns>
+                public bool MoveNext()
+                {
+                    return _src.MoveNext();
+                }
+                /// <summary>Reset the enumeration.</summary>
+                public void Reset()
+                {
+                    _src.Reset();
+                }
+            }
+            /// <summary>Returns an enumerator that iterates through the collection.</summary>
+            /// <returns>The <see cref="Enumerator"/> that performs the iteration.</returns>
+            public Enumerator GetEnumerator()
+            {
+                return new Enumerator(_dict.EnumerateKVs());
+            }
+            IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+            void ICollection<TValue>.Add(TValue item)
+            {
+                throw new NotSupportedException();
+            }
+            void ICollection<TValue>.Clear()
+            {
+                throw new NotSupportedException();
+            }
+            bool ICollection<TValue>.Remove(TValue item)
+            {
+                throw new NotSupportedException();
+            }
             object ICollection.SyncRoot
             {
-                get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
-            }	        
+                get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
+            }            
             bool ICollection.IsSynchronized
             {
                 get { return false; }
@@ -2108,36 +2124,36 @@ namespace Ariadne.Collections
             void ICollection.CopyTo(Array array, int index)
             {
                 Validation.CopyTo(array, index);
-	        	((ICollection)_dict.ToDictionary().Values).CopyTo(array, index);
+                ((ICollection)_dict.ToDictionary().Values).CopyTo(array, index);
             }
-	    }
+        }
         /// <summary>A collection of the keys in a ThreadSafeDictionary.</summary>
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
-	    public struct KeyCollection : ICollection<TKey>, ICollection
-	    {
-	    	private readonly ThreadSafeDictionary<TKey, TValue> _dict;
-	    	internal KeyCollection(ThreadSafeDictionary<TKey, TValue> dict)
-	    	{
-	    		_dict = dict;
-	    	}
-	    	/// <summary>The number of items in the collection.</summary>
-			public int Count
-			{
-				get { return _dict.Count; }
-			}
-			bool ICollection<TKey>.IsReadOnly
-			{
-				get { return true; }
-			}
-			/// <summary>Tests for the presence of a key in the collection.</summary>
-			/// <param name="item">The key to search for.</param>
-			/// <returns>True if the key is found, false otherwise.</returns>
-			public bool Contains(TKey item)
-			{
-				return _dict.ContainsKey(item);
-			}
+        public struct KeyCollection : ICollection<TKey>, ICollection
+        {
+            private readonly ThreadSafeDictionary<TKey, TValue> _dict;
+            internal KeyCollection(ThreadSafeDictionary<TKey, TValue> dict)
+            {
+                _dict = dict;
+            }
+            /// <summary>The number of items in the collection.</summary>
+            public int Count
+            {
+                get { return _dict.Count; }
+            }
+            bool ICollection<TKey>.IsReadOnly
+            {
+                get { return true; }
+            }
+            /// <summary>Tests for the presence of a key in the collection.</summary>
+            /// <param name="item">The key to search for.</param>
+            /// <returns>True if the key is found, false otherwise.</returns>
+            public bool Contains(TKey item)
+            {
+                return _dict.ContainsKey(item);
+            }
             /// <summary>Copies the contents of the dictionary to an array.</summary>
             /// <param name="array">The array to copy to.</param>
             /// <param name="arrayIndex">The index within the array to start copying from</param>
@@ -2145,89 +2161,89 @@ namespace Ariadne.Collections
             /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
             /// <exception cref="System.ArgumentException"/>The number of items in the collection was
             /// too great to copy into the array at the index given.
-			public void CopyTo(TKey[] array, int arrayIndex)
-			{
-			    Validation.CopyTo(array, arrayIndex);
-	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
-	        	if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
-	        	{
-		        	if(arrayIndex + snapshot.Count + 1 > array.Length)
-		        		throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
-	        		array[arrayIndex++] = default(TKey);
-	        	}
-	        	snapshot.Keys.CopyTo(array, arrayIndex);
-			}
-			/// <summary>Enumerates a key collection.</summary>
+            public void CopyTo(TKey[] array, int arrayIndex)
+            {
+                Validation.CopyTo(array, arrayIndex);
+                Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
+                if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
+                {
+                    if(arrayIndex + snapshot.Count + 1 > array.Length)
+                        throw new ArgumentException(Strings.CopyToArrayTooSmall);
+                    array[arrayIndex++] = default(TKey);
+                }
+                snapshot.Keys.CopyTo(array, arrayIndex);
+            }
+            /// <summary>Enumerates a key collection.</summary>
             /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
             /// concurrently with other operations on the same collection.</threadsafety>
-			public class Enumerator : IEnumerator<TKey>
-			{
-	            private KVEnumerator _src;
-	            internal Enumerator(KVEnumerator src)
-	            {
-	                _src = src;
-	            }
-	            /// <summary>Returns the current item being enumerated.</summary>
-	            public TKey Current
-	            {
-	                get
-	                {
-	                    return _src.Current.Key;
-	                }
-	            }
-	            object IEnumerator.Current
-	            {
-	                get
-	                {
-	                    return Current;
-	                }
-	            }
-	            void IDisposable.Dispose()
-	            {
-	            }
+            public class Enumerator : IEnumerator<TKey>
+            {
+                private KVEnumerator _src;
+                internal Enumerator(KVEnumerator src)
+                {
+                    _src = src;
+                }
+                /// <summary>Returns the current item being enumerated.</summary>
+                public TKey Current
+                {
+                    get
+                    {
+                        return _src.Current.Key;
+                    }
+                }
+                object IEnumerator.Current
+                {
+                    get
+                    {
+                        return Current;
+                    }
+                }
+                void IDisposable.Dispose()
+                {
+                }
                 /// <summary>Moves to the next item in the enumeration.</summary>
                 /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
-	            public bool MoveNext()
-	            {
-	                return _src.MoveNext();
-	            }
-	            /// <summary>Reset the enumeration.</summary>
-	            public void Reset()
-	            {
-	                _src.Reset();
-	            }
-			}
+                public bool MoveNext()
+                {
+                    return _src.MoveNext();
+                }
+                /// <summary>Reset the enumeration.</summary>
+                public void Reset()
+                {
+                    _src.Reset();
+                }
+            }
             /// <summary>Returns an enumerator that iterates through the collection.</summary>
             /// <returns>The enumerator.</returns>
-			public Enumerator GetEnumerator()
-			{
-				return new Enumerator(_dict.EnumerateKVs());
-			}
-			IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator()
-			{
-			    return GetEnumerator();
-			}
-			IEnumerator IEnumerable.GetEnumerator()
-			{
-				return GetEnumerator();
-			}
-			void ICollection<TKey>.Add(TKey item)
-			{
-				throw new NotSupportedException();
-			}
-			void ICollection<TKey>.Clear()
-			{
-				throw new NotSupportedException();
-			}
-			bool ICollection<TKey>.Remove(TKey item)
-			{
-				throw new NotSupportedException();
-			}
+            public Enumerator GetEnumerator()
+            {
+                return new Enumerator(_dict.EnumerateKVs());
+            }
+            IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+            void ICollection<TKey>.Add(TKey item)
+            {
+                throw new NotSupportedException();
+            }
+            void ICollection<TKey>.Clear()
+            {
+                throw new NotSupportedException();
+            }
+            bool ICollection<TKey>.Remove(TKey item)
+            {
+                throw new NotSupportedException();
+            }
             object ICollection.SyncRoot
             {
-                get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
+                get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
             }
-	        
+            
             bool ICollection.IsSynchronized
             {
                 get { return false; }
@@ -2235,17 +2251,17 @@ namespace Ariadne.Collections
             void ICollection.CopyTo(Array array, int index)
             {
                 Validation.CopyTo(array, index);
-	        	Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
-	        	if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
-	        	{
-	        	    if(index + snapshot.Count + 1 > array.Length)
-	        	        throw new ArgumentException(Strings.Copy_To_Array_Too_Small);
-	        	    array.SetValue(default(TKey), index++);
-	        	}
-	        	((ICollection)snapshot.Keys).CopyTo(array, index);
+                Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
+                if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
+                {
+                    if(index + snapshot.Count + 1 > array.Length)
+                        throw new ArgumentException(Strings.CopyToArrayTooSmall);
+                    array.SetValue(default(TKey), index++);
+                }
+                ((ICollection)snapshot.Keys).CopyTo(array, index);
             }
-	    }
-	    object IDictionary.this[object key]
+        }
+        object IDictionary.this[object key]
         {
             get
             {
@@ -2272,17 +2288,17 @@ namespace Ariadne.Collections
                             }
                             catch(InvalidCastException)
                             {
-                                throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
+                                throw new ArgumentException(Strings.InvalidCastValues(value.GetType(), typeof(TValue)), "value");
                             }
                         }
                         catch(InvalidCastException)
                         {
-                            throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
+                            throw new ArgumentException(Strings.InvalidCastKeys(key.GetType(), typeof(TKey)), "key");
                         }
                     }
-                    throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
+                    throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TValue)), "value");
                 }
-                throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
+                throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TKey)), "key");
             }
         }
         
@@ -2303,7 +2319,7 @@ namespace Ariadne.Collections
         
         object ICollection.SyncRoot
         {
-            get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
+            get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
         }
         
         bool ICollection.IsSynchronized
@@ -2334,17 +2350,17 @@ namespace Ariadne.Collections
                         }
                         catch(InvalidCastException)
                         {
-                            throw new ArgumentException(Strings.Invalid_Cast_Values(value.GetType(), typeof(TValue)), "value");
+                            throw new ArgumentException(Strings.InvalidCastValues(value.GetType(), typeof(TValue)), "value");
                         }
                     }
                     catch(InvalidCastException)
                     {
-                        throw new ArgumentException(Strings.Invalid_Cast_Keys(key.GetType(), typeof(TKey)), "key");
+                        throw new ArgumentException(Strings.InvalidCastKeys(key.GetType(), typeof(TKey)), "key");
                     }
                 }
-                throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TValue)), "value");
+                throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TValue)), "value");
             }
-            throw new ArgumentException(Strings.Cant_Cast_Null_To_Value_Type(typeof(TKey)), "key");
+            throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TKey)), "key");
         }
         
         IDictionaryEnumerator IDictionary.GetEnumerator()
@@ -2361,7 +2377,7 @@ namespace Ariadne.Collections
         void ICollection.CopyTo(Array array, int index)
         {
             Validation.CopyTo(array, index);
-        	((ICollection)ToDictionary()).CopyTo(array, index);
+            ((ICollection)ToDictionary()).CopyTo(array, index);
         }
     }
 }

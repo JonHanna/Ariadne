@@ -18,11 +18,11 @@ using System.Threading;
 
 namespace Ariadne.Collections
 {
-    //This queue is mostly for completion or for use in other classes in the library, considering that
-    //the 4.0 FCL already has a lock-free queue.
-    //The Mono implementation is very close to this, while the MS implementation is more complicated
-    //but should offer make better use of CPU caches in cases where the same thread does multiple
-    //enqueues or multiple dequeues in quick succession.
+    // This queue is mostly for completion or for use in other classes in the library, considering that
+    // the 4.0 FCL already has a lock-free queue.
+    // The Mono implementation is very close to this, while the MS implementation is more complicated
+    // but should offer make better use of CPU caches in cases where the same thread does multiple
+    // enqueues or multiple dequeues in quick succession.
 
 #pragma warning disable 420 // volatile semantics not lost as only by-ref calls are interlocked
     /// <summary>A lock-free type-safe queue. This class is included mainly for completion, to allow for
@@ -44,12 +44,14 @@ namespace Ariadne.Collections
         /// <summary>Creates a new <see cref="LLQueue&lt;T>"/> filled from the collection passed to it.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> that the queue will be filled from on construction.</param>
         public LLQueue(IEnumerable<T> collection)
-            :this()
+            : this()
         {
             EnqueueRange(collection);
         }
         private LLQueue(SerializationInfo info, StreamingContext context)
-            :this((T[])info.GetValue("arr", typeof(T[]))){}
+            : this((T[])info.GetValue("arr", typeof(T[])))
+        {
+        }
         [SecurityCritical]
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
@@ -64,13 +66,13 @@ namespace Ariadne.Collections
             for(;;)
             {
                 SinglyLinkedNode<T> curTail = _tail;
-                if (Interlocked.CompareExchange(ref curTail.Next, newNode, null) == null)   //append to the tail if it is indeed the tail.
+                if (Interlocked.CompareExchange(ref curTail.Next, newNode, null) == null)   // append to the tail if it is indeed the tail.
                 {
-                    Interlocked.CompareExchange(ref _tail, newNode, curTail);   //CAS in case we were assisted by an obstructed thread.
+                    Interlocked.CompareExchange(ref _tail, newNode, curTail);   // CAS in case we were assisted by an obstructed thread.
                     return;
                 }
                 else
-                    Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);  //assist obstructing thread.
+                    Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);  // assist obstructing thread.
             }
         }
         /// <summary>Adds a collection of items to the queue.</summary>
@@ -229,7 +231,7 @@ namespace Ariadne.Collections
             }
             void IDisposable.Dispose()
             {
-                //nop
+                // nop
             }
             /// <summary>Moves through the enumeration to the next item.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
@@ -303,14 +305,14 @@ namespace Ariadne.Collections
             }
             void IDisposable.Dispose()
             {
-                //nop
+                // nop
             }
             /// <summary>Resets the enumeration.</summary>
             /// <remarks>Since the class refers to the live state of the queue, this is a non-operation
             /// as the enumeration is always attempting to dequeue from the front of the queue.</remarks>
             public void Reset()
             {
-                //nop
+                // nop
             }
         }
         /// <summary>An enumerator that enumerates through the queue, without removing them.</summary>
@@ -356,7 +358,7 @@ namespace Ariadne.Collections
             }
             void IDisposable.Dispose()
             {
-                //nop
+                // nop
             }
             /// <summary>Resets the enumeration to the current start of the queue.</summary>
             public void Reset()
@@ -429,15 +431,15 @@ namespace Ariadne.Collections
         /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
         public List<T> ToList()
         {
-        	//As an optimisation, if you past an ICollection<T> to List<T>’s constructor that takes an IEnumerable<T>
-        	//it casts to ICollection<T> and calls Count on it to decide on the initial capacity. Since our Count
-        	//is O(n) and since we could grow in the meantime, this optimisation actually makes things worse, so we avoid it.
-        	List<T> list = new List<T>();
-        	//AddRange has the same problem...
-        	Enumerator en = new Enumerator(this);
-        	while(en.MoveNext())
-        	    list.Add(en.Current);
-        	return list;
+            // As an optimisation, if you past an ICollection<T> to List<T>’s constructor that takes an IEnumerable<T>
+            // it casts to ICollection<T> and calls Count on it to decide on the initial capacity. Since our Count
+            // is O(n) and since we could grow in the meantime, this optimisation actually makes things worse, so we avoid it.
+            List<T> list = new List<T>();
+            // AddRange has the same problem...
+            Enumerator en = new Enumerator(this);
+            while(en.MoveNext())
+                list.Add(en.Current);
+            return list;
         }
         /// <summary>Clears the queue as an atomic operation, and returns a <see cref="List&lt;T>"/> of the items removed.</summary>
         /// <returns>A <see cref="List&lt;T>"/> of the items removed.</returns>
@@ -512,7 +514,7 @@ namespace Ariadne.Collections
         public void CopyTo(T[] array, int arrayIndex)
         {
             Validation.CopyTo(array, arrayIndex);
-        	ToList().CopyTo(array, arrayIndex);
+            ToList().CopyTo(array, arrayIndex);
         }
         bool ICollection<T>.Remove(T item)
         {
@@ -520,7 +522,7 @@ namespace Ariadne.Collections
         }
         object ICollection.SyncRoot
         {
-            get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
+            get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
         }
         bool ICollection.IsSynchronized
         {
@@ -545,7 +547,7 @@ namespace Ariadne.Collections
         void ICollection.CopyTo(Array array, int index)
         {
             Validation.CopyTo(array, index);
-        	((ICollection)ToList()).CopyTo(array, index);
+            ((ICollection)ToList()).CopyTo(array, index);
         }
     }
 #pragma warning restore 420

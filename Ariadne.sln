@@ -1,7 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ariadne", "Ariadne.csproj", "{95CAF4E7-ADA0-471F-9930-C0F252D92368}"
+# SharpDevelop 4.4
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ariadne", "Ariadne\Ariadne.csproj", "{95CAF4E7-ADA0-471F-9930-C0F252D92368}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ariadne.NUnitTests", "NUnitTests\Ariadne.NUnitTests.csproj", "{EB067243-E345-48FE-ADDE-CD066FA7CA04}"
 EndProject

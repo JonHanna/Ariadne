@@ -16,7 +16,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <CodeAnalysisRules>-Microsoft.Design#CA1000;-Microsoft.Design#CA1021;-Microsoft.Design#CA1034;-Microsoft.Naming#CA1704</CodeAnalysisRules>
-    <SourceAnalysisOverrideSettingsFile>d:\Users\Jon\AppData\Roaming\ICSharpCode\SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <SourceAnalysisOverrideSettingsFile>Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <RunSourceAnalysis>False</RunSourceAnalysis>
     <RegisterForComInterop>False</RegisterForComInterop>
@@ -27,6 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <StartAction>Project</StartAction>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
@@ -61,10 +62,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mnemosyne">
-      <HintPath>packages\Mnemosyne.1.0.0.1\lib\Mnemosyne.dll</HintPath>
+      <HintPath>..\packages\Mnemosyne.1.0.0.1\lib\Mnemosyne.dll</HintPath>
     </Reference>
     <Reference Include="SpookilySharp">
-      <HintPath>packages\SpookilySharp.1.1.5128\lib\net40\SpookilySharp.dll</HintPath>
+      <HintPath>..\packages\SpookilySharp.1.1.5128\lib\net40\SpookilySharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
@@ -74,11 +75,13 @@
     <Compile Include="Collections\ThreadSafeDictionary.cs" />
     <Compile Include="Collections\ThreadSafeSet.cs" />
     <Compile Include="Counter.cs" />
+    <Compile Include="SinglyLinkedNode.cs" />
+    <Compile Include="Strings.cs" />
     <Compile Include="ThreadSafeAtomizer.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="SharedInt.cs" />
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="InternalHelpers.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validation.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\resources.resx">
@@ -88,9 +91,6 @@
   <ItemGroup>
     <None Include="doc\Ariadne.content" />
     <None Include="doc\atomicity.aml" />
-    <None Include="EUPL-1.1.txt" />
-    <None Include="packages.config" />
-    <None Include="README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

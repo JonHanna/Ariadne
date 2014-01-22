@@ -43,7 +43,9 @@ namespace Ariadne
         /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/>.</summary>
         /// <param name="capacity">The initial capacity of the atomizer.</param>
         public ThreadSafeAtomizer(int capacity)
-            :this(capacity, EqualityComparer<T>.Default){}
+            : this(capacity, EqualityComparer<T>.Default)
+        {
+        }
         /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/>.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use when comparing items
         /// added to the store.</param>
@@ -53,7 +55,9 @@ namespace Ariadne
         }
         /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/>.</summary>
         public ThreadSafeAtomizer()
-            :this(EqualityComparer<T>.Default){}
+            : this(EqualityComparer<T>.Default)
+        {
+        }
         /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/> and fills it from the collection passed.</summary>
         /// <param name="collection">The <see cref="IEnumerable&lt;T>"/> to fill the atomizer with on construction.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use when comparing items
@@ -65,7 +69,10 @@ namespace Ariadne
         /// <summary>Creates a new <see cref="ThreadSafeAtomizer&lt;T>"/> and fills it from the collection passed.</summary>
         /// <param name="collection">The <see cref="IEnumerable&lt;T>"/> to fill the atomizer with on construction.</param>
         public ThreadSafeAtomizer(IEnumerable<T> collection)
-            :this(collection, EqualityComparer<T>.Default){}
+            : this(collection, EqualityComparer<T>.Default)
+        {
+
+        }
         /// <summary>Searches for an equivalent item, adding it if not present, and returning either the item found
         /// or the item passed if there was none that matched.</summary>
         /// <param name="item">The item to store.</param>

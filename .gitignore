@@ -1,18 +1,16 @@
 
-/obj
-/bin
+obj
+bin
 *.user
 *.log
 *.pidb
 *.userprefs
-/NUnitTests/PartCover
-/NUnitTests/bin
-/NUnitTests/obj
-/NUnitTests/test-results
-/Ariadne.shfbproj_Jon
+PartCover
+test-results
+/Ariadne.shfbproj_*
 /Help
 *.nupkg
 /packages/**/*
 !/packages/repositories.config
-/StyleCopViolations.xml
-/StyleCop.Cache
+StyleCopViolations.xml
+StyleCop.Cache

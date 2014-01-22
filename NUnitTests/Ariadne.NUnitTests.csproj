@@ -40,7 +40,9 @@
     <DefineConstants>TRACE;NUNIT_TESTING</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -57,10 +59,13 @@
     <Compile Include="QueueTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ariadne.csproj">
+    <ProjectReference Include="..\Ariadne\Ariadne.csproj">
       <Project>{95CAF4E7-ADA0-471F-9930-C0F252D92368}</Project>
       <Name>Ariadne</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

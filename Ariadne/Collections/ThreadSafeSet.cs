@@ -51,7 +51,7 @@ namespace Ariadne.Collections
         {
             public readonly Box Original;
             public PrimeBox(Box box)
-                :base(box.Value)
+                : base(box.Value)
             {
                 Original = box;
             }
@@ -59,7 +59,9 @@ namespace Ariadne.Collections
         internal sealed class TombstoneBox : Box
         {
             public TombstoneBox(T value)
-                :base(value){}
+                : base(value)
+            {
+            }
         }
         private static readonly TombstoneBox DeadItem = new TombstoneBox(default(T));
         private struct Record
@@ -118,23 +120,23 @@ namespace Ariadne.Collections
         {
             if(capacity >= 0 && capacity <= 0x40000000)
             {
-            	Validation.NullCheck(comparer, "comparer");
-            	if(capacity == 0)
-            		capacity = DefaultCapacity;
-            	else
-            	{
-    	            unchecked // binary round-up
-    	            {
-    	                --capacity;
-    	                capacity |= (capacity >> 1);
-    	                capacity |= (capacity >> 2);
-    	                capacity |= (capacity >> 4);
-    	                capacity |= (capacity >> 8);
-    	                capacity |= (capacity >> 16);
-    	                ++capacity;
-    	            }
-            	}
-                	
+                Validation.NullCheck(comparer, "comparer");
+                if(capacity == 0)
+                    capacity = DefaultCapacity;
+                else
+                {
+                    unchecked // binary round-up
+                    {
+                        --capacity;
+                        capacity |= (capacity >> 1);
+                        capacity |= (capacity >> 2);
+                        capacity |= (capacity >> 4);
+                        capacity |= (capacity >> 8);
+                        capacity |= (capacity >> 16);
+                        ++capacity;
+                    }
+                }
+                    
                 _table = new Table(capacity, new Counter());
                 _cmp = (_cmpSerialise = comparer).WellDistributed();
             }
@@ -144,41 +146,47 @@ namespace Ariadne.Collections
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
         public ThreadSafeSet(int capacity)
-            :this(capacity, EqualityComparer<T>.Default){}
+            : this(capacity, EqualityComparer<T>.Default)
+        {
+        }
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public ThreadSafeSet(IEqualityComparer<T> comparer)
-            :this(DefaultCapacity, comparer){}
+            : this(DefaultCapacity, comparer)
+        {
+        }
         /// <summary>Creates a new lock-free set.</summary>
         public ThreadSafeSet()
-            :this(DefaultCapacity){}
+            : this(DefaultCapacity)
+        {
+        }
         private static int EstimateNecessaryCapacity(IEnumerable<T> collection)
         {
-        	if(collection != null)
-        	{
-            	try
-            	{
-                	ICollection<T> colT = collection as ICollection<T>;
-                	if(colT != null)
-                		return Math.Min(colT.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
-                	ICollection col = collection as ICollection;
-                	if(col != null)
-                	    return Math.Min(col.Count, 1024);
-            	}
-            	catch
-            	{
-            	    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
-            	    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
-            	}
-            	return DefaultCapacity;
-        	}
-    		throw new ArgumentNullException("collection", Strings.Set_Null_Source_Collection);
+            if(collection != null)
+            {
+                try
+                {
+                    ICollection<T> colT = collection as ICollection<T>;
+                    if(colT != null)
+                        return Math.Min(colT.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
+                    ICollection col = collection as ICollection;
+                    if(col != null)
+                        return Math.Min(col.Count, 1024);
+                }
+                catch
+                {
+                    // if some collection throws on Count but doesn’t throw when iterated through, then well that would be
+                    // pretty weird, but since our calling Count is an optimisation, we should tolerate that.
+                }
+                return DefaultCapacity;
+            }
+            throw new ArgumentNullException("collection", Strings.SetNullSourceCollection);
         }
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>"/> that compares the items.</param>
         public ThreadSafeSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
-            :this(EstimateNecessaryCapacity(collection), comparer)
+            : this(EstimateNecessaryCapacity(collection), comparer)
         {
             Table table = _table;
             foreach(T item in collection)
@@ -188,7 +196,9 @@ namespace Ariadne.Collections
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         public ThreadSafeSet(IEnumerable<T> collection)
-            :this(collection, EqualityComparer<T>.Default){}
+            : this(collection, EqualityComparer<T>.Default)
+        {
+        }
         [SecurityCritical] 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
@@ -199,7 +209,7 @@ namespace Ariadne.Collections
             info.AddValue("c", arr.Length);
         }
         private ThreadSafeSet(SerializationInfo info, StreamingContext context)
-            :this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
+            : this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
         {
             T[] arr = (T[])info.GetValue("arr", typeof(T[]));
             Table table = _table;
@@ -212,10 +222,10 @@ namespace Ariadne.Collections
         }
         private int Hash(T item)
         {
-            //We must prohibit the value of zero in order to be sure that when we encounter a
-            //zero, that the hash has not been written.
-            //We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
-            //users of the class to fix the effects of poor hash algorithms.
+            // We must prohibit the value of zero in order to be sure that when we encounter a
+            // zero, that the hash has not been written.
+            // We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
+            // users of the class to fix the effects of poor hash algorithms.
             int givenHash = _cmp.GetHashCode(item);
             return givenHash == 0 ? ZERO_HASH : givenHash;
         }
@@ -313,7 +323,7 @@ namespace Ariadne.Collections
                 }
                 for(;;)
                 {
-                    //we have a record with a matching key.
+                    // we have a record with a matching key.
                     if((box is TombstoneBox) == (curBox is TombstoneBox))
                         return curBox;//no change, return that stored.
                     
@@ -329,7 +339,7 @@ namespace Ariadne.Collections
                             table.Size.Increment();
                         return prevBox;
                     }
-                    //we lost the race, another thread set the box.
+                    // we lost the race, another thread set the box.
                     if(prevBox == deadItem)
                         break;
                     else if(prevBox is PrimeBox)
@@ -410,11 +420,11 @@ namespace Ariadne.Collections
                     }
                     else if(curHash == hash)
                     {
-                        //hashes match, do keys?
-                        //while retrieving the current
-                        //if we want to write to empty records
-                        //let’s see if we can just write because there’s nothing there...
-                        //okay there’s something with the same hash here, does it have the same key?
+                        // hashes match, do keys?
+                        // while retrieving the current
+                        // if we want to write to empty records
+                        // let’s see if we can just write because there’s nothing there...
+                        // okay there’s something with the same hash here, does it have the same key?
                         if(_cmp.Equals(records[idx].Box.Value, box.Value))
                         {
                             records[idx].Box = box;
@@ -454,10 +464,10 @@ namespace Ariadne.Collections
         // Copy a bunch of records to the next table.
         private void HelpCopy(Table table, Record[] records, TombstoneBox deadItem)
         {
-            //Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
-            //result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
-            //at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
-            //cache-lines to be invalidated with each write.
+            // Some things to note about our maximum chunk size. First, it’s a nice round number which will probably
+            // result in a bunch of complete cache-lines being dealt with. It’s also big enough number that we’re not
+            // at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
+            // cache-lines to be invalidated with each write.
             int cap = table.Capacity;
             if(cap > COPY_CHUNK)
                 HelpCopyLarge(table, records, deadItem, cap);
@@ -574,8 +584,8 @@ namespace Ariadne.Collections
         }
         private void Resize(Table tab)
         {
-            //Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
-            //but determining just how best to do so requires the consideration of many different cases.
+            // Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
+            // but determining just how best to do so requires the consideration of many different cases.
             if(tab.Next != null)
                 return;
             int sz = tab.Size;
@@ -589,7 +599,7 @@ namespace Ariadne.Collections
                 newCap = sz << 1;
             else
                 newCap = sz;
-         	if(tab.Slots >= sz << 1)
+             if(tab.Slots >= sz << 1)
                 newCap = cap << 1;
             if(newCap < cap)
                 newCap = cap;
@@ -712,11 +722,11 @@ namespace Ariadne.Collections
                 }
                 catch(NotSupportedException nse)
                 {
-                    throw new NotSupportedException(Strings.Resetting_Not_Supported_By_Source, nse);
+                    throw new NotSupportedException(Strings.ResettingNotSupportedBySource, nse);
                 }
                 catch(NotImplementedException)
                 {
-                    throw new NotSupportedException(Strings.Resetting_Not_Supported_By_Source);
+                    throw new NotSupportedException(Strings.ResettingNotSupportedBySource);
                 }
             }
         }
@@ -859,9 +869,9 @@ namespace Ariadne.Collections
             {
                 if(asCol.Count == 0)
                     return true;
-                //We can only short-cut on other being larger if larger is a set
-                //with the same equality comparer, as otherwise two or more items
-                //could be considered a single item to this set.
+                // We can only short-cut on other being larger if larger is a set
+                // with the same equality comparer, as otherwise two or more items
+                // could be considered a single item to this set.
                 ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
@@ -888,9 +898,9 @@ namespace Ariadne.Collections
             {
                 if(asCol.Count == 0)
                     return true;
-                //We can only short-cut on other being larger if larger is a set
-                //with the same equality comparer, as otherwise two or more items
-                //could be considered a single item to this set.
+                // We can only short-cut on other being larger if larger is a set
+                // with the same equality comparer, as otherwise two or more items
+                // could be considered a single item to this set.
                 ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
@@ -1284,7 +1294,7 @@ namespace Ariadne.Collections
         {
             return GetEnumerator();
         }
-    	/// <summary>Returns a copy of the current set.</summary>
+        /// <summary>Returns a copy of the current set.</summary>
         /// <remarks>Because this operation does not lock, the resulting set’s contents
         /// could be inconsistent in terms of an application’s use of the values.
         /// <para>If there is a value stored with a null key, it is ignored.</para></remarks>
@@ -1360,7 +1370,7 @@ namespace Ariadne.Collections
         
         object ICollection.SyncRoot
         {
-            get { throw new NotSupportedException(Strings.SyncRoot_Not_Supported); }
+            get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
         }
         
         bool ICollection.IsSynchronized
@@ -1418,7 +1428,7 @@ namespace Ariadne.Collections
         void ICollection.CopyTo(Array array, int index)
         {
             Validation.CopyTo(array, index);
-        	((ICollection)ToHashSet()).CopyTo(array, index);
+            ((ICollection)ToHashSet()).CopyTo(array, index);
         }
     }
     
