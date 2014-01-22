@@ -7,7 +7,7 @@ bin
 *.userprefs
 PartCover
 test-results
-/Ariadne.shfbproj_*
+*.shfbproj_*
 Help
 *.nupkg
 /packages/**/*
