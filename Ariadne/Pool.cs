@@ -21,7 +21,7 @@ namespace Ariadne
     /// is not thread-safe.</para>
     /// <para>Any object that implements <see cref="IProducerConsumerCollection&lt;T>"/> can be used as the underlying store,
     /// with the thread-safety coming from the thread-safety of that object. If none is passed to the constructor,
-    /// a <see cref="LLQueue&lt;T>"/> is used.</para>
+    /// a <see cref="TrackedConcurrentQueue&lt;T>"/> is used.</para>
     /// <para>The pool does not ensure that the same object is not put in the pool twice. A backing store can be selected
     /// to ensure this (e.g. <see cref="ThreadSafeSet&lt;T>"/>) but this will not guard against the set of items both currently
     /// pooled and currently in use, containing the same item twice.</para>
@@ -114,7 +114,7 @@ namespace Ariadne
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="max"/> was less than one or <paramref name="prefill"/> is less than zero.</exception>
         /// <exception cref="ArgumentException">Both <paramref name="factory"/> is null and <paramref name="prefill"/> is greater than zero.</exception>
         public Pool(Func<T> factory, int max, int prefill)
-            : this(new LLQueue<T>(), factory, max, prefill)
+            : this(new TrackedConcurrentQueue<T>(), factory, max, prefill)
         {
         }
 

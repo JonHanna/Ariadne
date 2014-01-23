@@ -11,14 +11,10 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Security;
-using System.Security.Permissions;
 using System.Threading;
 
 namespace Ariadne.Collections
 {
-#pragma warning disable 420 // volatile semantics not lost as only by-ref calls are interlocked
     /// <summary>A lock-free type-safe queue. This class is included mainly for completion, to allow for
     /// adoption to framework versions prior to the introduction of <see cref="ConcurrentQueue&lt;T>"/>
     /// and for use as the basis of other algorithms in this library. It does however also offer
@@ -26,53 +22,31 @@ namespace Ariadne.Collections
     /// <typeparam name="T">The type of the values stored.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
-    public sealed class LLQueue<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
+    public sealed class TrackedConcurrentQueue<T> : IProducerConsumerCollection<T>
     {
-        private SinglyLinkedNode<T> _head;
-        private SinglyLinkedNode<T> _tail;
+        private readonly SlimConcurrentQueue<T> _backing;
+        private int _count;
 
-        /// <summary>Creates a new <see cref="LLQueue&lt;T>"/></summary>
-        public LLQueue()
+        /// <summary>Creates a new <see cref="TrackedConcurrentQueue&lt;T>"/></summary>
+        public TrackedConcurrentQueue()
         {
-            _head = _tail = new SinglyLinkedNode<T>(default(T));
+            _backing = new SlimConcurrentQueue<T>();
         }
 
-        /// <summary>Creates a new <see cref="LLQueue&lt;T>"/> filled from the collection passed to it.</summary>
+        /// <summary>Creates a new <see cref="TrackedConcurrentQueue&lt;T>"/> filled from the collection passed to it.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> that the queue will be filled from on construction.</param>
-        public LLQueue(IEnumerable<T> collection)
+        public TrackedConcurrentQueue(IEnumerable<T> collection)
             : this()
         {
-            EnqueueRange(collection);
-        }
-        private LLQueue(SerializationInfo info, StreamingContext context)
-            : this((T[])info.GetValue("arr", typeof(T[])))
-        {
-        }
-        [SecurityCritical]
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("arr", ToArray(), typeof(T[]));
+            _count = _backing.EnqueueRange(collection);
         }
 
         /// <summary>Adds an item to the end of the queue.</summary>
         /// <param name="item">The item to add.</param>
         public void Enqueue(T item)
         {
-            var newNode = new SinglyLinkedNode<T>(item);
-            for(;;)
-            {
-                SinglyLinkedNode<T> curTail = _tail;
-
-                // append to the tail if it is indeed the tail.
-                if (Interlocked.CompareExchange(ref curTail.Next, newNode, null) == null)
-                {
-                    // CAS in case we were assisted by an obstructed thread.
-                    Interlocked.CompareExchange(ref _tail, newNode, curTail);   
-                    return;
-                }
-                Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);  // assist obstructing thread.
-            }
+            _backing.Enqueue(item);
+            Interlocked.Increment(ref _count);
         }
 
         /// <summary>Adds a collection of items to the queue.</summary>
@@ -81,35 +55,16 @@ namespace Ariadne.Collections
         /// have some of the first items added dequeued before the last is enqueued.</remarks>
         public void EnqueueRange(IEnumerable<T> collection)
         {
-            Validation.NullCheck(collection, "collection");
-            SinglyLinkedNode<T> start;
-            SinglyLinkedNode<T> end;
-            using(IEnumerator<T> en = collection.GetEnumerator())
-            {
-                if(!en.MoveNext())
-                    return;
-                start = end = new SinglyLinkedNode<T>(en.Current);
-                while(en.MoveNext())
-                    end = end.Next = new SinglyLinkedNode<T>(en.Current);
-            }
-            for(;;)
-            {
-                SinglyLinkedNode<T> curTail = _tail;
-                if(Interlocked.CompareExchange(ref curTail.Next, start, null) == null)
-                {
-                    for(;;)
-                    {
-                        SinglyLinkedNode<T> newTail = Interlocked.CompareExchange(ref _tail, end, curTail);
-                        if(newTail == curTail || newTail.Next == null)
-                            return;
-                        end = newTail;
-                        for(SinglyLinkedNode<T> next = end.Next; next != null; next = (end = next).Next)
-                        {
-                        }
-                    }
-                }
-                Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);
-            }
+            Interlocked.Add(ref _count, _backing.EnqueueRange(collection));
+        }
+
+
+        /// <summary>Attempts to obtain a the item at the start of the queue without removing it.</summary>
+        /// <param name="item">The item found.</param>
+        /// <returns>True if the method succeeds, false if the queue was empty.</returns>
+        public bool TryPeek(out T item)
+        {
+            return _backing.TryPeek(out item);
         }
 
         /// <summary>Attempts to remove an item from the start of the queue.</summary>
@@ -117,41 +72,12 @@ namespace Ariadne.Collections
         /// <returns>True if the operation succeeds, false if the queue was empty.</returns>
         public bool TryDequeue(out T item)
         {
-            for(;;)
+            if(_backing.TryDequeue(out item))
             {
-                SinglyLinkedNode<T> curHead = _head;
-                SinglyLinkedNode<T> curTail = _tail;
-                SinglyLinkedNode<T> curHeadNext = curHead.Next;
-                if (curHead == curTail)
-                {
-                    if (curHeadNext == null)
-                    {
-                        item = default(T);
-                        return false;
-                    }
-                    Interlocked.CompareExchange(ref _tail, curHeadNext, curTail);   // assist obstructing thread
-                }
-                if(Interlocked.CompareExchange(ref _head, curHeadNext, curHead) == curHead)
-                {
-                    item = curHeadNext.Item;
-                    return true;
-                }
+                Interlocked.Decrement(ref _count);
+                return true;
             }
-        }
-
-        /// <summary>Attempts to obtain a the item at the start of the queue without removing it.</summary>
-        /// <param name="item">The item found.</param>
-        /// <returns>True if the method succeeds, false if the queue was empty.</returns>
-        public bool TryPeek(out T item)
-        {
-            SinglyLinkedNode<T> node = _head.Next;
-            if(node == null)
-            {
-                item = default(T);
-                return false;
-            }
-            item = node.Item;
-            return true;
+            return false;
         }
 
         /// <summary>Gets a value indicating whether the queue has no items.</summary>
@@ -159,388 +85,21 @@ namespace Ariadne.Collections
         /// <value>True if the queue has no item, false otherwise.</value>
         public bool IsEmpty
         {
-            get
-            {
-                SinglyLinkedNode<T> head = _head;
-                return head == _tail && head.Next == null;
-            }
-        }
-
-        /// <summary>Clears the last item dequeued from the queue, allowing it to be collected.</summary>
-        /// <remarks>The last item to be dequeued from the queue remains referenced by the queue. In the majority of cases, this will not be an issue,
-        /// but calling this method will be necessary if:
-        /// <list type="number">
-        /// <item>The collection may be held in memory for some time.</item>
-        /// <item>The collection may not be dequeued for some time.</item>
-        /// <item>The collection consumes a large amount of memory that will not be cleared by disposing it.</item>
-        /// </list>
-        /// As a rule, this should almost never be necessary, and it is best avoided as the enumerating methods will then encounter a default
-        /// value (null for a reference type) rather than that which was originally enqueued, but this method exists for this rare case.</remarks>
-        public void ClearLastItem()
-        {
-            _head.Item = default(T);
-        }
-
-        /// <summary>An enumeration of items that were removed from the queue as an atomic operation.</summary>
-        /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
-        /// <threadsafety static="true" instance="true"/>
-        /// <tocexclude/>
-        public struct AtDequeuEnumerable : IEnumerable<T>
-        {
-            private readonly SinglyLinkedNode<T> _start;
-            private readonly SinglyLinkedNode<T> _end;
-            internal AtDequeuEnumerable(LLQueue<T> queue)
-            {
-                SinglyLinkedNode<T> head;
-                SinglyLinkedNode<T> tail;
-                while(Interlocked.CompareExchange(ref queue._head, tail = queue._tail, head = queue._head) != head)
-                {
-                }
-                _start = head;
-                _end = tail;
-            }
-
-            /// <summary>Returns an enumerator that iterates through the collection.</summary>
-            /// <returns>An <see cref="AtDequeuEnumerator"/>.</returns>
-            public AtDequeuEnumerator GetEnumerator()
-            {
-                return new AtDequeuEnumerator(_start, _end);
-            }
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-        }
-
-        /// <summary>An enumerator of items that were removed from the queue as an atomic operation.</summary>
-        /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
-        /// <tocexclude/>
-        public sealed class AtDequeuEnumerator : IEnumerator<T>
-        {
-            private readonly SinglyLinkedNode<T> _end;
-            private SinglyLinkedNode<T> _node;
-            internal AtDequeuEnumerator(SinglyLinkedNode<T> start, SinglyLinkedNode<T> end)
-            {
-                _node = start;
-                _end = end;
-            }
-
-            /// <summary>Gets the current element being enumerated.</summary>
-            /// <value>The current element enumerated.</value>
-            public T Current
-            {
-                get { return _node.Item; }
-            }
-            object IEnumerator.Current
-            {
-                get { return _node.Item; }
-            }
-            void IDisposable.Dispose()
-            {
-                // nop
-            }
-
-            /// <summary>Moves through the enumeration to the next item.</summary>
-            /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
-            public bool MoveNext()
-            {
-                if(_node == _end)
-                    return false;
-                _node = _node.Next;
-                return true;
-            }
-            void IEnumerator.Reset()
-            {
-                throw new NotSupportedException();
-            }
-        }
-
-        /// <summary>An enumeration of items that are removed from the queue as the enumeration is processed.</summary>
-        /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
-        /// <threadsafety static="true" instance="true"/>
-        /// <tocexclude/>
-        public struct DequeuEnumerable : IEnumerable<T>
-        {
-            private readonly LLQueue<T> _queue;
-            internal DequeuEnumerable(LLQueue<T> queue)
-            {
-                _queue = queue;
-            }
-
-            /// <summary>Returns an enumerator that iterates through the enumeration, dequeuing items as it returns them.</summary>
-            /// <returns>An <see cref="DequeuEnumerator"/>.</returns>
-            public DequeuEnumerator GetEnumerator()
-            {
-                return new DequeuEnumerator(_queue);
-            }
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-        }
-
-        /// <summary>An enumerator of items that are removed from the queue as the enumeration is processed.</summary>
-        /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
-        /// <tocexclude/>
-        public sealed class DequeuEnumerator : IEnumerator<T>
-        {
-            private readonly LLQueue<T> _queue;
-            private T _current;
-            internal DequeuEnumerator(LLQueue<T> queue)
-            {
-                _queue = queue;
-            }
-
-            /// <summary>Gets the current element being enumerated.</summary>
-            /// <value>The current element being enumerated.</value>
-            public T Current
-            {
-                get { return _current; }
-            }
-            object IEnumerator.Current
-            {
-                get { return _current; }
-            }
-
-            /// <summary>Moves to the next item in the enumeration (removing it from the queue).</summary>
-            /// <returns>True if the method succeeds, false if the queue was empty.</returns>
-            /// <remarks>Since the class refers to the live state of the queue, after returning false
-            /// it may return true on a subsequent call, if items were added in the meantime.</remarks>
-            public bool MoveNext()
-            {
-                return _queue.TryDequeue(out _current);
-            }
-            void IDisposable.Dispose()
-            {
-                // nop
-            }
-
-            /// <summary>Resets the enumeration.</summary>
-            /// <remarks>Since the class refers to the live state of the queue, this is a non-operation
-            /// as the enumeration is always attempting to dequeue from the front of the queue.</remarks>
-            public void Reset()
-            {
-                // nop
-            }
-        }
-
-        /// <summary>An enumerator that enumerates through the queue, without removing them.</summary>
-        /// <remarks>The enumerator is created based on the current front of the queue and continues
-        /// until it reaches what is then the end. It may therefore on the one hand return items that
-        /// have already been dequeued, and on the other never reach an end should new items be added
-        /// frequently enough.</remarks>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
-        /// <tocexclude/>
-        public sealed class Enumerator : IEnumerator<T>
-        {
-            private readonly LLQueue<T> _queue;
-            private SinglyLinkedNode<T> _node;
-            internal Enumerator(LLQueue<T> queue)
-            {
-                _node = (_queue = queue)._head;
-            }
-
-            /// <summary>Gets the current element being enumerated.</summary>
-            /// <value>The current element being enumerated.</value>
-            public T Current
-            {
-                get { return _node.Item; }
-            }
-            object IEnumerator.Current
-            {
-                get { return _node.Item; }
-            }
-
-            /// <summary>Moves to the next item.</summary>
-            /// <returns>True if an item is found, false if it reaches the end of the queue.</returns>
-            public bool MoveNext()
-            {
-                SinglyLinkedNode<T> tail = _queue._tail;
-                SinglyLinkedNode<T> next = _node.Next;
-                if(_node == tail)
-                {
-                    if(next == null)
-                        return false;
-                    Interlocked.CompareExchange(ref _queue._tail, next, tail);
-                }
-                _node = next;
-                return true;
-            }
-            void IDisposable.Dispose()
-            {
-                // nop
-            }
-
-            /// <summary>Resets the enumeration to the current start of the queue.</summary>
-            public void Reset()
-            {
-                _node = _queue._head;
-            }
-        }
-
-        /// <summary>Returns an object that enumerates the queue without removing items.</summary>
-        /// <returns>An <see cref="Enumerator"/> that starts with the current start of the queue.</returns>
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        /// <summary>Returns an enumerator that removes items from the queue as it returns them.</summary>
-        /// <returns>A <see cref="DequeuEnumerator"/> that removes from the queue as it is processed.</returns>
-        /// <remarks>The operation is not atomic and will interleave with other dequeue operations, and can
-        /// return items enqueued after the method was called. Use <see cref="AtomicDequeueAll"/> if you
-        /// want to clear the queue as a single atomic operation.</remarks>
-        public DequeuEnumerable DequeueAll()
-        {
-            return new DequeuEnumerable(this);
-        }
-
-        /// <summary>Clears the queue as an atomic operation, and returns an enumeration of the items so-removed.</summary>
-        /// <returns>A <see cref="AtDequeuEnumerator"/> that enumerates through the items removed.</returns>
-        public AtDequeuEnumerable AtomicDequeueAll()
-        {
-            return new AtDequeuEnumerable(this);
+            get { return _backing.IsEmpty; }
         }
 
         /// <summary>Gets the number of items in the queue.</summary>
-        /// <remarks>The operation is O(n), and counts from the start of the queue at the time the property is called,
-        /// until the end of the queue at the time it reaches it. As such its utility in most cases is limited, and
-        /// it can take a long (potentially unbounded) time to return if threads with higher priority are adding
-        /// to the queue. If the count is greater than <see cref="int.MaxValue"/> it will return
-        /// <see cref="int.MaxValue"/>.</remarks>
         /// <value>The number of items in the queue.</value>
         public int Count
         {
-            get
-            {
-                return CountUntil(int.MaxValue);
-            }
-        }
-
-        /// <summary>Returns the count of the queue, or max, whichever is larger.</summary>
-        /// <param name="max">The maximum count to count to.</param>
-        /// <returns>This method is designed to deal with one of the problems with the <see cref="Count"/> property,
-        /// being guaranteed to return once max is reached, even when racing with other threads.</returns>
-        public int CountUntil(int max)
-        {
-            if(max > 0)
-            {
-                int c = 0;
-                var en = new Enumerator(this);
-                while(en.MoveNext())
-                    if(++c == max)
-                        return max;
-                return c;
-            }
-            if(max == 0)
-                return 0;
-            throw new ArgumentOutOfRangeException("max");
-        }
-
-        /// <summary>Returns a <see cref="List&lt;T>"/> of the current items in the queue without removing them.</summary>
-        /// <returns>A <see cref="List&lt;T>"/> of the current items in the queue.</returns>
-        /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
-        public List<T> ToList()
-        {
-            // As an optimisation, if you past an ICollection<T> to List<T>’s constructor that takes an IEnumerable<T>
-            // it casts to ICollection<T> and calls Count on it to decide on the initial capacity. Since our Count
-            // is O(n) and since we could grow in the meantime, this optimisation actually makes things worse, so we avoid it.
-            var list = new List<T>();
-
-            // AddRange has the same problem...
-            var en = new Enumerator(this);
-            while(en.MoveNext())
-                list.Add(en.Current);
-            return list;
+            get { return _count; }
         }
 
         /// <summary>Clears the queue as an atomic operation, and returns a <see cref="List&lt;T>"/> of the items removed.</summary>
         /// <returns>A <see cref="List&lt;T>"/> of the items removed.</returns>
         public List<T> DequeueToList()
         {
-            return new List<T>(AtomicDequeueAll());
-        }
-
-        /// <summary>Creates a new queue with the same items as this one.</summary>
-        /// <returns>A new <see cref="LLQueue&lt;T>"/>.</returns>
-        /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>. Use
-        /// <see cref="Transfer"/> to create a copy of the queue while clearing it atomically.</remarks>
-        public LLQueue<T> Clone()
-        {
-            return new LLQueue<T>(this);
-        }
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
-
-        /// <summary>Clears the queue as a single atomic operation, and returns a queue with the same contents as those removed.</summary>
-        /// <returns>The new queue.</returns>
-        public LLQueue<T> Transfer()
-        {
-            return new LLQueue<T>(AtomicDequeueAll());
-        }
-        bool ICollection<T>.IsReadOnly
-        {
-            get { return false; }
-        }
-        void ICollection<T>.Add(T item)
-        {
-            Enqueue(item);
-        }
-
-        /// <summary>Clears the queue as a single atomic operation.</summary>
-        public void Clear()
-        {
-            SinglyLinkedNode<T> head = _head;
-            SinglyLinkedNode<T> oldHead;
-            while((oldHead = Interlocked.CompareExchange(ref _head, _tail, head)) != head)
-                head = oldHead;
-        }
-
-        /// <summary>Examines the queue for the presence of an item.</summary>
-        /// <param name="item">The item to search for.</param>
-        /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use to compare
-        /// the item with those in the collections.</param>
-        /// <returns>True if the item was found, false otherwise.</returns>
-        /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
-        public bool Contains(T item, IEqualityComparer<T> comparer)
-        {
-            var en = new Enumerator(this);
-            while(en.MoveNext())
-                if(comparer.Equals(en.Current, item))
-                    return true;
-            return false;
-        }
-
-        /// <summary>Examines the queue for the presence of an item.</summary>
-        /// <param name="item">The item to search for.</param>
-        /// <returns>True if the item was found, false otherwise.</returns>
-        /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
-        public bool Contains(T item)
-        {
-            return Contains(item, EqualityComparer<T>.Default);
+            return _backing.DequeueToList();
         }
 
         /// <summary>Copies the contents of the queue to an array.</summary>
@@ -550,15 +109,12 @@ namespace Ariadne.Collections
         /// <exception cref="ArgumentOutOfRangeException">The array index was less than zero.</exception>
         /// <exception cref="ArgumentException">The number of items in the collection was
         /// too great to copy into the array at the index given.</exception>
-        /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
+        /// <remarks>This method races with other threads as described for
+        /// <see cref="SlimConcurrentQueue{T}.Snapshot()"/>.</remarks>
         public void CopyTo(T[] array, int arrayIndex)
-        {
+        { 
             Validation.CopyTo(array, arrayIndex);
-            ToList().CopyTo(array, arrayIndex);
-        }
-        bool ICollection<T>.Remove(T item)
-        {
-            throw new NotSupportedException();
+            new List<T>(_backing.Snapshot()).CopyTo(array, arrayIndex);
         }
         object ICollection.SyncRoot
         {
@@ -580,16 +136,147 @@ namespace Ariadne.Collections
 
         /// <summary>Returns an array of the current items in the queue without removing them.</summary>
         /// <returns>The array of the current items in the queue.</returns>
-        /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
+        /// <remarks>This method races with other threads as described for <see cref="Snapshot()"/>.</remarks>
         public T[] ToArray()
         {
-            return ToList().ToArray();
+            return new List<T>(Snapshot()).ToArray();
         }
         void ICollection.CopyTo(Array array, int index)
         {
             Validation.CopyTo(array, index);
-            ((ICollection)ToList()).CopyTo(array, index);
+            ((ICollection)new List<T>(Snapshot())).CopyTo(array, index);
+        }
+        /// <summary>Returns an enumerator that iterates through the collection.</summary>
+        /// <returns>An <see cref="IEnumerator{T}"/>.</returns>
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _backing.GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+        /// <summary>Returns a sequence of the queue at a point in time.</summary>
+        /// <returns>An <see cref="IEnumerable{T}"/> of the elements in the queue.</returns>
+        /// <remarks>This snapshot is only loosely timed, and may miss some dequeues that happened after the enqueue
+        /// that resulted in the last item being added, or vice-versa.</remarks>
+        public IEnumerable<T> Snapshot()
+        {
+            return _backing.Snapshot();
         }
     }
-#pragma warning restore 420
+    public class GroupedProducerConsumer<T> : IProducerConsumerCollection<IEnumerable<T>>
+    {
+        private readonly SlimConcurrentQueue<T> _backing;
+        public GroupedProducerConsumer()
+        {
+            _backing = new SlimConcurrentQueue<T>();
+        }
+        public void CopyTo(IEnumerable<T>[] array, int index)
+        {
+            Validation.CopyTo(array, index);
+            array[index] = _backing.Snapshot();
+        }
+        public void Add(T item)
+        {
+            _backing.Enqueue(item);
+        }
+        public void Add(IEnumerable<T> item)
+        {
+            _backing.EnqueueRange(item);
+        }
+        bool IProducerConsumerCollection<IEnumerable<T>>.TryAdd(IEnumerable<T> item)
+        {
+            _backing.EnqueueRange(item);
+            return true;
+        }
+        public bool TryTake(out T item)
+        {
+            return _backing.TryDequeue(out item);
+        }
+        public bool TryTake(out IEnumerable<T> item)
+        {
+            var ret = _backing.AtomicDequeueAll();
+            if(ret.Empty)
+            {
+                item = null;
+                return false;
+            }
+            item = ret;
+            return true;
+        }
+        public IEnumerable<T>[] ToArray()
+        {
+            return new IEnumerable<T>[]{ _backing.Snapshot() };
+        }
+        void ICollection.CopyTo(Array array, int index)
+        {
+            Validation.CopyTo(array, index);
+            ToArray().CopyTo(array, index);
+        }
+        /// <summary>Gets the number of items in the collection.</summary>
+        /// <value>1 if there is a sequence of items contained, 0 otherwise.</value>
+        /// <remarks>Since all items are retrieved as a single batch, this cannot be more than 1.</remarks>
+        public int Count
+        {
+            get { return _backing.IsEmpty ? 0 : 1; }
+        }
+        object ICollection.SyncRoot
+        {
+            get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
+        }
+        bool ICollection.IsSynchronized
+        {
+            get { return false; }
+        }
+        public struct Enumerator : IEnumerator<SlimConcurrentQueue<T>.SnapshotEnumerable>, IEnumerator<IEnumerable<T>>
+        {
+            private readonly SlimConcurrentQueue<T> _queue;
+            private bool _moved;
+            public Enumerator(SlimConcurrentQueue<T> queue)
+            {
+                _queue = queue;
+                _moved = false;
+            }
+            public SlimConcurrentQueue<T>.SnapshotEnumerable Current
+            {
+                get { return _queue.Snapshot(); }
+            }
+            IEnumerable<T> IEnumerator<IEnumerable<T>>.Current
+            {
+                get { return Current; }
+            }
+            public bool MoveNext()
+            {
+                if(_moved)
+                    return false;
+                _moved = true;
+                return true;
+            }
+            public void Reset()
+            {
+                _moved = false;
+            }
+            object IEnumerator.Current
+            {
+                get { return Current; }
+            }
+            void IDisposable.Dispose()
+            {
+                // nop
+            }
+        }
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(_backing);
+        }
+        IEnumerator<IEnumerable<T>> IEnumerable<IEnumerable<T>>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
 }

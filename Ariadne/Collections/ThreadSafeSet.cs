@@ -28,7 +28,7 @@ namespace Ariadne.Collections
     /// <typeparam name="T">The type of the values stored.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
-    public sealed class ThreadSafeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
+    public sealed class ThreadSafeSet<T> : ISet<T>, ICloneable, ISerializable
     {
         private const int ReprobeLowerBound = 5;
         private const int ReprobeShift = 5;
@@ -1436,26 +1436,7 @@ namespace Ariadne.Collections
             return array;
         }
         
-        object ICollection.SyncRoot
-        {
-            get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
-        }
-        
-        bool ICollection.IsSynchronized
-        {
-            get { return false; }
-        }
-        
-        bool IProducerConsumerCollection<T>.TryAdd(T item)
-        {
-            return Add(item);
-        }
-
-        /// <summary>Attempts to take a single item from the set.</summary>
-        /// <param name="item">On return, the item removed, if successful.</param>
-        /// <returns>True if an item was removed, false if the set had been empty.</returns>
-        /// <remarks>The item returned is arbitrarily determined, with no guaranteed ordering.</remarks>
-        public bool TryTake(out T item)
+        internal bool TryTake(out T item)
         {
             TombstoneBox deadItem = DeadItem;
             for(Table table = _table; table != null; table = table.Next)
@@ -1494,10 +1475,5 @@ namespace Ariadne.Collections
             item = default(T);
             return false;
         }
-        void ICollection.CopyTo(Array array, int index)
-        {
-            Validation.CopyTo(array, index);
-            ((ICollection)ToHashSet()).CopyTo(array, index);
-        }
-    }   
+    }
 }

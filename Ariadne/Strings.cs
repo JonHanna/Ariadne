@@ -62,6 +62,10 @@ namespace Ariadne
         {
             get { return RM.GetString("Cant_Copy_NonZero"); }
         }
+        public static string ReadOnlyCollection
+        {
+            get { return RM.GetString("Readonly_Collection"); }
+        }
         public static string ResettingNotSupportedBySource
         {
             get { return RM.GetString("Resetting_Not_Supported_By_Source"); }

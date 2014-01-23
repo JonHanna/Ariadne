@@ -27,7 +27,7 @@ namespace Ariadne.Collections
     /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
-    public sealed class ThreadSafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable, IDictionary
+    public sealed class ThreadSafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable
     {
         private const int ReprobeLowerBound = 6;
         private const int ReprobeShift = 6;
@@ -120,7 +120,7 @@ namespace Ariadne.Collections
                 return new KeyValuePair<TKey, TValue>(kv.Key, kv.Value);
             }
         }
-        internal static readonly TombstoneKV DeadKey = new TombstoneKV(default(TKey));
+        private static readonly TombstoneKV DeadKey = new TombstoneKV(default(TKey));
 
         // Marks the record as part-way copied to the next table.
         [SerializableAttribute]
@@ -137,7 +137,7 @@ namespace Ariadne.Collections
         // There used to be a value here, but it was deleted. We can write to this
         // record again if the key is to be inserted again. Otherwise the key stays
         // stored until the next resize, when it will not be copied over.
-        internal sealed class TombstoneKV : KV
+        private sealed class TombstoneKV : KV
         {
             public TombstoneKV(TKey key)
                 : base(key, default(TValue))
@@ -979,7 +979,7 @@ namespace Ariadne.Collections
         }
 
         // Copies a record to the next table, and checks if there should be a promotion.
-        internal void CopySlotsAndCheck(Table table, TombstoneKV deadKey, int idx)
+        private void CopySlotsAndCheck(Table table, TombstoneKV deadKey, int idx)
         {
             if(CopySlot(table, deadKey, ref table.Records[idx]) && table.MarkCopied())
                 Promote(table);
@@ -1271,10 +1271,6 @@ namespace Ariadne.Collections
         }
         
         bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly
-        {
-            get { return false; }
-        }
-        bool IDictionary.IsReadOnly
         {
             get { return false; }
         }
@@ -2021,7 +2017,7 @@ namespace Ariadne.Collections
 
         /// <summary>Enumerates a ThreadSafeDictionary&lt;TKey, TValue>.</summary>
         /// <tocexclude/>
-        public class Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
+        public class Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
         {
             // Analysis disable once FieldCanBeMadeReadOnly.Local — don’t do with mutable struct.
             private KVEnumerator _src;
@@ -2062,18 +2058,6 @@ namespace Ariadne.Collections
             {
                 _src.Reset();
             }
-            object IDictionaryEnumerator.Key
-            {
-                get { return Current.Key; }
-            }
-            object IDictionaryEnumerator.Value
-            {
-                get { return Current.Value; }
-            }
-            DictionaryEntry IDictionaryEnumerator.Entry
-            {
-                get { return new DictionaryEntry(Current.Key, Current.Value); }
-            }
         }
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
@@ -2095,7 +2079,7 @@ namespace Ariadne.Collections
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
-        public struct ValueCollection : ICollection<TValue>, ICollection
+        public struct ValueCollection : ICollection<TValue>
         {
             private readonly ThreadSafeDictionary<TKey, TValue> _dict;
             internal ValueCollection(ThreadSafeDictionary<TKey, TValue> dict)
@@ -2217,28 +2201,16 @@ namespace Ariadne.Collections
             }
             void ICollection<TValue>.Add(TValue item)
             {
-                throw new NotSupportedException();
+                Validation.NotSupportedReadOnly();
             }
             void ICollection<TValue>.Clear()
             {
-                throw new NotSupportedException();
+                Validation.NotSupportedReadOnly();
             }
             bool ICollection<TValue>.Remove(TValue item)
             {
-                throw new NotSupportedException();
-            }
-            object ICollection.SyncRoot
-            {
-                get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
-            }            
-            bool ICollection.IsSynchronized
-            {
-                get { return false; }
-            }
-            void ICollection.CopyTo(Array array, int index)
-            {
-                Validation.CopyTo(array, index);
-                ((ICollection)_dict.ToDictionary().Values).CopyTo(array, index);
+                Validation.NotSupportedReadOnly();
+                return false;
             }
         }
 
@@ -2246,7 +2218,7 @@ namespace Ariadne.Collections
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
-        public struct KeyCollection : ICollection<TKey>, ICollection
+        public struct KeyCollection : ICollection<TKey>
         {
             private readonly ThreadSafeDictionary<TKey, TValue> _dict;
             internal KeyCollection(ThreadSafeDictionary<TKey, TValue> dict)
@@ -2355,150 +2327,17 @@ namespace Ariadne.Collections
             }
             void ICollection<TKey>.Add(TKey item)
             {
-                throw new NotSupportedException();
+                Validation.NotSupportedReadOnly();
             }
             void ICollection<TKey>.Clear()
             {
-                throw new NotSupportedException();
+                Validation.NotSupportedReadOnly();
             }
             bool ICollection<TKey>.Remove(TKey item)
             {
-                throw new NotSupportedException();
+                Validation.NotSupportedReadOnly();
+                return false;
             }
-            object ICollection.SyncRoot
-            {
-                get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
-            }
-            
-            bool ICollection.IsSynchronized
-            {
-                get { return false; }
-            }
-            void ICollection.CopyTo(Array array, int index)
-            {
-                Validation.CopyTo(array, index);
-                Dictionary<TKey, TValue> snapshot = _dict.ToDictionary();
-                if(!typeof(TKey).IsValueType && _dict.ContainsKey(default(TKey)))
-                {
-                    if(index + snapshot.Count + 1 > array.Length)
-                        throw new ArgumentException(Strings.CopyToArrayTooSmall);
-                    array.SetValue(default(TKey), index++);
-                }
-                ((ICollection)snapshot.Keys).CopyTo(array, index);
-            }
-        }
-        object IDictionary.this[object key]
-        {
-            get
-            {
-                TValue ret;
-                if(typeof(TKey).IsValueType && key == null)
-                    return null;
-                if(key is TKey || key == null)
-                    return TryGetValue((TKey)key, out ret) ? (object)ret : null;
-                return null;
-            }
-            set
-            {
-                if(key != null)
-                {
-                // Analysis disable NotResolvedInText — False positive.
-                    if(value != null)
-                    {
-                        try
-                        {
-                            var convKey = (TKey)key;
-                            try
-                            {
-                                this[convKey] = (TValue)value;
-                                return;
-                            }
-                            catch(InvalidCastException)
-                            {
-                                throw new ArgumentException(Strings.InvalidCastValues(value.GetType(), typeof(TValue)), "value");
-                            }
-                        }
-                        catch(InvalidCastException)
-                        {
-                            throw new ArgumentException(Strings.InvalidCastKeys(key.GetType(), typeof(TKey)), "key");
-                        }
-                    }
-                    throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TValue)), "value");
-                }
-                throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TKey)), "key");
-
-                // Analysis restore NotResolvedInText
-            }
-        }
-        ICollection IDictionary.Keys
-        {
-            get { return Keys; }
-        }
-        ICollection IDictionary.Values
-        {
-            get { return Values; }
-        }
-        bool IDictionary.IsFixedSize
-        {
-            get { return false; }
-        }
-        object ICollection.SyncRoot
-        {
-            get { throw new NotSupportedException(Strings.SyncRootNotSupported); }
-        }
-        bool ICollection.IsSynchronized
-        {
-            get { return false; }
-        }
-        bool IDictionary.Contains(object key)
-        {
-            if(key == null)
-                return !typeof(TKey).IsValueType && ContainsKey(default(TKey));
-            return key is TKey && ContainsKey((TKey)key);
-        }
-        void IDictionary.Add(object key, object value)
-        {
-            if(key != null)
-            {
-                if(value != null)
-                {
-                    try
-                    {
-                        var convKey = (TKey)key;
-                        try
-                        {
-                            Add(convKey, (TValue)value);
-                            return;
-                        }
-                        catch(InvalidCastException)
-                        {
-                            throw new ArgumentException(Strings.InvalidCastValues(value.GetType(), typeof(TValue)), "value");
-                        }
-                    }
-                    catch(InvalidCastException)
-                    {
-                        throw new ArgumentException(Strings.InvalidCastKeys(key.GetType(), typeof(TKey)), "key");
-                    }
-                }
-                throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TValue)), "value");
-            }
-            throw new ArgumentException(Strings.CantCastNullToValueType(typeof(TKey)), "key");
-        }
-        IDictionaryEnumerator IDictionary.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-        void IDictionary.Remove(object key)
-        {
-            if(typeof(TKey).IsValueType && key == null)
-                return;
-            if(key == null || key is TKey)
-                Remove((TKey)key);
-        }
-        void ICollection.CopyTo(Array array, int index)
-        {
-            Validation.CopyTo(array, index);
-            ((ICollection)ToDictionary()).CopyTo(array, index);
         }
     }
 }

@@ -58,4 +58,7 @@ Licence is distributed on an “AS IS” basis, without warranties or conditions
   <data name="Retrieving_Non_Referece">
     <value>Retrieving stored reference is only valid for reference types</value>
   </data>
+  <data name="Readonly_Collection">
+    <value>Collection is read-only.</value>
+  </data>
 </root>

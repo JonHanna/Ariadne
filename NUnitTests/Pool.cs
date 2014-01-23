@@ -136,7 +136,7 @@ namespace Ariadne.NUnitTests
         [Test]
         public void DifferentStore()
         {
-            var pool = new Pool<int>(new ThreadSafeSet<int>());
+            var pool = new Pool<int>(new UniqueElementProducerConsumer<int>());
             pool.Store(3);
             pool.Store(3);
             pool.Store(3);
@@ -153,7 +153,7 @@ namespace Ariadne.NUnitTests
         [Test]
         public void StoreAndFact()
         {
-            var pool = new Pool<int>(new ThreadSafeSet<int>(), () => 4);
+            var pool = new Pool<int>(new UniqueElementProducerConsumer<int>(), () => 4);
             using(var hand = pool.GetHandle())
                 using(var hand2 = pool.GetHandle()){}
             Assert.AreEqual(1, pool.Count);

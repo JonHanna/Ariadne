@@ -27,7 +27,7 @@ namespace Ariadne.NUnitTests.QueueTests
         [Test]
         public void SimpleAddAndRemove()
         {
-            var queue = new LLQueue<int>();
+            var queue = new TrackedConcurrentQueue<int>();
             for(int i = 0; i != 10; ++i)
                 queue.Enqueue(i);
             int cur = 0;
@@ -50,37 +50,37 @@ namespace Ariadne.NUnitTests.QueueTests
         [Test]
         public void Enumerate()
         {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            var queue = new SlimConcurrentQueue<int>(Enumerable.Range(0, 100));
             int cur = 0;
             foreach(int i in queue)
                 Assert.AreEqual(cur++, i);
-            Assert.AreEqual(100, queue.Count);
+            Assert.AreEqual(100, queue.Count());
             cur = 0;
             foreach(int i in queue.DequeueAll())
             {
                 Assert.AreEqual(cur++, i);
-                Assert.AreEqual(100 - cur, queue.Count);
+                Assert.AreEqual(100 - cur, queue.Count());
             }
-            Assert.AreEqual(0, queue.Count);
+            Assert.AreEqual(0, queue.Count());
             queue.EnqueueRange(Enumerable.Range(0, 100));
-            Assert.AreEqual(100, queue.Count);
+            Assert.AreEqual(100, queue.Count());
             cur = 0;
             foreach(int i in queue.AtomicDequeueAll())
             {
                 Assert.AreEqual(cur++, i);
-                Assert.AreEqual(0, queue.Count);
+                Assert.AreEqual(0, queue.Count());
             }
         }
         [Test]
         public void Serialisation()
         {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            var queue = new TrackedConcurrentQueue<int>(Enumerable.Range(0, 100));
             using(MemoryStream ms = new MemoryStream())
             {
                 new BinaryFormatter().Serialize(ms, queue);
                 ms.Flush();
                 ms.Seek(0, SeekOrigin.Begin);
-                Assert.IsTrue(queue.ToList().SequenceEqual((LLQueue<int>)new BinaryFormatter().Deserialize(ms)));
+                Assert.IsTrue(queue.ToList().SequenceEqual((TrackedConcurrentQueue<int>)new BinaryFormatter().Deserialize(ms)));
             }
         }
         private class FinalisationNoter
@@ -92,60 +92,21 @@ namespace Ariadne.NUnitTests.QueueTests
             }
         }
         [Test]
-        public void ClearLast()
-        {
-            var queue = new LLQueue<FinalisationNoter>();
-            queue.Enqueue(new FinalisationNoter());
-            queue.Enqueue(new FinalisationNoter());
-            queue.DequeueToList();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            Assert.AreEqual(1, FinalisationNoter.FinalisationCount);
-            queue.ClearLastItem();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            Assert.AreEqual(2, FinalisationNoter.FinalisationCount);
-        }
-        [Test]
-        public void CountMax()
-        {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
-            Assert.AreEqual(100, queue.CountUntil(200));
-            Assert.AreEqual(100, queue.CountUntil(100));
-            Assert.AreEqual(50, queue.CountUntil(50));
-            Assert.AreEqual(0, queue.CountUntil(0));
-            queue.Clear();
-            Assert.IsTrue(queue.IsEmpty);
-        }
-        [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void CountInvalid()
-        {
-            new LLQueue<int>().CountUntil(-3);
-        }
-        [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullRange()
         {
-            new LLQueue<int>().EnqueueRange(null);
+            new TrackedConcurrentQueue<int>().EnqueueRange(null);
         }
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullConstructor()
         {
-            new LLQueue<int>(null);
-        }
-        [Test]
-        public void ICloneable()
-        {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
-            var clone = (LLQueue<int>)((ICloneable)queue).Clone();
-            Assert.IsTrue(queue.SequenceEqual(clone));
+            new TrackedConcurrentQueue<int>(null);
         }
         [Test]
         public void Transfer()
         {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            var queue = new SlimConcurrentQueue<int>(Enumerable.Range(0, 100));
             var trans = queue.Transfer();
             Assert.IsTrue(queue.IsEmpty);
             int cmp = 0;
@@ -155,7 +116,7 @@ namespace Ariadne.NUnitTests.QueueTests
         [Test]
         public void IProducerConsumerCollection()
         {
-            var queue = (IProducerConsumerCollection<int>)new LLQueue<int>();
+            var queue = (IProducerConsumerCollection<int>)new TrackedConcurrentQueue<int>();
             for(int i = 0; i != 10; ++i)
                 queue.TryAdd(i);
             int cur = 0;
@@ -168,14 +129,14 @@ namespace Ariadne.NUnitTests.QueueTests
         [Test]
         public void Contains()
         {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            var queue = new TrackedConcurrentQueue<int>(Enumerable.Range(0, 100));
             Assert.IsTrue(queue.Contains(50));
             Assert.IsFalse(queue.Contains(100));
         }
         [Test]
         public void CopyTo()
         {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            var queue = new TrackedConcurrentQueue<int>(Enumerable.Range(0, 100));
             var array = new int[150];
             queue.CopyTo(array, 50);
             Assert.IsTrue(array.Skip(50).SequenceEqual(queue));
@@ -186,7 +147,7 @@ namespace Ariadne.NUnitTests.QueueTests
         [Test]
         public void ICollection()
         {
-            ICollection queue = new LLQueue<int>(Enumerable.Range(0, 10));
+            ICollection queue = new TrackedConcurrentQueue<int>(Enumerable.Range(0, 10));
             Assert.IsFalse(queue.IsSynchronized);
             int cmp = 0;
             foreach(int i in queue)
@@ -196,29 +157,13 @@ namespace Ariadne.NUnitTests.QueueTests
         [ExpectedException(typeof(NotSupportedException))]
         public void SyncRootFail()
         {
-            ICollection queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            ICollection queue = new TrackedConcurrentQueue<int>(Enumerable.Range(0, 100));
             object root = queue.SyncRoot;
-        }
-        [Test]
-        public void ICollectionT()
-        {
-            ICollection<int> queue = new LLQueue<int>();
-            Assert.IsFalse(queue.IsReadOnly);
-            queue.Add(1);
-            foreach(int i in queue)
-                Assert.AreEqual(1, i);
-        }
-        [Test]
-        [ExpectedException(typeof(NotSupportedException))]
-        public void CantRemove()
-        {
-            ICollection<int> queue = new LLQueue<int>();
-            queue.Remove(93);
         }
         [Test]
         public void ResetEnum()
         {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            var queue = new TrackedConcurrentQueue<int>(Enumerable.Range(0, 100));
             var en = queue.GetEnumerator();
             while(en.MoveNext() && en.Current < 50);
             en.Reset();
@@ -229,7 +174,7 @@ namespace Ariadne.NUnitTests.QueueTests
         [Test]
         public void ResetDeEnum()
         {
-            var queue = new LLQueue<int>(Enumerable.Range(0, 100));
+            var queue = new SlimConcurrentQueue<int>(Enumerable.Range(0, 100));
             var en = queue.DequeueAll().GetEnumerator();
             while(en.MoveNext() && en.Current < 50);
             en.Reset();
@@ -241,7 +186,7 @@ namespace Ariadne.NUnitTests.QueueTests
         [ExpectedException(typeof(NotSupportedException))]
         public void ResetAtDeEnum()
         {
-            ((IEnumerator)new LLQueue<int>().AtomicDequeueAll().GetEnumerator()).Reset();
+            ((IEnumerator)new SlimConcurrentQueue<int>().AtomicDequeueAll().GetEnumerator()).Reset();
         }
     }
     [TestFixture]
@@ -261,7 +206,7 @@ namespace Ariadne.NUnitTests.QueueTests
         {
             int cores = CoreCount();
             var threads = new Thread[cores];
-            var queue = new LLQueue<int>();
+            var queue = new TrackedConcurrentQueue<int>();
             for(int i = 0; i != cores; ++i)
             {
                 threads[i] = new Thread(obj =>
@@ -293,8 +238,8 @@ namespace Ariadne.NUnitTests.QueueTests
             if(cores < 2)
                 cores = 2;
             var threads = new Thread[cores];
-            var queue = new LLQueue<int>();
-            var secQueue = new LLQueue<int>();
+            var queue = new SlimConcurrentQueue<int>();
+            var secQueue = new TrackedConcurrentQueue<int>();
             for(int i = 0; i != cores; ++i)
             {
                 if(i % 2 == 0)
@@ -336,7 +281,7 @@ namespace Ariadne.NUnitTests.QueueTests
             if(cores < 2)
                 cores = 2;
             var threads = new Thread[cores];
-            var queue = new LLQueue<int>();
+            var queue = new TrackedConcurrentQueue<int>();
             bool failed = false;
             for(int i = 0; i != cores; ++i)
             {
@@ -374,7 +319,7 @@ namespace Ariadne.NUnitTests.QueueTests
             if(cores < 2)
                 cores = 2;
             var threads = new Thread[cores];
-            var queue = new LLQueue<int>();
+            var queue = new SlimConcurrentQueue<int>();
             int done = 1;
             threads[0] = new Thread(() =>
                                     {
@@ -405,7 +350,7 @@ namespace Ariadne.NUnitTests.QueueTests
             if(cores < 2)
                 cores = 2;
             var threads = new Thread[cores];
-            var queue = new LLQueue<int>();
+            var queue = new SlimConcurrentQueue<int>();
             int done = 0;
             threads[0] = new Thread(() =>
                                         {

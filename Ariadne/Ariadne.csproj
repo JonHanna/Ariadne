@@ -83,6 +83,9 @@
     <Compile Include="Validation.cs" />
     <Compile Include="SharedInt32.cs" />
     <Compile Include="Collections\SetExtensions.cs" />
+    <Compile Include="Collections\UniqueElementProducerConsumer.cs" />
+    <Compile Include="Collections\SlimConcurrentQueue.cs" />
+    <Compile Include="Collections\GroupedProducerConsumer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\resources.resx">

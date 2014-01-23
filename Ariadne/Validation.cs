@@ -56,5 +56,9 @@ namespace Ariadne
                 return;
             throw new ArgumentOutOfRangeException(paramName);
         }
+        public static void NotSupportedReadOnly()
+        {
+            throw new NotSupportedException(Strings.ReadOnlyCollection);
+        }
     }
 }
