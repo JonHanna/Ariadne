@@ -3,7 +3,7 @@
 // Author:
 //     Jon Hanna <jon@hackcraft.net>
 //
-// © 2011-2014 Jon Hanna
+// © 2011–2014 Jon Hanna
 //
 // Licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.

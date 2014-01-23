@@ -1,4 +1,4 @@
-﻿// © 2011 Jon Hanna.
+﻿// © 2011–2014 Jon Hanna.
 // Licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -18,17 +18,11 @@ using System.Threading;
 
 namespace Ariadne.Collections
 {
-    // This queue is mostly for completion or for use in other classes in the library, considering that
-    // the 4.0 FCL already has a lock-free queue.
-    // The Mono implementation is very close to this, while the MS implementation is more complicated
-    // but should offer make better use of CPU caches in cases where the same thread does multiple
-    // enqueues or multiple dequeues in quick succession.
-
 #pragma warning disable 420 // volatile semantics not lost as only by-ref calls are interlocked
     /// <summary>A lock-free type-safe queue. This class is included mainly for completion, to allow for
     /// adoption to framework versions prior to the introduction of <see cref="ConcurrentQueue&lt;T>"/>
     /// and for use as the basis of other algorithms in this library. It does however also offer
-    /// some other functionality</summary>
+    /// some other functionality.</summary>
     /// <typeparam name="T">The type of the values stored.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
@@ -36,11 +30,13 @@ namespace Ariadne.Collections
     {
         private SinglyLinkedNode<T> _head;
         private SinglyLinkedNode<T> _tail;
+
         /// <summary>Creates a new <see cref="LLQueue&lt;T>"/></summary>
         public LLQueue()
         {
             _head = _tail = new SinglyLinkedNode<T>(default(T));
         }
+
         /// <summary>Creates a new <see cref="LLQueue&lt;T>"/> filled from the collection passed to it.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> that the queue will be filled from on construction.</param>
         public LLQueue(IEnumerable<T> collection)
@@ -58,23 +54,27 @@ namespace Ariadne.Collections
         {
             info.AddValue("arr", ToArray(), typeof(T[]));
         }
+
         /// <summary>Adds an item to the end of the queue.</summary>
         /// <param name="item">The item to add.</param>
         public void Enqueue(T item)
         {
-            SinglyLinkedNode<T> newNode = new SinglyLinkedNode<T>(item);
+            var newNode = new SinglyLinkedNode<T>(item);
             for(;;)
             {
                 SinglyLinkedNode<T> curTail = _tail;
-                if (Interlocked.CompareExchange(ref curTail.Next, newNode, null) == null)   // append to the tail if it is indeed the tail.
+
+                // append to the tail if it is indeed the tail.
+                if (Interlocked.CompareExchange(ref curTail.Next, newNode, null) == null)
                 {
-                    Interlocked.CompareExchange(ref _tail, newNode, curTail);   // CAS in case we were assisted by an obstructed thread.
+                    // CAS in case we were assisted by an obstructed thread.
+                    Interlocked.CompareExchange(ref _tail, newNode, curTail);   
                     return;
                 }
-                else
-                    Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);  // assist obstructing thread.
+                Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);  // assist obstructing thread.
             }
         }
+
         /// <summary>Adds a collection of items to the queue.</summary>
         /// <param name="collection">The <see cref="IEnumerable&lt;T>"/> to add to the queue.</param>
         /// <remarks>The operation is not atomic, and may interleave with other enqueues or
@@ -103,13 +103,15 @@ namespace Ariadne.Collections
                         if(newTail == curTail || newTail.Next == null)
                             return;
                         end = newTail;
-                        for(SinglyLinkedNode<T> next = end.Next; next != null; next = (end = next).Next);
+                        for(SinglyLinkedNode<T> next = end.Next; next != null; next = (end = next).Next)
+                        {
+                        }
                     }
                 }
-                else
-                    Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);
+                Interlocked.CompareExchange(ref _tail, curTail.Next, curTail);
             }
         }
+
         /// <summary>Attempts to remove an item from the start of the queue.</summary>
         /// <param name="item">The item dequeued if successful.</param>
         /// <returns>True if the operation succeeds, false if the queue was empty.</returns>
@@ -127,8 +129,7 @@ namespace Ariadne.Collections
                         item = default(T);
                         return false;
                     }
-                    else
-                        Interlocked.CompareExchange(ref _tail, curHeadNext, curTail);   // assist obstructing thread
+                    Interlocked.CompareExchange(ref _tail, curHeadNext, curTail);   // assist obstructing thread
                 }
                 if(Interlocked.CompareExchange(ref _head, curHeadNext, curHead) == curHead)
                 {
@@ -137,6 +138,7 @@ namespace Ariadne.Collections
                 }
             }
         }
+
         /// <summary>Attempts to obtain a the item at the start of the queue without removing it.</summary>
         /// <param name="item">The item found.</param>
         /// <returns>True if the method succeeds, false if the queue was empty.</returns>
@@ -151,8 +153,10 @@ namespace Ariadne.Collections
             item = node.Item;
             return true;
         }
-        /// <summary>Tests whether the queue has no items.</summary>
+
+        /// <summary>Gets a value indicating whether the queue has no items.</summary>
         /// <remarks>The operation is atomic, but may be stale by the time it returns.</remarks>
+        /// <value>True if the queue has no item, false otherwise.</value>
         public bool IsEmpty
         {
             get
@@ -161,6 +165,7 @@ namespace Ariadne.Collections
                 return head == _tail && head.Next == null;
             }
         }
+
         /// <summary>Clears the last item dequeued from the queue, allowing it to be collected.</summary>
         /// <remarks>The last item to be dequeued from the queue remains referenced by the queue. In the majority of cases, this will not be an issue,
         /// but calling this method will be necessary if:
@@ -175,6 +180,7 @@ namespace Ariadne.Collections
         {
             _head.Item = default(T);
         }
+
         /// <summary>An enumeration of items that were removed from the queue as an atomic operation.</summary>
         /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
         /// <threadsafety static="true" instance="true"/>
@@ -187,10 +193,13 @@ namespace Ariadne.Collections
             {
                 SinglyLinkedNode<T> head;
                 SinglyLinkedNode<T> tail;
-                while(Interlocked.CompareExchange(ref queue._head, tail = queue._tail, head = queue._head) != head);
+                while(Interlocked.CompareExchange(ref queue._head, tail = queue._tail, head = queue._head) != head)
+                {
+                }
                 _start = head;
                 _end = tail;
             }
+
             /// <summary>Returns an enumerator that iterates through the collection.</summary>
             /// <returns>An <see cref="AtDequeuEnumerator"/>.</returns>
             public AtDequeuEnumerator GetEnumerator()
@@ -206,6 +215,7 @@ namespace Ariadne.Collections
                 return GetEnumerator();
             }
         }
+
         /// <summary>An enumerator of items that were removed from the queue as an atomic operation.</summary>
         /// <remarks><see cref="AtomicDequeueAll"/> for more information.</remarks>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
@@ -213,14 +223,16 @@ namespace Ariadne.Collections
         /// <tocexclude/>
         public sealed class AtDequeuEnumerator : IEnumerator<T>
         {
-            private SinglyLinkedNode<T> _node;
             private readonly SinglyLinkedNode<T> _end;
+            private SinglyLinkedNode<T> _node;
             internal AtDequeuEnumerator(SinglyLinkedNode<T> start, SinglyLinkedNode<T> end)
             {
                 _node = start;
                 _end = end;
             }
-            /// <summary>Returns the current item.</summary>
+
+            /// <summary>Gets the current element being enumerated.</summary>
+            /// <value>The current element enumerated.</value>
             public T Current
             {
                 get { return _node.Item; }
@@ -233,6 +245,7 @@ namespace Ariadne.Collections
             {
                 // nop
             }
+
             /// <summary>Moves through the enumeration to the next item.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
             public bool MoveNext()
@@ -247,7 +260,8 @@ namespace Ariadne.Collections
                 throw new NotSupportedException();
             }
         }
-        /// <summary>An enumeration of items that are removed from the queue as the enumeration is processed</summary>
+
+        /// <summary>An enumeration of items that are removed from the queue as the enumeration is processed.</summary>
         /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
@@ -258,7 +272,8 @@ namespace Ariadne.Collections
             {
                 _queue = queue;
             }
-            /// <summary>Returns an enumerator that iterates through the enumaration, dequeuing items as it returns them.</summary>
+
+            /// <summary>Returns an enumerator that iterates through the enumeration, dequeuing items as it returns them.</summary>
             /// <returns>An <see cref="DequeuEnumerator"/>.</returns>
             public DequeuEnumerator GetEnumerator()
             {
@@ -273,7 +288,8 @@ namespace Ariadne.Collections
                 return GetEnumerator();
             }
         }
-        /// <summary>An enumerator of items that are removed from the queue as the enumeration is processed</summary>
+
+        /// <summary>An enumerator of items that are removed from the queue as the enumeration is processed.</summary>
         /// <remarks><see cref="DequeueAll"/> for more information.</remarks>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
@@ -286,7 +302,9 @@ namespace Ariadne.Collections
             {
                 _queue = queue;
             }
-            /// <summary>The current item.</summary>
+
+            /// <summary>Gets the current element being enumerated.</summary>
+            /// <value>The current element being enumerated.</value>
             public T Current
             {
                 get { return _current; }
@@ -295,8 +313,9 @@ namespace Ariadne.Collections
             {
                 get { return _current; }
             }
-            /// <summary>Moves to the next item in the enumeration (removing it from the queue)</summary>
-            /// <returns>True if the method succeeds, false if the queue was empty</returns>
+
+            /// <summary>Moves to the next item in the enumeration (removing it from the queue).</summary>
+            /// <returns>True if the method succeeds, false if the queue was empty.</returns>
             /// <remarks>Since the class refers to the live state of the queue, after returning false
             /// it may return true on a subsequent call, if items were added in the meantime.</remarks>
             public bool MoveNext()
@@ -307,6 +326,7 @@ namespace Ariadne.Collections
             {
                 // nop
             }
+
             /// <summary>Resets the enumeration.</summary>
             /// <remarks>Since the class refers to the live state of the queue, this is a non-operation
             /// as the enumeration is always attempting to dequeue from the front of the queue.</remarks>
@@ -315,6 +335,7 @@ namespace Ariadne.Collections
                 // nop
             }
         }
+
         /// <summary>An enumerator that enumerates through the queue, without removing them.</summary>
         /// <remarks>The enumerator is created based on the current front of the queue and continues
         /// until it reaches what is then the end. It may therefore on the one hand return items that
@@ -331,7 +352,9 @@ namespace Ariadne.Collections
             {
                 _node = (_queue = queue)._head;
             }
-            /// <summary>Returns the current item.</summary>
+
+            /// <summary>Gets the current element being enumerated.</summary>
+            /// <value>The current element being enumerated.</value>
             public T Current
             {
                 get { return _node.Item; }
@@ -340,6 +363,7 @@ namespace Ariadne.Collections
             {
                 get { return _node.Item; }
             }
+
             /// <summary>Moves to the next item.</summary>
             /// <returns>True if an item is found, false if it reaches the end of the queue.</returns>
             public bool MoveNext()
@@ -350,8 +374,7 @@ namespace Ariadne.Collections
                 {
                     if(next == null)
                         return false;
-                    else
-                        Interlocked.CompareExchange(ref _queue._tail, next, tail);
+                    Interlocked.CompareExchange(ref _queue._tail, next, tail);
                 }
                 _node = next;
                 return true;
@@ -360,12 +383,14 @@ namespace Ariadne.Collections
             {
                 // nop
             }
+
             /// <summary>Resets the enumeration to the current start of the queue.</summary>
             public void Reset()
             {
                 _node = _queue._head;
             }
         }
+
         /// <summary>Returns an object that enumerates the queue without removing items.</summary>
         /// <returns>An <see cref="Enumerator"/> that starts with the current start of the queue.</returns>
         public Enumerator GetEnumerator()
@@ -380,6 +405,7 @@ namespace Ariadne.Collections
         {
             return GetEnumerator();
         }
+
         /// <summary>Returns an enumerator that removes items from the queue as it returns them.</summary>
         /// <returns>A <see cref="DequeuEnumerator"/> that removes from the queue as it is processed.</returns>
         /// <remarks>The operation is not atomic and will interleave with other dequeue operations, and can
@@ -389,17 +415,21 @@ namespace Ariadne.Collections
         {
             return new DequeuEnumerable(this);
         }
+
         /// <summary>Clears the queue as an atomic operation, and returns an enumeration of the items so-removed.</summary>
         /// <returns>A <see cref="AtDequeuEnumerator"/> that enumerates through the items removed.</returns>
         public AtDequeuEnumerable AtomicDequeueAll()
         {
             return new AtDequeuEnumerable(this);
         }
-        /// <summary>Returns the count of the queue.</summary>
+
+        /// <summary>Gets the number of items in the queue.</summary>
         /// <remarks>The operation is O(n), and counts from the start of the queue at the time the property is called,
         /// until the end of the queue at the time it reaches it. As such its utility in most cases is limited, and
         /// it can take a long (potentially unbounded) time to return if threads with higher priority are adding
-        /// to the queue. If the count is greater than <see cref="int.MaxValue"/> it will return int.MaxValue.</remarks>
+        /// to the queue. If the count is greater than <see cref="int.MaxValue"/> it will return
+        /// <see cref="int.MaxValue"/>.</remarks>
+        /// <value>The number of items in the queue.</value>
         public int Count
         {
             get
@@ -407,6 +437,7 @@ namespace Ariadne.Collections
                 return CountUntil(int.MaxValue);
             }
         }
+
         /// <summary>Returns the count of the queue, or max, whichever is larger.</summary>
         /// <param name="max">The maximum count to count to.</param>
         /// <returns>This method is designed to deal with one of the problems with the <see cref="Count"/> property,
@@ -416,7 +447,7 @@ namespace Ariadne.Collections
             if(max > 0)
             {
                 int c = 0;
-                Enumerator en = new Enumerator(this);
+                var en = new Enumerator(this);
                 while(en.MoveNext())
                     if(++c == max)
                         return max;
@@ -426,6 +457,7 @@ namespace Ariadne.Collections
                 return 0;
             throw new ArgumentOutOfRangeException("max");
         }
+
         /// <summary>Returns a <see cref="List&lt;T>"/> of the current items in the queue without removing them.</summary>
         /// <returns>A <see cref="List&lt;T>"/> of the current items in the queue.</returns>
         /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
@@ -434,19 +466,22 @@ namespace Ariadne.Collections
             // As an optimisation, if you past an ICollection<T> to List<T>’s constructor that takes an IEnumerable<T>
             // it casts to ICollection<T> and calls Count on it to decide on the initial capacity. Since our Count
             // is O(n) and since we could grow in the meantime, this optimisation actually makes things worse, so we avoid it.
-            List<T> list = new List<T>();
+            var list = new List<T>();
+
             // AddRange has the same problem...
-            Enumerator en = new Enumerator(this);
+            var en = new Enumerator(this);
             while(en.MoveNext())
                 list.Add(en.Current);
             return list;
         }
+
         /// <summary>Clears the queue as an atomic operation, and returns a <see cref="List&lt;T>"/> of the items removed.</summary>
         /// <returns>A <see cref="List&lt;T>"/> of the items removed.</returns>
         public List<T> DequeueToList()
         {
             return new List<T>(AtomicDequeueAll());
         }
+
         /// <summary>Creates a new queue with the same items as this one.</summary>
         /// <returns>A new <see cref="LLQueue&lt;T>"/>.</returns>
         /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>. Use
@@ -459,6 +494,7 @@ namespace Ariadne.Collections
         {
             return Clone();
         }
+
         /// <summary>Clears the queue as a single atomic operation, and returns a queue with the same contents as those removed.</summary>
         /// <returns>The new queue.</returns>
         public LLQueue<T> Transfer()
@@ -473,6 +509,7 @@ namespace Ariadne.Collections
         {
             Enqueue(item);
         }
+
         /// <summary>Clears the queue as a single atomic operation.</summary>
         public void Clear()
         {
@@ -481,6 +518,7 @@ namespace Ariadne.Collections
             while((oldHead = Interlocked.CompareExchange(ref _head, _tail, head)) != head)
                 head = oldHead;
         }
+
         /// <summary>Examines the queue for the presence of an item.</summary>
         /// <param name="item">The item to search for.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use to compare
@@ -489,12 +527,13 @@ namespace Ariadne.Collections
         /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
         public bool Contains(T item, IEqualityComparer<T> comparer)
         {
-            Enumerator en = new Enumerator(this);
+            var en = new Enumerator(this);
             while(en.MoveNext())
                 if(comparer.Equals(en.Current, item))
                     return true;
             return false;
         }
+
         /// <summary>Examines the queue for the presence of an item.</summary>
         /// <param name="item">The item to search for.</param>
         /// <returns>True if the item was found, false otherwise.</returns>
@@ -503,13 +542,14 @@ namespace Ariadne.Collections
         {
             return Contains(item, EqualityComparer<T>.Default);
         }
+
         /// <summary>Copies the contents of the queue to an array.</summary>
         /// <param name="array">The array to copy to.</param>
-        /// <param name="arrayIndex">The index within the array to start copying from</param>
-        /// <exception cref="System.ArgumentNullException"/>The array was null.
-        /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
-        /// <exception cref="System.ArgumentException"/>The number of items in the collection was
-        /// too great to copy into the array at the index given.
+        /// <param name="arrayIndex">The index within the array at which to start copying.</param>
+        /// <exception cref="ArgumentNullException">The array was null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The array index was less than zero.</exception>
+        /// <exception cref="ArgumentException">The number of items in the collection was
+        /// too great to copy into the array at the index given.</exception>
         /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>
         public void CopyTo(T[] array, int arrayIndex)
         {
@@ -537,6 +577,7 @@ namespace Ariadne.Collections
         {
             return TryDequeue(out item);
         }
+
         /// <summary>Returns an array of the current items in the queue without removing them.</summary>
         /// <returns>The array of the current items in the queue.</returns>
         /// <remarks>This method races with other threads as described for <see cref="GetEnumerator"/>.</remarks>

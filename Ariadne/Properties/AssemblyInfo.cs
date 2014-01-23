@@ -1,4 +1,4 @@
-﻿// © 2011 Jon Hanna.
+﻿// © 2011–2014 Jon Hanna.
 // This source code is licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -22,7 +22,7 @@ using System.Security;
 [assembly: AssemblyTitle("Ariadne Multi-Threaded Development Library")]
 [assembly: AssemblyDescription("Lock-free thread safe collection classes, and other classes useful in multi-threaded programming.")]
 [assembly: AssemblyProduct("Ariadne Multi-Threaded Development Library")]
-[assembly: AssemblyCopyright("© 2011-2012 Jon Hanna. Released under the European Union Public Licence v1.1")]
+[assembly: AssemblyCopyright("© 2011–2014 Jon Hanna. Released under the European Union Public Licence v1.1")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
@@ -31,7 +31,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("Debug")]
 #else
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AllowPartiallyTrustedCallers]
 #endif
+[assembly: AllowPartiallyTrustedCallers]
 [assembly: NeutralResourcesLanguage("en", UltimateResourceFallbackLocation.MainAssembly)]
 [assembly: CompilationRelaxations(0)]

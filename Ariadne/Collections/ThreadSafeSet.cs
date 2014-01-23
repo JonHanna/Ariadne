@@ -1,4 +1,4 @@
-﻿// © 2011–2012 Jon Hanna.
+﻿// © 2011–2014 Jon Hanna.
 // Licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -15,7 +15,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
@@ -30,10 +30,10 @@ namespace Ariadne.Collections
     [Serializable]
     public sealed class ThreadSafeSet<T> : ISet<T>, ICloneable, IProducerConsumerCollection<T>, ISerializable
     {
-        private const int REPROBE_LOWER_BOUND = 5;
-        private const int REPROBE_SHIFT = 5;
-        private const int ZERO_HASH = 0x55555555;
-        private const int COPY_CHUNK = 1024;
+        private const int ReprobeLowerBound = 5;
+        private const int ReprobeShift = 5;
+        private const int ZeroHash = 0x55555555;
+        private const int CopyChunk = 1024;
         internal class Box
         {
             public readonly T Value;
@@ -43,7 +43,7 @@ namespace Ariadne.Collections
             }
             public Box StripPrime()
             {
-                PrimeBox prime = this as PrimeBox;
+                var prime = this as PrimeBox;
                 return prime == null ? this : prime.Original;
             }
         }
@@ -69,50 +69,60 @@ namespace Ariadne.Collections
             public int Hash;
             public Box Box;
         }
+        [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules",
+            "SA1401:FieldsMustBePrivate", Justification = "Need to be able to CAS it.")]
         private sealed class Table
         {
             public readonly Record[] Records;
-            public Table Next;
             public readonly Counter Size;
             public readonly Counter Slots = new Counter();
             public readonly int Capacity;
             public readonly int Mask;
             public readonly int PrevSize;
             public readonly int ReprobeLimit;
-            public int CopyIdx;
-            public int Resizers;
-            public int CopyDone;
+            public Table Next;
+            private int _copyIdx;
+            private int _resizers;
+            private int _copyDone;
             public Table(int capacity, Counter size)
             {
                 Records = new Record[Capacity = capacity];
                 Mask = capacity - 1;
-                ReprobeLimit = (capacity >> REPROBE_SHIFT) + REPROBE_LOWER_BOUND;
+                ReprobeLimit = (capacity >> ReprobeShift) + ReprobeLowerBound;
                 PrevSize = Size = size;
             }
             public bool AllCopied
             {
                 get
                 {
-                    Debug.Assert(CopyDone <= Capacity);
-                    return CopyDone == Capacity;
+                    Debug.Assert(_copyDone <= Capacity, "More recorded as copied than exist.");
+                    return _copyDone == Capacity;
                 }
             }
-            public bool MarkCopied(int cCopied)
+            public bool MarkCopied(int countCopied)
             {
-                Debug.Assert(CopyDone <= Capacity);
-                return cCopied != 0 && Interlocked.Add(ref CopyDone, cCopied) == Capacity;
+                Debug.Assert(_copyDone <= Capacity, "More recorded as copied than exist.");
+                return countCopied != 0 && Interlocked.Add(ref _copyDone, countCopied) == Capacity;
             }
             public bool MarkCopied()
             {
-                Debug.Assert(CopyDone <= Capacity);
-                return Interlocked.Increment(ref CopyDone) == Capacity;
+                Debug.Assert(_copyDone <= Capacity, "More recorded as copied than exist.");
+                return Interlocked.Increment(ref _copyDone) == Capacity;
+            }
+            public int IncResizers()
+            {
+                return Interlocked.Increment(ref _resizers);
+            }
+            public int NewCopyIndex()
+            {
+                return Interlocked.Add(ref _copyIdx, CopyChunk);
             }
         }
         
         private Table _table;
-        private readonly IEqualityComparer<T> _cmpSerialise;//TODO: Remove when serialisation of Well-Distr. improved
         private readonly IEqualityComparer<T> _cmp;
         private const int DefaultCapacity = 16;
+
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
@@ -125,36 +135,40 @@ namespace Ariadne.Collections
                     capacity = DefaultCapacity;
                 else
                 {
-                    unchecked // binary round-up
+                    unchecked
                     {
+                        // binary round-up
                         --capacity;
-                        capacity |= (capacity >> 1);
-                        capacity |= (capacity >> 2);
-                        capacity |= (capacity >> 4);
-                        capacity |= (capacity >> 8);
-                        capacity |= (capacity >> 16);
+                        capacity |= capacity >> 1;
+                        capacity |= capacity >> 2;
+                        capacity |= capacity >> 4;
+                        capacity |= capacity >> 8;
+                        capacity |= capacity >> 16;
                         ++capacity;
                     }
                 }
                     
                 _table = new Table(capacity, new Counter());
-                _cmp = (_cmpSerialise = comparer).WellDistributed();
+                _cmp = comparer.WellDistributed();
             }
             else
                 throw new ArgumentOutOfRangeException("capacity");
         }
+
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="capacity">The initial capacity of the set.</param>
         public ThreadSafeSet(int capacity)
             : this(capacity, EqualityComparer<T>.Default)
         {
         }
+
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>" /> that compares the items.</param>
         public ThreadSafeSet(IEqualityComparer<T> comparer)
             : this(DefaultCapacity, comparer)
         {
         }
+
         /// <summary>Creates a new lock-free set.</summary>
         public ThreadSafeSet()
             : this(DefaultCapacity)
@@ -164,12 +178,13 @@ namespace Ariadne.Collections
         {
             if(collection != null)
             {
+                // Analysis disable once EmptyGeneralCatchClause
                 try
                 {
-                    ICollection<T> colT = collection as ICollection<T>;
+                    var colT = collection as ICollection<T>;
                     if(colT != null)
                         return Math.Min(colT.Count, 1024); // let’s not go above 1024 just in case there’s only a few distinct items.
-                    ICollection col = collection as ICollection;
+                    var col = collection as ICollection;
                     if(col != null)
                         return Math.Min(col.Count, 1024);
                 }
@@ -182,6 +197,7 @@ namespace Ariadne.Collections
             }
             throw new ArgumentNullException("collection", Strings.SetNullSourceCollection);
         }
+
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;TKey>"/> that compares the items.</param>
@@ -193,6 +209,7 @@ namespace Ariadne.Collections
                 table = PutSingleThreaded(table, new Box(item), Hash(item), true);
             _table = table;
         }
+
         /// <summary>Creates a new lock-free set.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> from which the set is filled upon creation.</param>
         public ThreadSafeSet(IEnumerable<T> collection)
@@ -200,10 +217,10 @@ namespace Ariadne.Collections
         {
         }
         [SecurityCritical] 
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("cmp", _cmpSerialise, typeof(IEqualityComparer<T>));
+            info.AddValue("cmp", _cmp, typeof(IEqualityComparer<T>));
             T[] arr = ToArray();
             info.AddValue("arr", arr);
             info.AddValue("c", arr.Length);
@@ -211,7 +228,7 @@ namespace Ariadne.Collections
         private ThreadSafeSet(SerializationInfo info, StreamingContext context)
             : this(info.GetInt32("c"), (IEqualityComparer<T>)info.GetValue("cmp", typeof(IEqualityComparer<T>)))
         {
-            T[] arr = (T[])info.GetValue("arr", typeof(T[]));
+            var arr = (T[])info.GetValue("arr", typeof(T[]));
             Table table = _table;
             for(int i = 0; i != arr.Length; ++i)
             {
@@ -227,7 +244,7 @@ namespace Ariadne.Collections
             // We do not use a Wang-Jenkins like Dr. Click’s approach, since .NET’s IComparer allows
             // users of the class to fix the effects of poor hash algorithms.
             int givenHash = _cmp.GetHashCode(item);
-            return givenHash == 0 ? ZERO_HASH : givenHash;
+            return givenHash == 0 ? ZeroHash : givenHash;
         }
         internal Box Obtain(T item)
         {
@@ -258,8 +275,8 @@ namespace Ariadne.Collections
                         return null;
                     else if(--reprobes == 0)
                         break;
-                }while((idx = (idx + 1) & mask) != endIdx);
-            }while((table = table.Next) != null);
+                } while((idx = (idx + 1) & mask) != endIdx);
+            } while((table = table.Next) != null);
             return null;
         }
         internal Box PutIfMatch(Box box)
@@ -315,7 +332,6 @@ namespace Ariadne.Collections
                         goto restart;
                     }
                 }
-    
                 if(table.Next != null)
                 {
                     CopySlotsAndCheck(table, deadItem, idx);
@@ -325,7 +341,9 @@ namespace Ariadne.Collections
                 {
                     // we have a record with a matching key.
                     if((box is TombstoneBox) == (curBox is TombstoneBox))
-                        return curBox;//no change, return that stored.
+
+                        // no change, return that stored.
+                        return curBox;
                     
                     Box prevBox = Interlocked.CompareExchange(ref records[idx].Box, box, curBox);
                     if(prevBox == curBox)
@@ -339,16 +357,16 @@ namespace Ariadne.Collections
                             table.Size.Increment();
                         return prevBox;
                     }
+
                     // we lost the race, another thread set the box.
                     if(prevBox == deadItem)
                         break;
-                    else if(prevBox is PrimeBox)
+                    if(prevBox is PrimeBox)
                     {
                         CopySlotsAndCheck(table, deadItem, idx);
                         break;
                     }
-                    else
-                        curBox = prevBox;
+                    curBox = prevBox;
                 }
             restart:
                 HelpCopy(table, records, deadItem);
@@ -376,7 +394,7 @@ namespace Ariadne.Collections
                             table.Slots.Increment();
                             return;
                         }
-                        else if(_cmp.Equals(curBox.Value, box.Value) && curBox != deadItem)
+                        if(_cmp.Equals(curBox.Value, box.Value) && curBox != deadItem)
                             return;
                     }
                     else if(--reprobes == 0)
@@ -409,8 +427,9 @@ namespace Ariadne.Collections
                 for(;;)
                 {
                     int curHash = records[idx].Hash;
-                    if(curHash == 0)//nothing written here
+                    if(curHash == 0)
                     {
+                        // Nothing written here
                         records[idx].Hash = hash;
                         records[idx].Box = box;
                         table.Slots.Increment();
@@ -418,13 +437,9 @@ namespace Ariadne.Collections
                             table.Size.Increment();
                         return table;
                     }
-                    else if(curHash == hash)
+                    if(curHash == hash)
                     {
-                        // hashes match, do keys?
-                        // while retrieving the current
-                        // if we want to write to empty records
-                        // let’s see if we can just write because there’s nothing there...
-                        // okay there’s something with the same hash here, does it have the same key?
+                        // Hashes match, do keys?
                         if(_cmp.Equals(records[idx].Box.Value, box.Value))
                         {
                             records[idx].Box = box;
@@ -434,8 +449,8 @@ namespace Ariadne.Collections
                     else if(--reprobes == 0)
                     {
                         int newCap = table.Capacity << 1;
-                        if(newCap < (1 << REPROBE_SHIFT))
-                            newCap = 1 << REPROBE_SHIFT;
+                        if(newCap < (1 << ReprobeShift))
+                            newCap = 1 << ReprobeShift;
                         next = new Table(newCap, table.Size);
                         break;
                     }
@@ -460,6 +475,7 @@ namespace Ariadne.Collections
             if(CopySlot(table, deadItem, ref table.Records[idx]) && table.MarkCopied())
                 Promote(table);
         }
+
         // Copy a bunch of records to the next table.
         // Copy a bunch of records to the next table.
         private void HelpCopy(Table table, Record[] records, TombstoneBox deadItem)
@@ -469,14 +485,14 @@ namespace Ariadne.Collections
             // at risk of false-sharing with another thread (that is, where two resizing threads keep causing each other’s
             // cache-lines to be invalidated with each write.
             int cap = table.Capacity;
-            if(cap > COPY_CHUNK)
+            if(cap > CopyChunk)
                 HelpCopyLarge(table, records, deadItem, cap);
             else
                 HelpCopySmall(table, records, deadItem);
         }
         private void HelpCopyLarge(Table table, Record[] records, TombstoneBox deadItem, int capacity)
         {
-            int copyIdx = Interlocked.Add(ref table.CopyIdx, COPY_CHUNK);
+            int copyIdx = table.NewCopyIndex();
             if(table != _table || table.Next.Next != null || copyIdx > capacity << 1)
                 HelpCopyLargeAll(table, records, deadItem, capacity, copyIdx);
             else
@@ -488,7 +504,7 @@ namespace Ariadne.Collections
             int final = copyIdx == 0 ? capacity : copyIdx;
             while(!table.AllCopied)
             {
-                int end = copyIdx + COPY_CHUNK;
+                int end = copyIdx + CopyChunk;
                 int workDone = 0;
                 while(copyIdx != end)
                     if(CopySlot(table, deadItem, ref records[copyIdx++]))
@@ -506,8 +522,8 @@ namespace Ariadne.Collections
         {
             if(!table.AllCopied)
             {
-                copyIdx &= (capacity - 1);
-                int end = copyIdx + COPY_CHUNK;
+                copyIdx &= capacity - 1;
+                int end = copyIdx + CopyChunk;
                 int workDone = 0;
                 while(copyIdx != end)
                     if(CopySlot(table, deadItem, ref records[copyIdx++]))
@@ -561,7 +577,7 @@ namespace Ariadne.Collections
                 }
                 else
                 {
-                    PrimeBox prime = new PrimeBox(box);
+                    var prime = new PrimeBox(box);
                     oldBox = Interlocked.CompareExchange(ref boxRef, prime, box);
                     if(box == oldBox)
                     {
@@ -582,7 +598,7 @@ namespace Ariadne.Collections
                 box = oldBox;
             }
         }
-        private void Resize(Table tab)
+        private static void Resize(Table tab)
         {
             // Heuristic is a polite word for guesswork! Almost certainly the heuristic here could be improved,
             // but determining just how best to do so requires the consideration of many different cases.
@@ -606,22 +622,22 @@ namespace Ariadne.Collections
             if(sz == tab.PrevSize)
                 newCap <<= 1;
 
-            unchecked // binary round-up
+            unchecked
             {
+                // binary round-up
                 --newCap;
-                newCap |= (newCap >> 1);
-                newCap |= (newCap >> 2);
-                newCap |= (newCap >> 4);
-                newCap |= (newCap >> 8);
-                newCap |= (newCap >> 16);
+                newCap |= newCap >> 1;
+                newCap |= newCap >> 2;
+                newCap |= newCap >> 4;
+                newCap |= newCap >> 8;
+                newCap |= newCap >> 16;
                 ++newCap;
             }
-            
-            
-            int MB = newCap >> 18;
-            if(MB > 0)
+
+            int megabytes = newCap >> 18;
+            if(megabytes > 0)
             {
-                int resizers = Interlocked.Increment(ref tab.Resizers);
+                int resizers = tab.IncResizers();
                 if(resizers > 2)
                 {
                     if(tab.Next != null)
@@ -629,7 +645,7 @@ namespace Ariadne.Collections
                     Thread.SpinWait(20);
                     if(tab.Next != null)
                         return;
-                    Thread.Sleep(Math.Max(MB * 5 * resizers, 200));
+                    Thread.Sleep(Math.Max(megabytes * 5 * resizers, 200));
                 }
             }
             
@@ -638,21 +654,19 @@ namespace Ariadne.Collections
             
             Interlocked.CompareExchange(ref tab.Next, new Table(newCap, tab.Size), null);
         }
-        /// <summary>Returns an estimate of the current number of items in the set.</summary>
+
+        /// <summary>Gets the number of items contained.</summary>
+        /// <value>The number of items contained.</value>
         public int Count
         {
             get { return _table.Size; }
         }
-        /// <summary>The current capacity of the set.</summary>
-        /// <remarks>If the set is in the midst of a resize, the capacity it is resizing to is returned, ignoring other internal storage in use.</remarks>
-        public int Capacity
-        {
-            get { return _table.Capacity; }
-        }
+
         bool ICollection<T>.IsReadOnly
         {
             get { return false; }
         }
+
         /// <summary>Attempts to add an item to the set.</summary>
         /// <param name="item">The item to add.</param>
         /// <returns>True if the item was added, false if a matching item was already present.</returns>
@@ -661,6 +675,7 @@ namespace Ariadne.Collections
             Box prev = PutIfMatch(new Box(item));
             return prev != null || !(prev is TombstoneBox);
         }
+
         /// <summary>Attempts to add a collection of items to the set, returning those which were added.</summary>
         /// <param name="items">The items to add.</param>
         /// <returns>An enumeration of those items which where added to the set, excluding those which were already present.</returns>
@@ -669,9 +684,10 @@ namespace Ariadne.Collections
         {
             return new AddedEnumeration(this, items);
         }
+
         /// <summary>An enumerator that adds to the set as it is enumerated, returning only those items added.</summary>
-        /// <threadsafety static="true" instance="true">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <threadsafety static="true" instance="true">This class is not thread-safe in itself, though its methods may
+        /// be called concurrently with other operations on the same collection.</threadsafety>
         /// <tocexclude/>
         public sealed class AddedEnumerator : IEnumerator<T>
         {
@@ -683,7 +699,9 @@ namespace Ariadne.Collections
                 _set = tset;
                 _srcEnumerator = srcEnumerator;
             }
-            /// <summary>Returns the current item.</summary>
+
+            /// <summary>Gets the current element being enumerated.</summary>
+            /// <value>The current element being enumerated.</value>
             public T Current
             {
                 get { return _current; }
@@ -692,11 +710,13 @@ namespace Ariadne.Collections
             {
                 get { return _current; }
             }
+
             /// <summary>Disposes of the enumeration, doing any necessary clean-up operations.</summary>
             public void Dispose()
             {
                 _srcEnumerator.Dispose();
             }
+
             /// <summary>Moves to the next item in the enumeration.</summary>
             /// <returns>True if an item was found, false it the end of the enumeration was reached.</returns>
             public bool MoveNext()
@@ -712,8 +732,9 @@ namespace Ariadne.Collections
                 }
                 return false;
             }
+
             /// <summary>Resets the enumerations.</summary>
-            /// <exception cref="NotSupportedException"/>The source enumeration does not support resetting (
+            /// <exception cref="NotSupportedException">The source enumeration does not support resetting.</exception>
             public void Reset()
             {
                 try
@@ -730,6 +751,7 @@ namespace Ariadne.Collections
                 }
             }
         }
+
         /// <summary>An enumeration that adds to the set as it is enumerated, returning only those items added.</summary>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
@@ -742,6 +764,7 @@ namespace Ariadne.Collections
                 _set = tset;
                 _srcEnumerable = srcEnumerable;
             }
+
             /// <summary>Returns an enumerator that iterates through the collection.</summary>
             /// <returns>The enumerator.</returns>
             public AddedEnumerator GetEnumerator()
@@ -757,16 +780,19 @@ namespace Ariadne.Collections
                 return GetEnumerator();
             }
         }
+
         /// <summary>Attempts to add a collection of items to the set, returning the number added.</summary>
         /// <param name="items">The items to add.</param>
         /// <returns>The number of items added, excluding those which were already present.</returns>
         public int AddRange(IEnumerable<T> items)
         {
             int count = 0;
-            foreach(T item in FilterAdd(items))
-                ++count;
+            using(var en = FilterAdd(items).GetEnumerator())
+                while(en.MoveNext())
+                    ++count;
             return count;
         }
+
         /// <summary>Modifies the current set so that it contains all elements that are present in both the current set and in the specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
@@ -779,6 +805,7 @@ namespace Ariadne.Collections
                 foreach(T item in other)
                     Add(item);
         }
+
         /// <summary>Modifies the current set so that it contains only elements that are also in a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
@@ -789,7 +816,7 @@ namespace Ariadne.Collections
             Validation.NullCheck(other, "other");
             if(other != this && Count != 0)
             {
-                ThreadSafeSet<T> copyTo = new ThreadSafeSet<T>(Capacity, _cmp);
+                var copyTo = new ThreadSafeSet<T>(_table.Capacity, _cmp);
                 foreach(T item in other)
                     if(Contains(item))
                         copyTo.Add(item);
@@ -797,6 +824,7 @@ namespace Ariadne.Collections
                 _table = copyTo._table;
             }
         }
+
         /// <summary>Removes all elements in the specified collection from the current set.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
@@ -811,6 +839,7 @@ namespace Ariadne.Collections
                 foreach(T item in other)
                     Remove(item);
         }
+
         /// <summary>Modifies the current set so that it contains only elements that are present either in the current set or in the specified collection, but not both.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <remarks>As this method will operate without locking, additions and removals from other threads may result in inconsistent results. For most
@@ -828,6 +857,7 @@ namespace Ariadne.Collections
                     if(!Remove(item))
                         Add(item);
         }
+
         /// <summary>Determines whether a set is a subset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns>True if the set is a subset of the parameter, false otherwise.</returns>
@@ -840,21 +870,22 @@ namespace Ariadne.Collections
             int count = Count;
             if(count == 0)
                 return true;
-            ICollection<T> asCol = other as ICollection<T>;
+            var asCol = other as ICollection<T>;
             if(asCol != null)
             {
                 if(asCol.Count < count)
                     return false;
-                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
+                var asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && asLFHS._cmp.Equals(_cmp))
                     return asLFHS.IsSupersetOf(this);
             }
-            int cBoth = 0;
+            int countBoth = 0;
             foreach(T item in other)
                 if(Contains(item))
-                    ++cBoth;
-            return cBoth == count;
+                    ++countBoth;
+            return countBoth == count;
         }
+
         /// <summary>Determines whether the current set is a superset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns>True if the set is a superset of the parameter, false otherwise.</returns>
@@ -864,18 +895,19 @@ namespace Ariadne.Collections
         public bool IsSupersetOf(IEnumerable<T> other)
         {
             Validation.NullCheck(other, "other");
-            ICollection<T> asCol = other as ICollection<T>;
+            var asCol = other as ICollection<T>;
             if(asCol != null)
             {
                 if(asCol.Count == 0)
                     return true;
+
                 // We can only short-cut on other being larger if larger is a set
                 // with the same equality comparer, as otherwise two or more items
                 // could be considered a single item to this set.
-                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
+                var asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
-                HashSet<T> asHS = other as HashSet<T>;
+                var asHS = other as HashSet<T>;
                 if(asHS != null && _cmp.Equals(asHS.Comparer) && asHS.Count > Count)
                     return false;
             }
@@ -884,6 +916,7 @@ namespace Ariadne.Collections
                     return false;
             return true;
         }
+
         /// <summary>Determines whether the current set is a correct superset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns>True if the set is a proper superset of the parameter, false otherwise.</returns>
@@ -893,18 +926,19 @@ namespace Ariadne.Collections
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
             Validation.NullCheck(other, "other");
-            ICollection<T> asCol = other as ICollection<T>;
+            var asCol = other as ICollection<T>;
             if(asCol != null)
             {
                 if(asCol.Count == 0)
                     return true;
+
                 // We can only short-cut on other being larger if larger is a set
                 // with the same equality comparer, as otherwise two or more items
                 // could be considered a single item to this set.
-                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
+                var asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                     return false;
-                HashSet<T> asHS = other as HashSet<T>;
+                var asHS = other as HashSet<T>;
                 if(asHS != null && _cmp.Equals(asHS.Comparer) && asHS.Count > Count)
                     return false;
             }
@@ -916,6 +950,7 @@ namespace Ariadne.Collections
                     return false;
             return matched < Count;
         }
+
         /// <summary>Determines whether the current set is a property (strict) subset of a specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns>True if the set is a proper subset of the parameter, false otherwise.</returns>
@@ -928,24 +963,25 @@ namespace Ariadne.Collections
             int count = Count;
             if(count == 0)
                 return true;
-            ICollection<T> asCol = other as ICollection<T>;
+            var asCol = other as ICollection<T>;
             if(asCol != null)
             {
                 if(asCol.Count < count)
                     return false;
-                ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
+                var asLFHS = other as ThreadSafeSet<T>;
                 if(asLFHS != null && asLFHS._cmp.Equals(_cmp))
                     return asLFHS.IsProperSupersetOf(this);
             }
-            int cBoth = 0;
+            int countBoth = 0;
             bool notInThis = false;
             foreach(T item in other)
                 if(Contains(item))
-                    ++cBoth;
+                    ++countBoth;
                 else
                     notInThis = true;
-            return notInThis && cBoth == count;
+            return notInThis && countBoth == count;
         }
+
         /// <summary>Determines whether the current set overlaps with the specified collection.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns>True if the sets have at least one item in common, false otherwise.</returns>
@@ -961,6 +997,7 @@ namespace Ariadne.Collections
                         return true;
             return false;
         }
+
         /// <summary>Determines whether the current set and the specified collection contain the same elements.</summary>
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns>True if the sets have the same items, false otherwise.</returns>
@@ -971,12 +1008,12 @@ namespace Ariadne.Collections
         {
             Validation.NullCheck(other, "other");
             int asSetCount = -1;
-            ThreadSafeSet<T> asLFHS = other as ThreadSafeSet<T>;
+            var asLFHS = other as ThreadSafeSet<T>;
             if(asLFHS != null && _cmp.Equals(asLFHS._cmp) && asLFHS.Count > Count)
                 asSetCount = asLFHS.Count;
             else
             {
-                HashSet<T> asHS = other as HashSet<T>;
+                var asHS = other as HashSet<T>;
                 if(asHS != null && _cmp.Equals(asHS.Comparer) && asHS.Count > Count)
                     asSetCount = asHS.Count;
             }
@@ -1001,12 +1038,14 @@ namespace Ariadne.Collections
         {
             Add(item);
         }
+
         /// <summary>Removes all items from the set.</summary>
         /// <remarks>All items are removed in a single atomic operation.</remarks>
         public void Clear()
         {
             Interlocked.Exchange(ref _table, new Table(DefaultCapacity, new Counter()));
         }
+
         /// <summary>Determines whether an item is present in the set.</summary>
         /// <param name="item">The item sought.</param>
         /// <returns>True if the item is found, false otherwise.</returns>
@@ -1014,37 +1053,42 @@ namespace Ariadne.Collections
         {
             return Obtain(item) != null;
         }
+
         /// <summary>Copies the contents of the set to an array.</summary>
         /// <param name="array">The array to copy to.</param>
-        /// <param name="arrayIndex">The index within the array to start copying from</param>
-        /// <exception cref="System.ArgumentNullException"/>The array was null.
-        /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
-        /// <exception cref="System.ArgumentException"/>The number of items in the collection was
-        /// too great to copy into the array at the index given.
+        /// <param name="arrayIndex">The index within the array at which to start copying.</param>
+        /// <exception cref="ArgumentNullException">The array was null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The array index was less than zero.</exception>
+        /// <exception cref="ArgumentException">The number of items in the collection was too great to copy into the
+        /// array at the index given.</exception>
         public void CopyTo(T[] array, int arrayIndex)
         {
             Validation.CopyTo(array, arrayIndex);
             ToHashSet().CopyTo(array, arrayIndex);
         }
+
         /// <summary>Copies the contents of the set to an array.</summary>
         /// <param name="array">The array to copy to.</param>
-        /// <exception cref="System.ArgumentNullException"/>The array was null.
-        /// <exception cref="System.ArgumentException"/>The number of items in the collection was
-        /// too great to copy into the array.
+        /// <exception cref="ArgumentNullException">The array was null.</exception>
+        /// <exception cref="ArgumentException">The number of items in the collection was too great to copy into the
+        /// array.</exception>
         public void CopyTo(T[] array)
         {
             CopyTo(array, 0);
         }
+
         /// <summary>Removes an item from the set.</summary>
         /// <param name="item">The item to remove.</param>
         /// <returns>True if the item was removed, false if it was not found.</returns>
-        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
-        /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
+        /// <remarks>Removal internally requires an allocation. This is generally negligible, but it should be noted
+        /// that <see cref="OutOfMemoryException"/> exceptions are possible in memory-critical situations.
+        /// </remarks>
         public bool Remove(T item)
         {
             T dummy;
             return Remove(item, out dummy);
         }
+
         /// <summary>Removes an item from the set.</summary>
         /// <param name="item">The item to remove.</param>
         /// <param name="removed">Upon returning, the item removed.</param>
@@ -1060,16 +1104,18 @@ namespace Ariadne.Collections
             removed = prev.Value;
             return true;
         }
+
         /// <summary>Removes items from the set that match a predicate.</summary>
         /// <param name="predicate">A <see cref="System.Func&lt;T, TResult>"/> that returns true for the items that should be removed.</param>
         /// <returns>A <see cref="System.Collections.Generic.IEnumerable&lt;T>"/> of the items removed.</returns>
-        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// <remarks>Removal internally requires an allocation. This is generally negligible, but it should be noted
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.
         /// <para>The returned enumerable is lazily executed, and items are only removed from the dictionary as it is enumerated.</para></remarks>
         public RemovingEnumeration RemoveWhere(Func<T, bool> predicate)
         {
             return new RemovingEnumeration(this, predicate);
         }
+
         /// <summary>Enumerates a <see cref="ThreadSafeSet&lt;T>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
@@ -1078,18 +1124,20 @@ namespace Ariadne.Collections
         public class RemovingEnumerator : IEnumerator<T>
         {
             private readonly ThreadSafeSet<T> _set;
-            private Table _table;
             private readonly Counter _size;
             private readonly Func<T, bool> _predicate;
+            private Table _table;
             private int _idx;
             private T _current;
-            internal RemovingEnumerator(ThreadSafeSet<T> lfSet, Func<T, bool> predicate)
+            internal RemovingEnumerator(ThreadSafeSet<T> targetSet, Func<T, bool> predicate)
             {
-                _size = (_table = (_set = lfSet)._table).Size;
+                _size = (_table = (_set = targetSet)._table).Size;
                 _predicate = predicate;
                 _idx = -1;
             }
-            /// <summary>The current item being enumerated.</summary>
+
+            /// <summary>Gets the current item being enumerated.</summary>
+            /// <value>The current item being enumerated.</value>
             public T Current
             {
                 get { return _current; }
@@ -1098,8 +1146,9 @@ namespace Ariadne.Collections
             {
                 get { return _current; }
             }
+
             /// <summary>Moves to the next item being enumerated.</summary>
-            /// <returns>True if an item is found, false if the end of the enumeration is reached,</returns>
+            /// <returns>True if an item is found, false if the end of the enumeration is reached.</returns>
             public bool MoveNext()
             {
                 TombstoneBox deadItem = DeadItem;
@@ -1118,7 +1167,7 @@ namespace Ariadne.Collections
                             T value = box.Value;
                             if(_predicate(value))
                             {
-                                TombstoneBox tomb = new TombstoneBox(value);
+                                var tomb = new TombstoneBox(value);
                                 for(;;)
                                 {
                                     Box oldBox = Interlocked.CompareExchange(ref records[_idx].Box, tomb, box);
@@ -1128,14 +1177,14 @@ namespace Ariadne.Collections
                                         _current = value;
                                         return true;
                                     }
-                                    else if(oldBox is TombstoneBox)
+                                    if(oldBox is TombstoneBox)
                                         break;
-                                    else if(oldBox is PrimeBox)
+                                    if(oldBox is PrimeBox)
                                     {
                                         _set.CopySlotsAndCheck(_table, deadItem, _idx);
                                         break;
                                     }
-                                    else if(!_predicate(value = oldBox.Value))
+                                    if(!_predicate(value = oldBox.Value))
                                         break;
                                     box = oldBox;
                                 }
@@ -1148,6 +1197,7 @@ namespace Ariadne.Collections
             void IDisposable.Dispose()
             {
             }
+
             /// <summary>
             /// Resets the enumerator, so it operates upon the entire set again.
             /// </summary>
@@ -1157,6 +1207,7 @@ namespace Ariadne.Collections
                 _idx = -1;
             }
         }
+
         /// <summary>Enumerates a <see cref="ThreadSafeSet&lt;T>"/>, returning items that match a predicate,
         /// and removing them from the dictionary.</summary>
         /// <threadsafety static="true" instance="true"/>
@@ -1165,12 +1216,13 @@ namespace Ariadne.Collections
         {
             private readonly ThreadSafeSet<T> _set;
             private readonly Func<T, bool> _predicate;
-            internal RemovingEnumeration(ThreadSafeSet<T> lfSet, Func<T, bool> predicate)
+            internal RemovingEnumeration(ThreadSafeSet<T> targetSet, Func<T, bool> predicate)
             {
-                _set = lfSet;
+                _set = targetSet;
                 _predicate = predicate;
             }
-            /// <summary>Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and eumerator.</summary>
+
+            /// <summary>Returns the enumeration itself, used with for-each constructs as this object serves as both enumeration and enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public RemovingEnumerator GetEnumerator()
             {
@@ -1185,15 +1237,16 @@ namespace Ariadne.Collections
                 return GetEnumerator();
             }
         }
+
         /// <summary>Removes all items that match a predicate.</summary>
         /// <param name="predicate">A <see cref="System.Func&lt;T, TResult>"/> that returns true when passed an item that should be removed.</param>
-        /// <returns>The number of items removed</returns>
-        /// <remarks>Removal internally requires an allocation. This is generally negliable, but it should be noted
+        /// <returns>The number of items removed.</returns>
+        /// <remarks>Removal internally requires an allocation. This is generally negligible, but it should be noted
         /// that <see cref="System.OutOfMemoryException"/> exceptions are possible in memory-critical situations.</remarks>
         public int Remove(Func<T, bool> predicate)
         {
             int total = 0;
-            RemovingEnumerator remover = new RemovingEnumerator(this, predicate);
+            var remover = new RemovingEnumerator(this, predicate);
             while(remover.MoveNext())
                 ++total;
             return total;
@@ -1224,8 +1277,11 @@ namespace Ariadne.Collections
                         Box box = records[_idx].Box;
                         if(box != null && !(box is TombstoneBox))
                         {
-                            if(box is PrimeBox)//part-way through being copied to next table
-                                _set.CopySlotsAndCheck(_tab, DeadItem, _idx);//make sure it’s there when we come to it.
+                            if(box is PrimeBox)
+
+                                // Part-way through being copied to next table
+                                // Make sure it’s there when we come to it.
+                                _set.CopySlotsAndCheck(_tab, DeadItem, _idx);
                             else
                             {
                                 _current = box;
@@ -1242,17 +1298,21 @@ namespace Ariadne.Collections
                 _idx = -1;
             }
         }
+
         /// <summary>Enumerates a ThreadSafeSet&lt;T>.</summary>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
         /// concurrently with other operations on the same collection.</threadsafety>
         public class Enumerator : IEnumerator<T>
         {
+            // Analysis disable once FieldCanBeMadeReadOnly.Local — Don’t do for mutable struct fields.
             private BoxEnumerator _src;
             internal Enumerator(BoxEnumerator src)
             {
                 _src = src;
             }
-            /// <summary>Returns the current item being enumerated.</summary>
+
+            /// <summary>Gets the current item being enumerated.</summary>
+            /// <value>The current item being enumerated.</value>
             public T Current
             {
                 get { return _src.Current.Value; }
@@ -1264,13 +1324,15 @@ namespace Ariadne.Collections
             void IDisposable.Dispose()
             {
             }
+
             /// <summary>Moves to the next item in the enumeration.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
             public bool MoveNext()
             {
                 return _src.MoveNext();
             }
-            /// <summary>Reset the enumeration</summary>
+
+            /// <summary>Reset the enumeration.</summary>
             public void Reset()
             {
                 _src.Reset();
@@ -1280,6 +1342,7 @@ namespace Ariadne.Collections
         {
             return new BoxEnumerator(this);
         }
+
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
         /// <returns>The enumerator.</returns>
         public Enumerator GetEnumerator()
@@ -1294,6 +1357,7 @@ namespace Ariadne.Collections
         {
             return GetEnumerator();
         }
+
         /// <summary>Returns a copy of the current set.</summary>
         /// <remarks>Because this operation does not lock, the resulting set’s contents
         /// could be inconsistent in terms of an application’s use of the values.
@@ -1301,7 +1365,7 @@ namespace Ariadne.Collections
         /// <returns>The <see cref="ThreadSafeSet&lt;T>"/>.</returns>
         public ThreadSafeSet<T> Clone()
         {
-            ThreadSafeSet<T> copy = new ThreadSafeSet<T>(Count, _cmp);
+            var copy = new ThreadSafeSet<T>(Count, _cmp);
             Table copyTab = copy._table;
             for(Table table = _table; table != null; table = table.Next)
             {
@@ -1321,6 +1385,7 @@ namespace Ariadne.Collections
         {
             return Clone();
         }
+
         /// <summary>Returns a <see cref="HashSet&lt;T>"/> with the same contents and equality comparer as
         /// the lock-free set.</summary>
         /// <returns>The HashSet.</returns>
@@ -1328,7 +1393,7 @@ namespace Ariadne.Collections
         /// could be inconsistent in terms of an application’s use of the values.</remarks>
         public HashSet<T> ToHashSet()
         {
-            HashSet<T> hs = new HashSet<T>(_cmp);
+            var hs = new HashSet<T>(_cmp);
             for(Table table = _table; table != null; table = table.Next)
             {
                 Record[] records = table.Records;
@@ -1337,8 +1402,11 @@ namespace Ariadne.Collections
                     Box box = records[idx].Box;
                     if(box != null && !(box is TombstoneBox))
                     {
-                        if(box is PrimeBox)//part-way through being copied to next table
-                            CopySlotsAndCheck(table, DeadItem, idx);//make sure it’s there when we come to it.
+                        if(box is PrimeBox)
+
+                            // Part-way through being copied to next table
+                            // Make sure it’s there when we come to it.
+                            CopySlotsAndCheck(table, DeadItem, idx);
                         else
                             hs.Add(box.Value);
                     }
@@ -1346,24 +1414,24 @@ namespace Ariadne.Collections
             }
             return hs;
         }
-        /// <summary>Returns a <see cref="List&lt;T>"/> with the same contents as
-        /// the lock-free set.</summary>
-        /// <returns>The List.</returns>
-        /// <remarks>Because this operation does not lock, the resulting set’s contents
-        /// could be inconsistent in terms of an application’s use of the values, or include duplicate items</remarks>
+
+        /// <summary>Returns a <see cref="List&lt;T>"/> with the same contents as the lock-free set.</summary>
+        /// <returns>A list containing the contents of the set.</returns>
+        /// <remarks>Because this operation does not lock, the resulting set’s contents could be inconsistent in terms
+        /// of an application’s use of the values, or include duplicate items.</remarks>
         public List<T> ToList()
         {
             return new List<T>(ToHashSet());
         }
-        /// <summary>Returns an array with the same contents as
-        /// the lock-free set.</summary>
-        /// <returns>The array.</returns>
-        /// <remarks>Because this operation does not lock, the resulting set’s contents
-        /// could be inconsistent in terms of an application’s use of the values, or include duplicate items</remarks>
+
+        /// <summary>Returns an array with the same contents as the lock-free set.</summary>
+        /// <returns>An array containing the contents of the set.</returns>
+        /// <remarks>Because this operation does not lock, the resulting set’s contents could be inconsistent in terms
+        /// of an application’s use of the values, or include duplicate items.</remarks>
         public T[] ToArray()
         {
             HashSet<T> hs = ToHashSet();
-            T[] array = new T[hs.Count];
+            var array = new T[hs.Count];
             hs.CopyTo(array);
             return array;
         }
@@ -1382,6 +1450,7 @@ namespace Ariadne.Collections
         {
             return Add(item);
         }
+
         /// <summary>Attempts to take a single item from the set.</summary>
         /// <param name="item">On return, the item removed, if successful.</param>
         /// <returns>True if an item was removed, false if the set had been empty.</returns>
@@ -1430,44 +1499,5 @@ namespace Ariadne.Collections
             Validation.CopyTo(array, index);
             ((ICollection)ToHashSet()).CopyTo(array, index);
         }
-    }
-    
-    /// <summary>Provides further static methods for manipulating <see cref="ThreadSafeSet&lt;T>"/>’s with
-    /// particular parameter types. In C♯ and VB.NET these extension methods can be called as instance methods on
-    /// appropriately typed <see cref="ThreadSafeSet&lt;T>"/>s.</summary>
-    /// <threadsafety static="true" instance="true"/>
-    public static class SetExtensions
-    {
-        /// <summary>Retrieves a reference to the specified item.</summary>
-        /// <typeparam name="T">The type of the items in the set.</typeparam>
-        /// <param name="tset">The set to search.</param>
-        /// <param name="item">The item sought.</param>
-        /// <returns>A reference to a matching item if it is present in the set, null otherwise.</returns>
-        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
-        /// memory use, and reference-based equality checking, comparable with how <see cref="string.IsInterned(string)"/> allows
-        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
-        /// only valid for reference types.</remarks>
-        public static T Find<T>(this ThreadSafeSet<T> tset, T item) where T : class
-        {
-            ThreadSafeSet<T>.Box box = tset.Obtain(item);
-            return box == null ? null : box.Value;
-        }
-        /// <summary>Retrieves a reference to the specified item, adding it if necessary.</summary>
-        /// <typeparam name="T">The type of the items in the set.</typeparam>
-        /// <param name="tset">The set to search, and add to if necessary.</param>
-        /// <param name="item">The item sought.</param>
-        /// <returns>A reference to a matching item if it is present in the set, using the item given if there isn’t
-        /// already a matching item.</returns>
-        /// <exception cref="System.InvalidOperationException"> An attempt was made to use this when the generic type of the
-        /// set is not a reference type (that is, a value or pointer type).</exception>
-        /// <remarks>This allows use of the set to restrain a group of objects to exclude duplicates, allowing for reduced
-        /// memory use, and reference-based equality checking, comparable with how <see cref="string.Intern(string)"/> allows
-        /// one to check for a copy of a string in the CLR intern pool, but also allowing for removal, clearing and multiple pools. This is clearly
-        /// only valid for reference types.</remarks>
-        public static T FindOrStore<T>(this ThreadSafeSet<T> tset, T item) where T : class
-        {
-            ThreadSafeSet<T>.Box found = tset.PutIfMatch(new ThreadSafeSet<T>.Box(item));
-            return found == null || found is ThreadSafeSet<T>.TombstoneBox ? item : found.Value;
-        }
-    }
+    }   
 }

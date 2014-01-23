@@ -1,4 +1,4 @@
-﻿// © 2011 Jon Hanna.
+﻿// © 2011–2014 Jon Hanna.
 // Licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -30,11 +30,13 @@ namespace Ariadne.Collections
     [Serializable]
     public sealed class LLStack<T> : ICollection<T>, IProducerConsumerCollection<T>, ICloneable, ISerializable
     {
-        private SinglyLinkedNode<T> _head = new SinglyLinkedNode<T>(default(T));
+        private readonly SinglyLinkedNode<T> _head = new SinglyLinkedNode<T>(default(T));
+
         /// <summary>Creates a new <see cref="LLStack&lt;T>"/></summary>
         public LLStack()
         {
         }
+
         /// <summary>Creates a new <see cref="LLStack&lt;T>"/> filled from the collection passed to it.</summary>
         /// <param name="collection">An <see cref="IEnumerable&lt;T>"/> that the stack will be filled from on construction.</param>
         public LLStack(IEnumerable<T> collection)
@@ -52,23 +54,25 @@ namespace Ariadne.Collections
         {
             info.AddValue("arr", ToArray(), typeof(T[]));
         }
+
         /// <summary>Adds an item to the top of the stack.</summary>
         /// <param name="item">The item to add.</param>
         public void Push(T item)
         {
-            SinglyLinkedNode<T> node = new SinglyLinkedNode<T>(item);
-            SinglyLinkedNode<T> next = node.Next = _head.Next;
+            var node = new SinglyLinkedNode<T>(item);
+            var next = node.Next = _head.Next;
             for(;;)
             {
-                SinglyLinkedNode<T> oldNext = Interlocked.CompareExchange(ref _head.Next, node, next);
+                var oldNext = Interlocked.CompareExchange(ref _head.Next, node, next);
                 if(oldNext == next)
                     return;
                 next = node.Next = oldNext;
             }
         }
+
         /// <summary>Pushes a collection of items to the top of the stack as a single atomic operation.</summary>
         /// <param name="collection">The items to push onto the stack.</param>
-        /// <exception cref="ArgumentNullException"/>The collection was null.
+        /// <exception cref="ArgumentNullException">The collection was null.</exception>
         public void PushRange(IEnumerable<T> collection)
         {
             Validation.NullCheck(collection, "collection");
@@ -76,15 +80,15 @@ namespace Ariadne.Collections
             {
                 if(!en.MoveNext())
                     return;
-                SinglyLinkedNode<T> start = new SinglyLinkedNode<T>(en.Current);
-                SinglyLinkedNode<T> end = start;
+                var start = new SinglyLinkedNode<T>(en.Current);
+                var end = start;
                 while(en.MoveNext())
                 {
-                    SinglyLinkedNode<T> newNode = new SinglyLinkedNode<T>(en.Current);
+                    var newNode = new SinglyLinkedNode<T>(en.Current);
                     end.Next = newNode;
                     end = newNode;
                 }
-                SinglyLinkedNode<T> next = end.Next = _head.Next;
+                var next = end.Next = _head.Next;
                 for(;;)
                 {
                     SinglyLinkedNode<T> oldNext = Interlocked.CompareExchange(ref _head.Next, start, next);
@@ -94,6 +98,7 @@ namespace Ariadne.Collections
                 }
             }
         }
+
         /// <summary>Attempts to pop an item from the top of the stack.</summary>
         /// <param name="item">The item removed from the stack.</param>
         /// <returns>True if the method succeeds, false if the stack was empty.</returns>
@@ -116,6 +121,7 @@ namespace Ariadne.Collections
                 }
             }
         }
+
         /// <summary>Attempts to retrieve the item that is currently at the top of the stack, without removing it.</summary>
         /// <param name="item">The item at the top of the stack.</param>
         /// <returns>True if the method succeeds, false if the stack was empty.</returns>
@@ -130,12 +136,15 @@ namespace Ariadne.Collections
             item = node.Item;
             return true;
         }
-        /// <summary>Tests whether the stack has no items.</summary>
+
+        /// <summary>Gets a value indicating whether the stack has no items.</summary>
         /// <remarks>The operation is atomic, but may be stale by the time it returns.</remarks>
+        /// <value>True if the stack has no items, false otherwise.</value>
         public bool IsEmpty
         {
             get { return _head.Next == null; }
         }
+
         /// <summary>An enumeration &amp; enumerator of items that were removed from the stack as an atomic operation.</summary>
         /// <remarks><see cref="AtomicPopAll"/> for more information.</remarks>
         /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
@@ -158,6 +167,7 @@ namespace Ariadne.Collections
                     node = oldNext;
                 }
             }
+
             /// <summary>Returns the enumeration itself, as it is also its own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public AtPopEnumerator GetEnumerator()
@@ -172,7 +182,9 @@ namespace Ariadne.Collections
             {
                 return this;
             }
-            /// <summary>Returns the current item.</summary>
+
+            /// <summary>Gets the current element being enumerated.</summary>
+            /// <value>The current element being enumerated.</value>
             public T Current
             {
                 get { return _node.Item; }
@@ -185,6 +197,7 @@ namespace Ariadne.Collections
             {
                 // nop
             }
+
             /// <summary>Moves through the enumeration to the next item.</summary>
             /// <returns>True if another item was found, false if the end of the enumeration was reached.</returns>
             public bool MoveNext()
@@ -200,10 +213,12 @@ namespace Ariadne.Collections
                 throw new NotSupportedException();
             }
         }
-        /// <summary>An enumeration &amp; enumerator of items that are removed from the stack as the enumeration is processed</summary>
+
+        /// <summary>An enumeration &amp; enumerator of items that are removed from the stack as the enumeration is
+        /// processed.</summary>
         /// <remarks><see cref="PopAll"/> for more information.</remarks>
-        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may be called
-        /// concurrently with other operations on the same collection.</threadsafety>
+        /// <threadsafety static="true" instance="false">This class is not thread-safe in itself, though its methods may
+        /// be called concurrently with other operations on the same collection.</threadsafety>
         /// <tocexclude/>
         public sealed class PopEnumerator : IEnumerable<T>, IEnumerator<T>
         {
@@ -213,7 +228,9 @@ namespace Ariadne.Collections
             {
                 _stack = stack;
             }
-            /// <summary>The current item.</summary>
+
+            /// <summary>Gets the current element being enumerated.</summary>
+            /// <value>The current element being enumerated.</value>
             public T Current
             {
                 get { return _current; }
@@ -222,8 +239,9 @@ namespace Ariadne.Collections
             {
                 get { return _current; }
             }
-            /// <summary>Moves to the next item in the enumeration (removing it from the stack)</summary>
-            /// <returns>True if the method succeeds, false if the stack was empty</returns>
+
+            /// <summary>Moves to the next item in the enumeration (removing it from the stack).</summary>
+            /// <returns>True if the method succeeds, false if the stack was empty.</returns>
             /// <remarks>Since the class refers to the live state of the stack, after returning false
             /// it may return true on a subsequent call, if items were added in the meantime.</remarks>
             public bool MoveNext()
@@ -234,6 +252,7 @@ namespace Ariadne.Collections
             {
                 // nop
             }
+
             /// <summary>Resets the enumeration.</summary>
             /// <remarks>Since the class refers to the live state of the stack, this is a non-operation
             /// as the enumeration is always attempting to pop from the front of the stack.</remarks>
@@ -241,6 +260,7 @@ namespace Ariadne.Collections
             {
                 // nop
             }
+
             /// <summary>Returns the enumeration itself, as it is also its own enumerator.</summary>
             /// <returns>The enumeration itself.</returns>
             public PopEnumerator GetEnumerator()
@@ -256,6 +276,7 @@ namespace Ariadne.Collections
                 return this;
             }
         }
+
         /// <summary>An enumerator that enumerates through the stack, without removing them.</summary>
         /// <remarks>The enumerator is created based on the current top of the stack and continues
         /// until it reaches what is then the end. It may therefore on the one hand return items that
@@ -272,7 +293,9 @@ namespace Ariadne.Collections
             {
                 _node = (_stack = stack)._head;
             }
-            /// <summary>Returns the current item.</summary>
+
+            /// <summary>Gets the current element being enumerated.</summary>
+            /// <value>The current element being enumerated.</value>
             public T Current
             {
                 get { return _node.Item; }
@@ -281,6 +304,7 @@ namespace Ariadne.Collections
             {
                 get { return _node.Item; }
             }
+
             /// <summary>Moves to the next item.</summary>
             /// <returns>True if an item is found, false if it reaches the end of the stack.</returns>
             public bool MoveNext()
@@ -295,12 +319,14 @@ namespace Ariadne.Collections
             {
                 // nop
             }
+
             /// <summary>Resets the enumeration to the current top of the stack.</summary>
             public void Reset()
             {
                 _node = _stack._head;
             }
         }
+
         /// <summary>Returns an object that enumerates the stack without removing items.</summary>
         /// <returns>An <see cref="Enumerator"/> that starts with the current top of the stack.</returns>
         public Enumerator GetEnumerator()
@@ -315,6 +341,7 @@ namespace Ariadne.Collections
         {
             return GetEnumerator();
         }
+
         /// <summary>Returns an enumerator that removes items from the stack as it returns them.</summary>
         /// <returns>A <see cref="PopEnumerator"/></returns>
         /// <remarks>The operation is not atomic and will interleave with other pop operations, and can
@@ -324,45 +351,51 @@ namespace Ariadne.Collections
         {
             return new PopEnumerator(this);
         }
+
         /// <summary>Clears the stack as an atomic operation, and returns an enumeration of the items so-removed.</summary>
         /// <returns>A <see cref="AtPopEnumerator"/> that enumerates through the items removed.</returns>
         public AtPopEnumerator AtomicPopAll()
         {
             return new AtPopEnumerator(this);
         }
-        /// <summary>Returns the count of the stack.</summary>
+
+        /// <summary>Gets the count of items in the stack.</summary>
         /// <remarks>The operation is O(n), and may be stale by the time it returns.</remarks>
+        /// <value>The count of items in the stack.</value>
         public int Count
         {
             get
             {
                 int c = 0;
-                Enumerator en = new Enumerator(this);
+                var en = new Enumerator(this);
                 while(en.MoveNext())
                     ++c;
                 return c;
             }
         }
+
         /// <summary>Returns a <see cref="List&lt;T>"/> of the current items in the stack without removing them.</summary>
         /// <returns>A <see cref="List&lt;T>"/> of the current items in the stack.</returns>
         public List<T> ToList()
         {
-            List<T> list = new List<T>();
-            Enumerator en = new Enumerator(this);
+            var list = new List<T>();
+            var en = new Enumerator(this);
             while(en.MoveNext())
                 list.Add(en.Current);
             return list;
         }
+
         /// <summary>Clears the stack as an atomic operation, and returns a <see cref="List&lt;T>"/> of the items removed.</summary>
         /// <returns>A <see cref="List&lt;T>"/> of the items removed.</returns>
         public List<T> PopToList()
         {
-            List<T> list = new List<T>();
-            AtPopEnumerator pe = new AtPopEnumerator(this);
+            var list = new List<T>();
+            var pe = new AtPopEnumerator(this);
             while(pe.MoveNext())
                 list.Add(pe.Current);
             return list;
         }
+
         /// <summary>Creates a new stack with the same items as this one.</summary>
         /// <returns>A new <see cref="LLStack&lt;T>"/>.</returns>
         public LLStack<T> Clone()
@@ -373,6 +406,7 @@ namespace Ariadne.Collections
         {
             return Clone();
         }
+
         /// <summary>Clears the stack as a single atomic operation, and returns a stack with the same contents as those removed.</summary>
         /// <returns>The new stack.</returns>
         public LLStack<T> Transfer()
@@ -387,11 +421,13 @@ namespace Ariadne.Collections
         {
             Push(item);
         }
+
         /// <summary>Clears the stack as a single atomic operation.</summary>
         public void Clear()
         {
             _head.Next = null;
         }
+
         /// <summary>Examines the stack for the presence of an item.</summary>
         /// <param name="item">The item to search for.</param>
         /// <param name="comparer">An <see cref="IEqualityComparer&lt;T>"/> to use to compare
@@ -399,12 +435,13 @@ namespace Ariadne.Collections
         /// <returns>True if the item was found, false otherwise.</returns>
         public bool Contains(T item, IEqualityComparer<T> comparer)
         {
-            Enumerator en = new Enumerator(this);
+            var en = new Enumerator(this);
             while(en.MoveNext())
                 if(comparer.Equals(item, en.Current))
                     return true;
             return false;
         }
+
         /// <summary>Examines the stack for the presence of an item.</summary>
         /// <param name="item">The item to search for.</param>
         /// <returns>True if the item was found, false otherwise.</returns>
@@ -412,13 +449,14 @@ namespace Ariadne.Collections
         {
             return Contains(item, EqualityComparer<T>.Default);
         }
+
         /// <summary>Copies the contents of the stack to an array.</summary>
         /// <param name="array">The array to copy to.</param>
-        /// <param name="arrayIndex">The index within the array to start copying from</param>
-        /// <exception cref="System.ArgumentNullException"/>The array was null.
-        /// <exception cref="System.ArgumentOutOfRangeException"/>The array index was less than zero.
-        /// <exception cref="System.ArgumentException"/>The number of items in the collection was
-        /// too great to copy into the array at the index given.
+        /// <param name="arrayIndex">The index within the array at which to start copying.</param>
+        /// <exception cref="System.ArgumentNullException">The array was null.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The array index was less than zero.</exception>
+        /// <exception cref="System.ArgumentException">The number of items in the collection was
+        /// too great to copy into the array at the index given.</exception>
         public void CopyTo(T[] array, int arrayIndex)
         {
             Validation.CopyTo(array, arrayIndex);
@@ -445,6 +483,7 @@ namespace Ariadne.Collections
         {
             return TryPop(out item);
         }
+
         /// <summary>Returns an array of the current items in the stack without removing them.</summary>
         /// <returns>The array of the current items in the stack.</returns>
         public T[] ToArray()

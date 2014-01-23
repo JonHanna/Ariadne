@@ -1,6 +1,9 @@
 <StyleCopSettings Version="105">
   <GlobalSettings>
     <CollectionProperty Name="RecognizedWords">
+      <Value>dequeue</Value>
+      <Value>dequeued</Value>
+      <Value>dequeuing</Value>
       <Value>performant</Value>
     </CollectionProperty>
   </GlobalSettings>
@@ -105,6 +108,11 @@
           </RuleSettings>
         </Rule>
         <Rule Name="ElementsMustBeSeparatedByBlankLine">
+          <RuleSettings>
+            <BooleanProperty Name="Enabled">False</BooleanProperty>
+          </RuleSettings>
+        </Rule>
+        <Rule Name="CurlyBracketsForMultiLineStatementsMustNotShareLine">
           <RuleSettings>
             <BooleanProperty Name="Enabled">False</BooleanProperty>
           </RuleSettings>

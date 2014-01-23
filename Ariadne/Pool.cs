@@ -1,4 +1,4 @@
-﻿// © 2011 Jon Hanna.
+﻿// © 2011–2014 Jon Hanna.
 // Licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -33,9 +33,9 @@ namespace Ariadne
     /// and <see cref="IProducerConsumerCollection&lt;T>.TryAdd"/> are not thread-safe.</threadsafety>
     public class Pool<T>
     {
-        private IProducerConsumerCollection<T> _store;
-        private Func<T> _factory;
-        private int _max;
+        private readonly IProducerConsumerCollection<T> _store;
+        private readonly Func<T> _factory;
+        private readonly int _max;
 
         /// <summary>Creates a new <see cref="Pool&lt;T>"/> object.</summary>
         /// <param name="store">The <see cref="IProducerConsumerCollection&lt;T>"/> to use as a backing store to the pool.</param>
@@ -190,10 +190,9 @@ namespace Ariadne
             T ret;
             if(TryGet(out ret))
                 return ret;
-            else
-                throw new InvalidOperationException();
+            throw new InvalidOperationException();
         }
-        private void CheckNonNullFactory(Func<T> factory)
+        private static void CheckNonNullFactory(Func<T> factory)
         {
             Validation.NullCheck(factory, "factory");
         }
@@ -285,9 +284,12 @@ namespace Ariadne
             /// (<c>null</c> for reference types).</summary>
             public void Dispose()
             {
+                // Analysis disable once CompareNonConstrainedGenericWithNull
+                // Want to catch for reference-type case only.
                 if(_object != null)
                 {
                     _pool.Store(_object);
+
                     // make duplicate calls safe.
                     _object = default(T);
                 }

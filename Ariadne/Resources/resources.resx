@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
-© 2011 Jon Hanna.
+© 2011–2014 Jon Hanna.
 This source code is licensed under the EUPL, Version 1.1 only (the “Licence”).
 You may not use, modify or distribute this work except in compliance with the Licence.
 You may obtain a copy of the Licence at:
@@ -9,7 +9,7 @@ A copy is also distributed with this source code.
 Unless required by applicable law or agreed to in writing, software distributed under the
 Licence is distributed on an “AS IS” basis, without warranties or conditions of any kind.
 -->
-<root>
+<root xml:space="preserve">
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -22,40 +22,40 @@ Licence is distributed on an “AS IS” basis, without warranties or conditions
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Dict_Null_Source_Collection" xml:space="preserve">
+  <data name="Dict_Null_Source_Collection">
     <value>Cannot create a new lock-free dictionary from a null source collection.</value>
   </data>
-  <data name="Dict_Same_Key" xml:space="preserve">
+  <data name="Dict_Same_Key">
     <value>An item with the same key has already been added.</value>
   </data>
-  <data name="Copy_To_Array_To_Small" xml:space="preserve">
+  <data name="Copy_To_Array_To_Small">
     <value>The array is not large enough to contain the values that would be copied to it.</value>
   </data>
-  <data name="SyncRoot_Not_Supported" xml:space="preserve">
+  <data name="SyncRoot_Not_Supported">
     <value>SyncRoot property is not supported, and unnecessary with this class.</value>
   </data>
-  <data name="Cant_Cast_Null_To_Value_Type" xml:space="preserve">
+  <data name="Cant_Cast_Null_To_Value_Type">
     <value>Null (nothing) values cannot be cast to {0}.</value>
   </data>
-  <data name="Invalid_Cast_Keys" xml:space="preserve">
+  <data name="Invalid_Cast_Keys">
     <value>Cannot use {0} arguments as {1} keys.</value>
   </data>
-  <data name="Invalid_Cast_Values" xml:space="preserve">
+  <data name="Invalid_Cast_Values">
     <value>Cannot use {0} arguments as {1} values.</value>
   </data>
-  <data name="Cant_Copy_Multidimensional" xml:space="preserve">
+  <data name="Cant_Copy_Multidimensional">
     <value>Cannot copy to a multi-dimensional array.</value>
   </data>
-  <data name="Cant_Copy_NonZero" xml:space="preserve">
+  <data name="Cant_Copy_NonZero">
     <value>Cannot copy to an array whose lower bound is non-zero.</value>
   </data>
-  <data name="Set_Null_Source_Collection" xml:space="preserve">
+  <data name="Set_Null_Source_Collection">
     <value>Cannot create a new lock-free set from a null source collection.</value>
   </data>
-  <data name="Reseting_Not_Supported_By_Source" xml:space="preserve">
+  <data name="Reseting_Not_Supported_By_Source">
     <value>Resetting is not supported by the source enumeration.</value>
   </data>
-  <data name="Retrieving_Non_Referece" xml:space="preserve">
+  <data name="Retrieving_Non_Referece">
     <value>Retrieving stored reference is only valid for reference types</value>
   </data>
 </root>
