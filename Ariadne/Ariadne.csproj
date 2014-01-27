@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">4.5.1</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{95CAF4E7-ADA0-471F-9930-C0F252D92368}</ProjectGuid>
@@ -16,7 +16,6 @@
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <RunCodeAnalysis>False</RunCodeAnalysis>
-    <CodeAnalysisRules>-Microsoft.Design#CA1000;-Microsoft.Design#CA1021;-Microsoft.Design#CA1034;-Microsoft.Naming#CA1704</CodeAnalysisRules>
     <SourceAnalysisOverrideSettingsFile>Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <RunSourceAnalysis>False</RunSourceAnalysis>
@@ -27,48 +26,90 @@
     <FileAlignment>4096</FileAlignment>
     <WarningLevel>4</WarningLevel>
     <StartAction>Project</StartAction>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <NoWin32Manifest>False</NoWin32Manifest>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>bin\Debug</OutputPath>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
+    <DocumentationFile>$(OutputPath)\Ariadne.xml</DocumentationFile>
     <ErrorReport>prompt</ErrorReport>
     <ConsolePause>false</ConsolePause>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG</DefineConstants>
-    <DebugType>Full</DebugType>
     <LangVersion>5</LangVersion>
+    <Prefer32Bit>False</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <ConsolePause>false</ConsolePause>
-    <Optimize>true</Optimize>
-    <DocumentationFile>bin\Release\Ariadne.xml</DocumentationFile>
-    <DebugType>None</DebugType>
-    <LangVersion>5</LangVersion>
+  <PropertyGroup Condition=" '$(Platform)' == '4.5.1' ">
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <DefineConstants>NET_451;MIN_NET_40</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '4.5' ">
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <DefineConstants>NET_45;MIN_NET_40</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '4.0' ">
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <DefineConstants>NET_40;MIN_NET_40</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '3.5' ">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <DefineConstants>NET_35</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '3.0' ">
+    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
+    <DefineConstants>NET_30</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '2.0' ">
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <DefineConstants>NET_20</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;CODE_ANALYSIS</DefineConstants>
+    <RunCodeAnalysis>True</RunCodeAnalysis>
     <DebugType>Full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <CodeAnalysisRules>-Microsoft.Design#CA2210;-Microsoft.Usage#CA2233</CodeAnalysisRules>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <Optimize>true</Optimize>
     <DebugType>None</DebugType>
     <DebugSymbols>false</DebugSymbols>
-    <DocumentationFile>bin\Release\Ariadne.xml</DocumentationFile>
+    <RunCodeAnalysis>False</RunCodeAnalysis>
+    <CodeAnalysisRules>-Microsoft.Performance#CA1822;-Microsoft.Usage#CA2233</CodeAnalysisRules>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mnemosyne">
       <HintPath>..\packages\Mnemosyne.1.0.0.1\lib\Mnemosyne.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Platform)' == '4.5.1' ">
+    <Reference Include="SpookilySharp">
+      <HintPath>..\packages\SpookilySharp.1.1.5128\lib\net451\SpookilySharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Platform)' == '4.5' ">
+    <Reference Include="SpookilySharp">
+      <HintPath>..\packages\SpookilySharp.1.1.5128\lib\net45\SpookilySharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Platform)' == '4.0' ">
     <Reference Include="SpookilySharp">
       <HintPath>..\packages\SpookilySharp.1.1.5128\lib\net40\SpookilySharp.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Platform)' == '3.5' ">
+    <Reference Include="SpookilySharp">
+      <HintPath>..\packages\SpookilySharp.1.1.5128\lib\net35\SpookilySharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Platform)' == '3.0' ">
+    <Reference Include="SpookilySharp">
+      <HintPath>..\packages\SpookilySharp.1.1.5128\lib\net30\SpookilySharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Platform)' == '2.0' ">
+    <Reference Include="SpookilySharp">
+      <HintPath>..\packages\SpookilySharp.1.1.5128\lib\net20\SpookilySharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\LLQueue.cs" />
@@ -82,7 +123,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Validation.cs" />
     <Compile Include="SharedInt32.cs" />
-    <Compile Include="Collections\SetExtensions.cs" />
     <Compile Include="Collections\UniqueElementProducerConsumer.cs" />
     <Compile Include="Collections\SlimConcurrentQueue.cs" />
     <Compile Include="Collections\GroupedProducerConsumer.cs" />

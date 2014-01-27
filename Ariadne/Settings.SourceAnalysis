@@ -3,6 +3,7 @@
     <CollectionProperty Name="RecognizedWords">
       <Value>dequeue</Value>
       <Value>dequeued</Value>
+      <Value>dequeues</Value>
       <Value>dequeuing</Value>
       <Value>performant</Value>
     </CollectionProperty>
