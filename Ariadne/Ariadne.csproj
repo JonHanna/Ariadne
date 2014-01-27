@@ -112,7 +112,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\LLQueue.cs" />
+    <Compile Include="Collections\TrackedConcurrentQueue.cs" />
     <Compile Include="Collections\LLStack.cs" />
     <Compile Include="Collections\ThreadSafeDictionary.cs" />
     <Compile Include="Collections\ThreadSafeSet.cs" />
