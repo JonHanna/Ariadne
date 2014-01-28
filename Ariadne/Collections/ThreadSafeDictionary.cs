@@ -1,4 +1,4 @@
-﻿// © 2011–2014 Jon Hanna.
+﻿﻿// © 2011–2014 Jon Hanna.
 // Licensed under the EUPL, Version 1.1 only (the “Licence”).
 // You may not use, modify or distribute this work except in compliance with the Licence.
 // You may obtain a copy of the Licence at:
@@ -27,6 +27,8 @@ namespace Ariadne.Collections
     /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
+    [DebuggerDisplay("Count = {Count}")]
+    [DebuggerTypeProxy(typeof(DebuggerProxies.DictionaryDebugView<,>))]
     public sealed class ThreadSafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICloneable, ISerializable
     {
         private const int ReprobeLowerBound = 6;
@@ -2079,6 +2081,8 @@ namespace Ariadne.Collections
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
+        [DebuggerDisplay("Count = {Count}")]
+        [DebuggerTypeProxy(typeof(DebuggerProxies.CollectionDebugView<>))]
         public struct ValueCollection : ICollection<TValue>
         {
             private readonly ThreadSafeDictionary<TKey, TValue> _dict;
@@ -2218,6 +2222,8 @@ namespace Ariadne.Collections
         /// <remarks>The collection is "live" and immediately reflects changes in the dictionary.</remarks>
         /// <threadsafety static="true" instance="true"/>
         /// <tocexclude/>
+        [DebuggerDisplay("Count = {Count}")]
+        [DebuggerTypeProxy(typeof(DebuggerProxies.CollectionDebugView<>))]
         public struct KeyCollection : ICollection<TKey>
         {
             private readonly ThreadSafeDictionary<TKey, TValue> _dict;

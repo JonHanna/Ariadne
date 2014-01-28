@@ -22,7 +22,7 @@ namespace Ariadne.NUnitTests
     [TestFixture]
     public class ThreadSafeSetTests
     {
-    	protected const int SourceDataLen = 131072 * 16;
+    	protected const int SourceDataLen = 131072;
     	protected static string[] SourceData = new string[SourceDataLen];
     	private HashSet<string> FilledStringCompareSet;
     	[TestFixtureSetUpAttribute]

@@ -27,7 +27,7 @@ namespace Ariadne.NUnitTests
         [TestFixture]
         public class SingleThreaded
         {
-        	protected const int SourceDataLen = 131072 * 32;
+        	protected const int SourceDataLen = 131072;
         	protected static string[] SourceData = new string[SourceDataLen];
         	[TestFixtureSetUpAttribute]
             public void FillSourceData()
@@ -831,7 +831,7 @@ namespace Ariadne.NUnitTests
         {
             public abstract class MultiThreadTests
         	{
-            	protected const int SourceDataLen = 0x400000;
+            	protected const int SourceDataLen = 0x40000;
             	protected static string[] SourceData = new string[SourceDataLen];
                 public void FillSourceData()
                 {

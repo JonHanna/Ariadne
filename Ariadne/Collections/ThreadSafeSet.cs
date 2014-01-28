@@ -28,6 +28,8 @@ namespace Ariadne.Collections
     /// <typeparam name="T">The type of the values stored.</typeparam>
     /// <threadsafety static="true" instance="true"/>
     [Serializable]
+    [DebuggerDisplay("Count = {Count}")]
+    [DebuggerTypeProxy(typeof(DebuggerProxies.CollectionDebugView<>))]
     public sealed class ThreadSafeSet<T> : ISet<T>, ICloneable, ISerializable
     {
         private const int ReprobeLowerBound = 5;
